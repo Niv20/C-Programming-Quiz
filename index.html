@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>בוחן תכנות C</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-material-dark.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="pleaseEnlargeScreen">
+      <i class="fas fa-window-maximize"></i>
+      <h1>הגדל את החלון</h1>
+      <p>אתה לא באמת מצפה לראות משהו כשהמסך כל כך קטן, נכון?</p>
+    </div>
+
+    <div id="pleaseRotateDevice">
+      <i class="fas fa-mobile-screen-button"></i>
+      <p>אהמממ, החידון לא אמור לפעול במצב אופקי. סובב את הטלפון חזרה.</p>
+    </div>
+    <div class="welcome-screen" id="welcomeScreen">
+      <div class="welcome-main-content">
+        <h1 class="welcome-title">בחרו נושא לחידון</h1>
+        <p class="welcome-subtitle">בחר את הנושא שעליו תרצה להיבחן</p>
+        <div class="topic-container" id="topicContainer"></div>
+      </div>
+
+      <div class="how-to-play">
+        <h3 class="instructions-title">איך משחקים?</h3>
+        <ul class="instructions-list">
+          <li>
+            <span class="key-display">1</span> -
+            <span class="key-display">6</span>
+            <span class="instruction-text">לבחירת תשובה</span>
+          </li>
+          <li>
+            <span class="key-display">Enter</span>
+            <span class="instruction-text">לבדיקה או למעבר לשאלה הבאה</span>
+          </li>
+          <li>
+            <span class="key-display">H</span>
+            <span class="instruction-text">לקבלת רמז</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mobile-recommendation">
+        <i class="fas fa-desktop"></i>
+        <span>לקבלת החוויה הטובה ביותר, מומלץ לשחק דרך מחשב.</span>
+      </div>
+    </div>
+
+    <div class="container" id="mainContainer">
+      <div class="quiz-card" id="quizCard">
+        <div class="quiz-header">
+          <div class="question-counter">
+            <i class="fas fa-question-circle icon-purple"></i>
+            <span
+              >שאלה <span id="currentQ">1</span> מתוך
+              <span id="totalQ">5</span></span
+            >
+          </div>
+          <div class="timer-wrapper">
+            <div class="timer">
+              <span id="timer">10:00</span>
+              <i class="fas fa-clock icon-purple"></i>
+            </div>
+            <div id="timerMessageContainer" class="timer-message-container">
+              <div class="timer-popup">סתם הלחצתי אתכם, אין משמעות לטיימר</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quiz-content" id="quizContent">
+          <div class="question-section">
+            <div class="question-title" id="questionTitle"></div>
+            <div class="answers-container" id="answersContainer"></div>
+          </div>
+          <div class="code-section" id="codeSection">
+            <div class="code-block">
+              <pre><code class="language-c" id="codeDisplay"></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="control-left">
+            <div id="hintContainer"></div>
+            <div class="explanation-container" id="explanationContainer"></div>
+          </div>
+          <button class="btn" id="nextBtn">בדיקה</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="end-screen" id="endScreen">
+      <div class="end-quiz-card">
+        <div id="endIconContainer" class="end-icon-container"></div>
+        <h2 class="end-title" id="endMessage">החידון הסתיים!</h2>
+        <p class="end-score" id="endScoreDetails"></p>
+        <p class="restart-text">כדי לנסות שוב, יש לרענן את הדף</p>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
