@@ -739,12 +739,15 @@ body {
 
   .question-title {
     font-size: 1.3rem;
+    margin-bottom: 35px; /* הוסף שורה זו עם ערך גדול יותר מ-25px */
   }
+
   .quiz-content {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 40px; /* שנה מ-30px ל-40px או יותר */
     padding: 20px;
   }
+
   .code-section {
     order: 1;
     min-height: 150px;
@@ -752,8 +755,12 @@ body {
 
   .code-block pre,
   .code-block code[class*="language-"] {
-    white-space: pre-wrap;
-    word-break: break-all;
+    white-space: pre-wrap; /* מאפשר גלישת שורות */
+    word-break: break-all; /* שובר מילים ארוכות במידת הצורך */
+  }
+
+  .code-block {
+    overflow-x: hidden; /* מונע מהקוד לחרוג מהגבולות */
   }
 
   .question-section {
@@ -870,6 +877,7 @@ body {
     color: #c4b5fd;
     border: 1px solid #8b5cf6;
     border-radius: 12px;
+    font-size: 1rem; /* הוספת שורה זו */
   }
 
   /* עיצוב כללי של אזור הכפתורים התחתון במובייל */
@@ -936,6 +944,12 @@ body {
 
   .controls #nextBtn {
     flex-basis: 0; /* ודא שגם הכפתור הראשי מתנהג באופן זהה */
+    flex-grow: 1;
+    order: 2;
+    height: auto;
+    padding: 14px;
+    font-size: 1rem;
+    border-radius: 12px;
   }
 
   /* תיקון #3 - קווי הפרדה קבועים במובייל */
@@ -1023,4 +1037,10 @@ body {
       (כולל הטולטיפ שצץ ממנו) להופיע מעל אפקט הגרדיאנט.
     */
   z-index: 15;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    background-color: #0a0a0a !important;
+  }
 }
