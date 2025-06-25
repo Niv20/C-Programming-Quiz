@@ -803,12 +803,14 @@ body {
   line-height: 1.6;
   max-width: 500px;
 }
-@media (max-width: 900px) and (pointer: fine),
-  (max-height: 550px) and (pointer: fine) {
+
+@media (hover: hover) and (max-width: 900px),
+  (hover: hover) and (max-height: 550px) {
   #pleaseEnlargeScreen {
     display: flex;
   }
 }
+
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   #pleaseRotateDevice {
     display: flex;
