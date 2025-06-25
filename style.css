@@ -186,7 +186,7 @@ body {
   opacity: 0;
   transition: opacity 0.5s ease;
 
-  display: flex;
+  display: none;
   flex-direction: column; /* הוסף את זה */
   align-items: center;
   justify-content: center;
