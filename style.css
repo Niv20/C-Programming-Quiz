@@ -1067,14 +1067,65 @@ label.answer-label {
 /* ========================================================== */
 
 @media (max-width: 768px) {
-  /* תיקון מיקום הגרדיאנט העליון בטלפון */
-  .quiz-card::before {
-    /* מיקום מתחת לכותרת העליונה + הגובל שלה */
-    top: 69px; /* 68px + 1px border */
-  }
-
   /* תיקון נוסף: וידוא שהתוכן לא מתחיל מתחת לכותרת */
   .quiz-content {
     padding-top: 25px; /* מרווח נוסף מהחלק העליון */
+  }
+}
+
+/* תיקון א': מיקום מדויק של הגרדיאנט העליון */
+.quiz-card::before {
+  /* מיקום מדויק בסוף החלק העליון ללא רווח */
+  top: 69px; /* גובה header (69px) ללא רווח נוסף */
+  background: linear-gradient(to bottom, #111111 10%, rgba(17, 17, 17, 0) 100%);
+}
+
+/* תיקון ב': פתרון בעיית קוד בורח למעלה בטלפון אמיתי */
+@media (max-width: 768px) {
+  /* תיקון מיקום הגרדיאנט העליון בטלפון */
+  .quiz-card::before {
+    top: 69px; /* גובה מדויק של החלק העליון */
+  }
+
+  /* תיקון בעיית הקוד שבורח למעלה בטלפון אמיתי */
+  .quiz-content {
+    padding-top: 35px; /* הגדלת המרווח העליון */
+    padding-bottom: 25px; /* שמירה על המרווח התחתון */
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  /* וידוא שהקוד לא בורח מהמסגרת */
+  .code-section {
+    margin-top: 15px; /* מרווח נוסף מהשאלה */
+    min-height: 150px;
+    padding: 15px; /* padding פנימי לקוד */
+    background: rgba(255, 255, 255, 0.02); /* רקע עדין לבדיקה */
+    border-radius: 8px;
+  }
+
+  /* תיקון נוסף לקוד - מניעת overflow */
+  .code-block {
+    overflow-x: auto; /* מאפשר גלילה אופקית במידת הצורך */
+    overflow-y: hidden; /* מונע גלילה אנכית של הקוד */
+    max-width: 100%;
+  }
+
+  .code-block pre,
+  .code-block code[class*="language-"] {
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* וידוא שהשאלה והתשובות לא נדחקות */
+  .question-title {
+    margin-bottom: 30px; /* מרווח גדול יותר מהקוד */
+  }
+
+  .answers-container {
+    margin-top: 25px; /* מרווח מהקוד */
   }
 }

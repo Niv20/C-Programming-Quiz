@@ -181,7 +181,7 @@ function initQuiz() {
 
 function startTimer() {
   clearInterval(timerInterval);
-  timeLeft = 600;
+  timeLeft = 10;
   const timerSpan = document.getElementById("timer");
 
   const update = () => {
