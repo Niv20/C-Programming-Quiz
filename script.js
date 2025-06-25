@@ -29,7 +29,8 @@ window.addEventListener("resize", () => {
 });
 
 function initializeApp() {
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  const isMobile =
+    navigator.maxTouchPoints > 0 && /Mobi|Android/i.test(navigator.userAgent);
 
   // בדיקה ראשונה: האם המשתמש גולש ממכשיר נייד?
   if (isMobile) {

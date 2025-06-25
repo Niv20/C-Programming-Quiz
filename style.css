@@ -69,17 +69,6 @@ body {
   max-width: 500px;
 }
 
-/* קטע זה נשאר ללא שינוי מכיוון שהוא אינו קשור לחסימת המובייל */
-@media (max-width: 1200px), (max-height: 700px) {
-  #pleaseEnlargeScreen {
-    display: flex;
-  }
-  #mainContainer,
-  #welcomeScreen {
-    display: none !important;
-  }
-}
-
 /* --- מסך פתיחה --- */
 .welcome-screen {
   position: fixed;
