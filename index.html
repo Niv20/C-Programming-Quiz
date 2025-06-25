@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>בוחן תכנות C</title>
+    <title>C Quiz</title>
+    <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,99 +19,98 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-material-dark.min.css"
     />
-    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div id="mobileBlockerNormal">
+      <i class="fas fa-mobile-alt"></i>
+      <h1>תצטרך לעבור למחשב</h1>
+      <p>סורי, לא היה לי זמן להתאים את האתר למסך של הטלפון.</p>
+    </div>
+
+    <div id="mobileBlockerDesktop">
+      <i class="fas fa-magic"></i>
+      <h1>תצטרך לעבור למחשב</h1>
+      <p>חחח... מצב דסקטופ לא יהפוך את הטלפון שלך למחשב.</p>
+    </div>
     <div id="pleaseEnlargeScreen">
       <i class="fas fa-window-maximize"></i>
       <h1>הגדל את החלון</h1>
       <p>אתה לא באמת מצפה לראות משהו כשהמסך כל כך קטן, נכון?</p>
     </div>
 
-    <div id="pleaseRotateDevice">
-      <i class="fas fa-mobile-screen-button"></i>
-      <p>אהמממ, החידון לא אמור לפעול במצב אופקי. סובב את הטלפון חזרה.</p>
-    </div>
     <div class="welcome-screen" id="welcomeScreen">
       <div class="welcome-main-content">
-        <h1 class="welcome-title">בחרו נושא לחידון</h1>
+        <h1 class="welcome-title">מאגר שאלות אמריקאיות</h1>
         <p class="welcome-subtitle">בחר את הנושא שעליו תרצה להיבחן</p>
         <div class="topic-container" id="topicContainer"></div>
       </div>
-
       <div class="how-to-play">
-        <h3 class="instructions-title">איך משחקים?</h3>
+        <h3 class="instructions-title">קיצורי מקשים למגניבים</h3>
         <ul class="instructions-list">
           <li>
             <span class="key-display">1</span> -
             <span class="key-display">6</span>
-            <span class="instruction-text">לבחירת תשובה</span>
+            לבחירת תשובה
           </li>
-          <li>
-            <span class="key-display">Enter</span>
-            <span class="instruction-text">לבדיקה או למעבר לשאלה הבאה</span>
-          </li>
-          <li>
-            <span class="key-display">H</span>
-            <span class="instruction-text">לקבלת רמז</span>
-          </li>
+          <li><span class="key-display">Enter</span> לבדיקה ולמעבר שאלה</li>
+          <li><span class="key-display">H</span> לקבלת רמז</li>
         </ul>
-      </div>
-
-      <div class="mobile-recommendation">
-        <i class="fas fa-desktop"></i>
-        <span>לקבלת החוויה הטובה ביותר, מומלץ לשחק דרך מחשב.</span>
       </div>
     </div>
 
     <div class="container" id="mainContainer">
-      <div class="quiz-card" id="quizCard">
-        <div class="quiz-header">
-          <div class="question-counter">
-            <i class="fas fa-question-circle icon-purple"></i>
-            <span
-              >שאלה <span id="currentQ">1</span> מתוך
-              <span id="totalQ">5</span></span
-            >
-          </div>
-          <div class="timer-wrapper">
+      <div class="quiz-layout-grid" id="quizLayoutGrid">
+        <div class="quiz-card" id="quizCard">
+          <div class="quiz-header">
+            <div class="question-counter">
+              <i class="fas fa-question-circle icon-purple"></i>
+              <span
+                >שאלה <span id="currentQ">1</span> מתוך
+                <span id="totalQ">5</span></span
+              >
+            </div>
             <div class="timer">
+              <div id="timerOutMessage"></div>
               <span id="timer">10:00</span>
               <i class="fas fa-clock icon-purple"></i>
             </div>
           </div>
+
+          <div class="quiz-content" id="quizContent">
+            <div class="scroll-wrapper">
+              <div class="question-title" id="questionTitle"></div>
+              <div class="answers-container" id="answersContainer"></div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="desktop-controls">
+              <div id="hintContainer"></div>
+              <div id="explanationContainer"></div>
+            </div>
+            <button class="btn" id="nextBtn">בדיקה</button>
+          </div>
         </div>
 
-        <div class="quiz-content" id="quizContent">
-          <div class="question-section">
-            <div class="question-title" id="questionTitle"></div>
-            <div class="answers-container" id="answersContainer"></div>
+        <div class="code-card" id="codeCard">
+          <div class="scroll-indicator top">
+            <i class="fas fa-chevron-up"></i>
           </div>
-          <div class="code-section" id="codeSection">
-            <div class="code-block">
+          <div class="code-block" id="code-block">
+            <div class="scroll-wrapper">
               <pre><code class="language-c" id="codeDisplay"></code></pre>
             </div>
           </div>
-        </div>
-
-        <div class="controls">
-          <div class="desktop-controls">
-            <div id="hintContainer"></div>
-            <div id="explanationContainer"></div>
+          <div class="scroll-indicator bottom">
+            <i class="fas fa-chevron-down"></i>
           </div>
-          <button class="btn-mobile-secondary" id="hintExplanationBtn">
-            רמז
-          </button>
-          <button class="btn" id="nextBtn">בדיקה</button>
         </div>
-
-        <div class="tooltip-popup" id="tooltipPopup"></div>
       </div>
     </div>
 
     <div class="end-screen" id="endScreen">
       <div class="end-quiz-card">
-        <div id="endIconContainer" class="end-icon-container"></div>
+        <div id="endIconContainer" class="end-icon-container animate-pop"></div>
         <h2 class="end-title" id="endMessage">החידון הסתיים!</h2>
         <p class="end-score" id="endScoreDetails"></p>
         <p class="restart-text">כדי לנסות שוב, יש לרענן את הדף</p>

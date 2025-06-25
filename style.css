@@ -1,5 +1,4 @@
 @import url("https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap");
 
 * {
   margin: 0;
@@ -7,372 +6,626 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: "Assistant", sans-serif;
-  background: #0a0a0a;
-  color: #ffffff;
-  align-items: center;
-  text-align: right;
+:root {
+  --background-color: #0a0a0a;
+  --card-background: #111111;
+  --border-color: #373737;
+  --primary-color: #8b5cf6;
+  --primary-color-light: #a78bfa;
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --text-muted: #d1d5db;
 }
 
-/* Welcome Screen */
+body {
+  font-family: "Assistant", sans-serif;
+  background: var(--background-color);
+  color: var(--text-primary);
+  text-align: right;
+  overflow: hidden;
+}
+
+/* --- מסכי חסימה --- */
+/* שים לב: החלפנו את #mobileBlocker בשני המזהים החדשים */
+#pleaseEnlargeScreen,
+#mobileBlockerNormal,
+#mobileBlockerDesktop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--background-color);
+  color: var(--text-muted);
+  z-index: 99999;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+/* מעדכנים את כללי העיצוב לאייקונים, כותרות ופסקאות בהתאמה */
+#pleaseEnlargeScreen i,
+#mobileBlockerNormal i,
+#mobileBlockerDesktop i {
+  font-size: 4rem;
+  color: var(--primary-color);
+  margin-bottom: 30px;
+}
+#pleaseEnlargeScreen h1,
+#mobileBlockerNormal h1,
+#mobileBlockerDesktop h1 {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+#pleaseEnlargeScreen p,
+#mobileBlockerNormal p,
+#mobileBlockerDesktop p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+/* קטע זה נשאר ללא שינוי מכיוון שהוא אינו קשור לחסימת המובייל */
+@media (max-width: 1200px), (max-height: 700px) {
+  #pleaseEnlargeScreen {
+    display: flex;
+  }
+  #mainContainer,
+  #welcomeScreen {
+    display: none !important;
+  }
+}
+
+/* --- מסך פתיחה --- */
 .welcome-screen {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: #0a0a0a;
+  background: var(--background-color);
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
   z-index: 1000;
   transition: opacity 0.5s ease, visibility 0.5s ease;
   opacity: 0;
   visibility: hidden;
   display: none;
-  padding: 40px 20px;
+  padding: 0 20px 10vh 20px;
 }
-
 .welcome-screen.visible {
   opacity: 1;
   visibility: visible;
+  display: flex;
 }
-
 .welcome-main-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  flex-grow: 1;
   width: 100%;
 }
-
 .welcome-title {
-  font-family: "Assistant", sans-serif;
   font-size: 3.5rem;
   font-weight: 700;
-  color: #8b5cf6;
+  color: var(--primary-color);
   margin-bottom: 10px;
-  text-align: center;
 }
-
 .welcome-subtitle {
-  font-family: "Assistant", sans-serif;
   font-size: 1.3rem;
-  font-weight: 400;
-  color: #9ca3af;
+  color: var(--text-secondary);
   margin-bottom: 40px;
-  text-align: center;
+}
+.topic-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  width: 100%;
+  max-width: 800px;
+}
+.topic-btn {
+  font-family: "Assistant", sans-serif;
+  background: #1f1f1f;
+  color: var(--text-muted);
+  border: 2px solid var(--border-color);
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+.topic-btn:hover {
+  border-color: var(--primary-color);
+  background: #1a1a1a;
+  transform: translateY(-5px);
+  color: var(--text-primary);
+}
+.how-to-play {
+  position: absolute;
+  bottom: 60px; /* ניתן לשנות ערך זה כדי לקבוע את המרחק מהתחתית */
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 100%;
+  max-width: 800px;
+  padding-top: 20px;
+  border-top: 2px solid #2a2a2a;
 }
 
-/* Main Container */
+.instructions-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  text-align: center;
+}
+.instructions-list {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+}
+.instructions-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.key-display {
+  background: #a78bfa26;
+  color: #c4b5fd;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-family: "SF Mono", Monaco, Consolas, "Courier New", monospace;
+  border: 1px solid #8b5cf666;
+}
+
+/* --- מבנה החידון הראשי --- */
 .container {
-  max-width: 1200px;
-  width: 90%;
+  width: 100%;
   min-height: 100vh;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 40px;
   opacity: 0;
   transition: opacity 0.5s ease;
-  display: none;
-  flex-direction: column;
+
+  display: flex;
+  flex-direction: column; /* הוסף את זה */
   align-items: center;
   justify-content: center;
 }
-
 .container.visible {
   opacity: 1;
+  display: flex;
 }
 
-.quiz-card {
-  background: #111111;
-  border-radius: 16px;
-  border: 1px solid #373737;
-  padding: 0;
-  width: 100%;
-  max-width: 1000px;
+.quiz-layout-grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: center;
+  align-items: stretch; /* מותח את התיבות לגובה זהה */
+  gap: 20px;
+  width: auto;
+  margin: 0 auto;
+  height: auto; /* מאפשר לתוכן לקבוע את הגובה */
+
+  /* --- השורה החשובה נמצאת כאן --- */
+  max-height: min(750px, calc(100vh - 80px)) !important;
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+/* (ו) אנימציית מעבר בין שאלות */
+.quiz-layout-grid.fade-out {
   opacity: 0;
   transform: scale(0.95);
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-  display: flex;
-  flex-direction: column;
-  max-height: calc(100vh - 80px);
-  overflow: hidden;
 }
-
-.quiz-card.show {
+.quiz-layout-grid.fade-in {
   opacity: 1;
   transform: scale(1);
 }
 
-.quiz-header {
+.quiz-layout-grid.no-code-mode {
+  grid-template-columns: auto;
+}
+.quiz-layout-grid.no-code-mode .code-card {
+  display: none;
+}
+.quiz-layout-grid.no-code-mode .scroll-wrapper {
+  text-align: center;
+}
+.quiz-layout-grid.no-code-mode .answers-container {
+  margin: 0 auto;
+}
+.quiz-layout-grid.no-code-mode .answer-option {
+  text-align: center;
+}
+
+/* --- עיצוב התיבות (כרטיסים) --- */
+.quiz-card,
+.code-card {
+  background: var(--card-background);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-height: inherit;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transition: height 0.4s ease, max-height 0.4s ease;
+}
+
+.quiz-card {
+  width: 700px;
+}
+.code-card {
+  width: max-content;
+  min-width: 500px;
+  max-width: 800px;
+}
+
+/* --- תיבת השאלה (ימין) --- */
+.quiz-header,
+.controls {
   flex-shrink: 0;
-  position: sticky;
-  z-index: 10; /* גבוה יותר מהגרדיאנט */
-  top: 0;
+  padding: 20px 40px;
+  background: var(--card-background);
+  position: relative;
   z-index: 10;
+}
+.quiz-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0;
-  padding: 20px 40px;
-  /* Default Desktop State (flat) */
-  background-color: #111111;
-  border-bottom: 1px solid transparent;
-  transition: background-color 0.3s, border-color 0.3s;
+  border-bottom: 1px solid var(--border-color);
 }
-
-/* Dynamic Desktop Scroll State */
-.quiz-card.is-scrollable .quiz-header {
-  background-color: rgba(17, 17, 17, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-.quiz-card.has-scrolled .quiz-header {
-  border-bottom-color: #373737;
-}
-
-.question-counter {
-  background: #1f1f1f;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  color: #8b5cf6;
+.controls {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  border-top: 1px solid var(--border-color);
 }
-
-.timer-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
+.question-counter,
 .timer {
   background: #1f1f1f;
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 0.9rem;
-  color: #8b5cf6;
+  color: var(--primary-color);
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 90px;
-  justify-content: center;
 }
-
-.timer-message-container {
-  position: absolute;
-  top: 50%;
-  left: 105%;
-  transform: translateY(-50%);
-  z-index: 30;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
-  pointer-events: none;
-}
-
-.timer-message-container.visible {
-  opacity: 1;
-  visibility: visible;
-  animation: fadeInThenOut 5s ease forwards;
-}
-
-@keyframes fadeOutMessage {
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-.timer-popup {
-  background: #1f1f1f;
-  color: #d1d5db;
-  border: 1px solid #454545;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  line-height: 1.5;
-  white-space: nowrap;
-}
-
 .icon-purple {
-  color: #8b5cf6;
+  color: var(--primary-color);
   font-size: 1.1rem;
 }
+.desktop-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  font-family: "Assistant", sans-serif;
+  font-weight: 700;
+}
+.btn:hover:not(:disabled) {
+  background: var(--primary-color-light);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
-.quiz-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
+.quiz-content,
+.code-block {
   flex-grow: 1;
   overflow-y: auto;
-  overflow-x: hidden;
-  padding: 25px 40px;
-  background: #111111;
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
-}
-
-.quiz-content::-webkit-scrollbar {
-  display: none; /* Hide scrollbar for Chrome, Safari, etc. */
-}
-
-.quiz-content.no-code-layout {
-  grid-template-columns: 1fr;
-}
-.quiz-content.no-code-layout .question-section {
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-}
-.quiz-content.no-code-layout .answers-container {
-  max-width: 600px;
-  margin: 0 auto;
-}
-.quiz-content.no-code-layout .answer-option {
-  text-align: center;
-}
-.quiz-content.no-code-layout .answer-option.ltr-answer {
-  text-align: center;
-}
-
-.code-section {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  direction: ltr;
-  min-height: 200px;
+  min-height: 0;
+  /* (ג) הסתרת פסי גלילה */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
-
-.code-block {
-  overflow-x: auto;
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100%;
-}
-
-.code-block pre,
-.code-block code[class*="language-"] {
-  margin: 0;
-  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
-    "Courier New", monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  background: transparent !important;
-  padding: 0;
-  border: none !important;
-  box-shadow: none !important;
-  text-align: left;
-}
-
-/* Prism.js syntax colors */
-.token.comment,
-.token.prolog,
-.token.doctype,
-.token.cdata {
-  color: #6a737d;
-}
-.token.punctuation {
-  color: #c9d1d9;
-}
-.token.property,
-.token.tag,
-.token.boolean,
-.token.number,
-.token.constant,
-.token.symbol,
-.token.deleted {
-  color: #79c0ff;
-}
-.token.selector,
-.token.attr-name,
-.token.string,
-.token.char,
-.token.builtin,
-.token.inserted {
-  color: #a5d6ff;
-}
-.token.operator,
-.token.entity,
-.token.url,
-.language-css .token.string,
-.style .token.string {
-  color: #c9d1d9;
-}
-.token.atrule,
-.token.attr-value,
-.token.keyword {
-  color: #ff7b72;
-}
-.token.function,
-.token.class-name {
-  color: #d2a8ff;
-}
-.token.regex,
-.token.important,
-.token.variable {
-  color: #dda0dd;
-}
-
-.question-section {
-  display: flex;
-  flex-direction: column;
+.quiz-content::-webkit-scrollbar,
+.code-block::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
 }
 
 .question-title {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 25px;
-  color: #ffffff;
   line-height: 1.5;
 }
-
 .answers-container {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 100%;
 }
-
 .answer-option {
   background: #1f1f1f;
   border: 2px solid #1f1f1f;
   border-radius: 8px;
   padding: 16px;
   cursor: pointer;
-  position: relative;
   transition: all 0.3s ease-out;
 }
-
-.ltr-answer {
+.answer-option.ltr-answer {
   direction: ltr;
   text-align: right;
 }
-
 .answer-option:hover {
-  border-color: #a78bfa;
+  border-color: var(--primary-color-light);
   transform: scale(1.02);
-  z-index: 5;
 }
-
 .answer-option.selected {
-  border-color: #8b5cf6;
+  border-color: var(--primary-color);
   background: #2a203f;
   transform: scale(1);
 }
-
 .answer-option.correct {
   border-color: #10b981;
   background: rgba(16, 185, 129, 0.1);
   animation: correctAnswerGrow 0.6s ease-out;
+}
+.answer-option.incorrect {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  animation: incorrectAnswer 0.5s ease;
+}
+.answer-text code,
+.tooltip-popup code {
+  font-family: "SF Mono", Monaco, "Courier New", monospace;
+  background: #0d1117;
+  color: #f8f8f2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  border: 1px solid #21262d;
+  direction: ltr;
+  display: inline-block;
+}
+
+/* --- תיבת הקוד (שמאל) --- */
+.code-block pre {
+  width: 100%;
+}
+.code-block pre,
+.code-block code[class*="language-"] {
+  direction: ltr;
+  margin: 0;
+  font-family: "SF Mono", Monaco, "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  background: transparent !important;
+}
+
+/* --- Wrapper פנימי לגלילה וריווח --- */
+.scroll-wrapper {
+  margin: auto 0;
+  width: 100%;
+  padding: 2rem 4rem;
+}
+.code-block .scroll-wrapper {
+  padding: 2rem;
+}
+
+/* --- מערכת גרדיאנטים --- */
+.quiz-card::before,
+.quiz-card::after,
+.code-card::before,
+.code-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50px; /* הגדלת שטח הגרדיאנט */
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+  z-index: 5;
+}
+
+/* (ד) גרדיאנטים מודגשים יותר */
+.quiz-card::before {
+  top: 69px;
+  background: linear-gradient(
+    to bottom,
+    var(--card-background) 20%,
+    transparent 100%
+  );
+}
+.code-card::before {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--card-background) 20%,
+    transparent 100%
+  );
+}
+.quiz-card::after {
+  bottom: 77px;
+  background: linear-gradient(
+    to top,
+    var(--card-background) 20%,
+    transparent 100%
+  );
+}
+.code-card::after {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--card-background) 20%,
+    transparent 100%
+  );
+}
+
+.quiz-card.has-scrolled::before,
+.code-card.has-scrolled::before {
+  opacity: 1;
+}
+.quiz-card.is-scrollable:not(.scrolled-to-end)::after,
+.code-card.is-scrollable:not(.scrolled-to-end)::after {
+  opacity: 1;
+}
+
+/* (ה) עיצוב חצים עליון ותחתון */
+.scroll-indicator {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  z-index: 6;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.scroll-indicator.bottom {
+  bottom: 10px;
+}
+.scroll-indicator.top {
+  top: 10px;
+}
+.code-card.is-scrollable:not(.scrolled-to-end) .scroll-indicator.bottom {
+  opacity: 1;
+}
+.code-card.has-scrolled .scroll-indicator.top {
+  opacity: 1;
+}
+
+/* --- Tooltip (רמז/הסבר) --- */
+.tooltip-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.tooltip-container.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.tooltip-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: "Assistant", sans-serif;
+  font-weight: 300;
+  font-size: 0.95rem;
+  text-underline-offset: 4px;
+  pointer-events: none;
+}
+.tooltip-popup {
+  position: absolute;
+  bottom: 125%;
+  right: 0;
+  background: #1f1f1f;
+  color: var(--text-muted);
+  border: 1px solid #454545;
+  border-radius: 8px;
+  padding: 15px;
+  z-index: 20;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.2s ease, visibility 0.3s;
+  pointer-events: none;
+  box-shadow: 0px -5px 25px rgba(0, 0, 0, 0.5);
+  overflow-wrap: break-word;
+  text-align: right;
+  transform: translateY(10px);
+  width: max-content;
+  max-width: 450px;
+}
+
+/* (א) הצגת ה-tooltip בריחוף ובאמצעות קלאס .visible (עבור מקש H) */
+.tooltip-container:not(.disabled):hover .tooltip-btn {
+  color: var(--primary-color-light);
+}
+.tooltip-container:not(.disabled):hover .tooltip-popup,
+.tooltip-container.visible .tooltip-popup {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* --- מסך סיום --- */
+.end-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--background-color);
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.end-screen.visible {
+  display: flex;
+  opacity: 1;
+}
+.end-quiz-card {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 40px;
+  border: 1px solid #1f1f1f;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.end-icon-container {
+  margin-bottom: 20px;
+}
+.end-icon-container i {
+  font-size: 4rem;
+  color: var(--primary-color);
+}
+.fa-trophy {
+  color: #f59e0b;
+}
+.fa-poo {
+  color: var(--text-secondary);
+}
+.end-title {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+.end-score {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  margin-bottom: 30px;
+}
+.restart-text {
+  color: var(--text-secondary);
+  font-size: 1rem;
 }
 
 @keyframes correctAnswerGrow {
@@ -384,14 +637,6 @@ body {
     transform: scale(1.05);
   }
 }
-
-.answer-option.incorrect {
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
-  animation: incorrectAnswer 0.5s ease;
-  transform: scale(1);
-}
-
 @keyframes incorrectAnswer {
   0%,
   100% {
@@ -408,685 +653,67 @@ body {
   }
 }
 
-.answer-text {
-  font-size: 0.95rem;
-  font-weight: 500;
-  line-height: 1.5;
-  color: #ffffff;
-  overflow-wrap: break-word;
-  word-break: break-all;
-}
-
-.answer-text code,
-.tooltip-popup code {
-  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
-    "Courier New", monospace;
-  background: #0d1117;
-  color: #f8f8f2;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.9em;
-  border: 1px solid #21262d;
-  direction: ltr;
-  text-align: left;
-  unicode-bidi: embed;
-  display: inline-block;
-}
-
-.controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-  padding: 20px 40px;
-  /* Default Desktop State (flat) */
-  background-color: #111111;
-  border-top: 1px solid transparent;
-  transition: background-color 0.3s, border-color 0.3s;
-}
-
-/* Dynamic Desktop Scroll State */
-.quiz-card.is-scrollable .controls {
-  background-color: rgba(17, 17, 17, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-.quiz-card.has-scrolled .controls {
-  border-top-color: #373737;
-}
-
-.desktop-controls {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.btn {
-  background: #8b5cf6;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  font-family: "Assistant", sans-serif;
-  font-weight: 700;
-}
-
-.btn:hover:not(:disabled) {
-  background: #a78bfa;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* End Screen */
-.end-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #0a0a0a;
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 20px;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-.end-screen.visible {
-  display: flex;
-  opacity: 1;
-}
-
-.end-quiz-card {
-  background: #111111;
-  border-radius: 12px;
-  padding: 40px;
-  border: 1px solid #1f1f1f;
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-height: 95vh;
-  overflow-y: auto;
-  text-align: center;
-}
-
-.end-icon-container {
-  margin-bottom: 20px;
-}
-.end-icon-container i {
-  font-size: 4rem;
-  color: #8b5cf6;
-}
-.fa-trophy {
-  color: #f59e0b;
-}
-.fa-poo {
-  color: #9ca3af;
-}
-.end-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 15px;
-}
-.end-score {
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: #d1d5db;
-  margin-bottom: 30px;
-}
-.restart-text {
-  color: #9ca3af;
-  font-size: 1rem;
-}
-
-/* Tooltip Styles for Hint/Explanation */
-.tooltip-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.tooltip-container.disabled {
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-.tooltip-btn {
-  background: none;
-  border: none;
-  color: #d1d5db;
-  padding: 0;
-  cursor: help;
-  transition: color 0.2s ease, opacity 0.2s ease;
-  font-weight: 600;
-  font-family: "Assistant", sans-serif;
-  font-size: 0.95rem;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-.tooltip-container:not(.disabled) .tooltip-btn:hover {
-  color: #8b5cf6;
-}
-
-.desktop-controls .tooltip-popup {
-  position: absolute;
-  bottom: 120%;
-  right: 0;
-  background: #1f1f1f;
-  color: #d1d5db;
-  border: 1px solid #454545;
-  border-radius: 8px;
-  padding: 15px;
-  width: 380px;
-  max-width: 90vw;
-  z-index: 20;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  pointer-events: none;
-  box-shadow: 0px -5px 25px rgba(0, 0, 0, 0.5);
-  overflow-wrap: break-word;
-}
-
-.tooltip-container:hover .tooltip-popup,
-.tooltip-container.hint-visible .tooltip-popup {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-/* Topic Selection & How to Play Styles */
-.topic-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  width: 100%;
-  max-width: 800px;
-}
-
-.topic-btn {
-  background: #1f1f1f;
-  color: #d1d5db;
-  border: 2px solid #373737;
-  padding: 20px;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: "Assistant", sans-serif;
-  font-weight: 600;
-  text-align: center;
-}
-
-.topic-btn:hover {
-  border-color: #8b5cf6;
-  background: #1a1a1a;
-  transform: translateY(-5px);
-  color: #ffffff;
-}
-
-.how-to-play {
-  width: 100%;
-  max-width: 800px;
-  padding-top: 20px;
-  border-top: 1px solid #2a2a2a;
-}
-
-.instructions-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #9ca3af;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.instructions-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.instructions-list li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  color: #9ca3af;
-}
-
-.key-display {
-  background: #a78bfa26;
-  color: #c4b5fd;
-  border-radius: 6px;
-  padding: 3px 9px;
-  font-family: "SF Mono", Monaco, Consolas, "Courier New", monospace;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: 1px solid #8b5cf666;
-  box-shadow: none;
-}
-
-.instruction-text {
-  font-weight: 500;
-}
-
-/* Mobile Recommendation Message */
-.mobile-recommendation {
-  display: none; /* Hidden by default */
-  width: 100%;
-  max-width: 800px;
-  padding: 10px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  color: #9ca3af;
-  font-size: 0.8rem;
-}
-
-/* Original Responsive Design */
-@media (max-width: 768px) {
-  .welcome-title {
-    font-size: 2.5rem;
-  }
-
-  .topic-container {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
-  }
-
-  .how-to-play {
-    display: none; /* Hide keyboard instructions on mobile */
-  }
-
-  .mobile-recommendation {
-    display: flex; /* Show mobile message */
-  }
-
-  .container {
-    padding: 0;
-    width: 100%;
-    height: 100dvh; /* שינוי מ-vh ל-dvh */
-    min-height: 100dvh; /* שינוי מ-vh ל-dvh */
-    justify-content: flex-start;
-  }
-
-  .quiz-card {
-    height: 100%;
-    max-height: 100%;
-    border-radius: 0;
-    border: none;
-  }
-
-  .quiz-header {
-    padding: 15px 20px;
-  }
-
-  .controls {
-    padding: 15px 20px;
-  }
-
-  .question-title {
-    font-size: 1.3rem;
-    margin-bottom: 35px; /* הוסף שורה זו עם ערך גדול יותר מ-25px */
-  }
-
-  .quiz-content {
-    grid-template-columns: 1fr;
-    gap: 40px; /* שנה מ-30px ל-40px או יותר */
-    padding: 20px;
-  }
-
-  .code-section {
-    order: 1;
-    min-height: 150px;
-  }
-
-  .code-block pre,
-  .code-block code[class*="language-"] {
-    white-space: pre-wrap; /* מאפשר גלישת שורות */
-    word-break: break-all; /* שובר מילים ארוכות במידת הצורך */
-  }
-
-  .code-block {
-    overflow-x: hidden; /* מונע מהקוד לחרוג מהגבולות */
-  }
-
-  .question-section {
-    order: 2;
-  }
-
-  .end-title {
-    font-size: 2rem;
-  }
-  .end-score {
-    font-size: 1.3rem;
-  }
-}
-
-/* --- Screen State Messages --- */
-#pleaseEnlargeScreen,
-#pleaseRotateDevice {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #0a0a0a;
-  color: #d1d5db;
-  z-index: 99999;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 20px;
-}
-#pleaseEnlargeScreen i,
-#pleaseRotateDevice i {
-  font-size: 4rem;
-  color: #8b5cf6;
-  margin-bottom: 30px;
-}
-#pleaseEnlargeScreen h1 {
-  font-size: 2rem;
-  color: #ffffff;
-  margin-bottom: 10px;
-}
-#pleaseEnlargeScreen p,
-#pleaseRotateDevice p {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  max-width: 500px;
-}
-
-@media (hover: hover) and (pointer: fine) and (max-width: 900px),
-  (hover: hover) and (pointer: fine) and (max-height: 550px) {
-  #pleaseEnlargeScreen {
-    display: flex;
-  }
-}
-
-@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
-  #pleaseRotateDevice {
-    display: flex;
-  }
-}
-
-/* ############################################################### */
-/* ########## תוספות ותיקונים - נא לא למחוק או לשנות ########### */
-/* ############################################################### */
-
-/* כפתור רמז/הסבר למובייל - מוסתר בדסקטופ כברירת מחדל */
-.btn-mobile-secondary {
-  display: none;
-}
-
-/* חלונית פופאפ למובייל */
-.tooltip-popup {
-  position: fixed;
-  bottom: 80px;
-  left: 5vw;
-  width: 90vw;
-  background: #2a2a2a;
-  color: #d1d5db;
-  border: 1px solid #454545;
-  border-radius: 12px;
-  padding: 20px;
-  z-index: 100;
-  box-shadow: 0px -5px 25px rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
-  transform: translateY(20px);
-}
-
-.tooltip-popup.visible {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-/* עיצובים שדורסים את הכללים הישנים רק במצב טלפון */
-@media (max-width: 768px) {
-  /* הסתר את כפתורי הטקסט של הדסקטופ */
-  .desktop-controls {
-    display: none !important;
-  }
-
-  /* הצג את הכפתור החדש של המובייל */
-  .btn-mobile-secondary {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    background-color: #2a2a2a;
-    color: #c3aaff;
-    border: 1px solid #c3aaff;
-    border-radius: 12px;
-    font-size: 1rem; /* הוספת שורה זו */
-  }
-
-  /* עיצוב כללי של אזור הכפתורים התחתון במובייל */
-  .controls {
-    flex-direction: row !important;
-    padding: 12px !important;
-    gap: 12px !important;
-    border-top: 1px solid #373737 !important;
-  }
-
-  /* סידור ועיצוב הכפתורים עצמם במובייל */
-  .controls #nextBtn {
-    flex-grow: 1;
-    order: 2; /* כפתור "בדיקה" יהיה משמאל */
-    height: auto;
-    padding: 14px;
-    font-size: 1rem;
-    border-radius: 12px;
-  }
-  .controls .btn-mobile-secondary {
-    order: 1; /* כפתור "רמז" יהיה מימין */
-  }
-
-  /* עיצוב למצב מושבת של כפתור הרמז/הסבר */
-  .btn-mobile-secondary:disabled {
-    background-color: #2a2a2a;
-    color: #6b7280;
-    border-color: #454545;
-    opacity: 0.7;
-  }
-}
-
-/* ############################################################### */
-/* ##########          תיקונים ותוספות חדשות           ########## */
-/* ############################################################### */
-
-/* תיקון #2 - מאפשר לטולטיפ ההסבר בדסקטופ להופיע כראוי */
-#explanationContainer .tooltip-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-/* תיקון #3 - קווי הפרדה דינמיים בדסקטופ */
-/* כברירת מחדל, אם הכרטיס נגלל, הצג את הקו התחתון */
-.quiz-card.is-scrollable .controls {
-  border-top-color: #373737;
-}
-
-/* כאשר גוללים עד הסוף, הסתר את הקו התחתון */
-.quiz-card.is-scrollable.scrolled-to-end .controls {
-  border-top-color: transparent;
-}
-
-/* ======== כללים למסכי מובייל (768px ומטה) ======== */
-@media (max-width: 768px) {
-  /* תיקון #1 - גודל אחיד לכפתורים במובייל */
-  .controls .btn-mobile-secondary {
-    padding: 14px; /* גובה אחיד כמו כפתור "בדיקה" */
-    flex-basis: 0; /* בסיס רוחב שווה עם כפתור "בדיקה" */
-    height: auto;
-  }
-
-  .controls #nextBtn {
-    flex-basis: 0; /* ודא שגם הכפתור הראשי מתנהג באופן זהה */
-    flex-grow: 1;
-    order: 2;
-    height: auto;
-    padding: 14px;
-    font-size: 1rem;
-    border-radius: 12px;
-  }
-
-  /* תיקון #3 - קווי הפרדה קבועים במובייל */
-  .quiz-header {
-    border-bottom: 1px solid #373737;
-  }
-
-  /* הקו התחתון כבר מטופל בכלל שהוספת בקובץ המקורי */
-}
-
-/* ############################################################### */
-/* ##########         שיפורים לחוויית המשתמש          ########## */
-/* ############################################################### */
-
-/* בקשה #1 - התאמת הטולטיפ בדסקטופ */
-/* כלל זה ישפיע רק על תצוגת מחשב (מעל 768px) */
-@media (min-width: 769px) {
-  .desktop-controls .tooltip-popup {
-    width: 440px; /* הרחבת התיבה לקריאות נוחה יותר */
-    bottom: 135%; /* הגדלת המרווח כדי שהתיבה תופיע מעל העכבר */
-  }
-}
-
-/* בקשה #2 - הוספת גרדיאנט לגלילה בדסקטופ */
-
-/* הורה הכרטיס צריך להיות בסיס המיקום של הגרדיאנטים */
-.quiz-card {
-  position: relative;
-}
-
-/* הגדרת העיצוב הבסיסי של הגרדיאנטים (מוסתרים כברירת מחדל) */
-.quiz-card::before,
-.quiz-card::after {
-  content: "";
-  position: absolute;
-  left: 1px; /* מרווח קטן כדי לא לחתוך את הגבול של הכרטיס */
-  right: 1px;
-  z-index: 12; /* מעל התוכן ומתחת לפופאפים */
-  pointer-events: none; /* מאפשר ללחוץ "דרך" הגרדיאנט */
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-  height: 45px; /* גובה אפקט ה-fade */
-}
-
-.quiz-card::before {
-  content: "";
-  position: absolute;
-  left: 1px;
-  right: 1px;
-  top: 0;
-  height: 150px; /* במקום 69px */
-  background: linear-gradient(to bottom, #111111 10%, rgba(17, 17, 17, 0) 100%);
-  z-index: 5; /* מתחת ל-header */
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-  pointer-events: none;
-}
-
-/* הגרדיאנט התחתון */
-.quiz-card::after {
-  /* מיקום מדויק מעל אזור הכפתורים התחתון (controls) */
-  bottom: 68px;
-  background: linear-gradient(to top, #111111 10%, rgba(17, 17, 17, 0) 100%);
-}
-
-/* לוגיקת הצגת הגרדיאנטים - לכל המכשירים */
-/* 1. הצג גרדיאנט עליון רק כאשר המשתמש גלל למטה */
-.quiz-card.has-scrolled::before {
-  opacity: 1;
-}
-
-/* 2. הצג גרדיאנט תחתון כאשר ניתן לגלול (והמשתמש לא בסוף) */
-.quiz-card.is-scrollable::after {
-  opacity: 1;
-}
-
-/* 3. הסתר גרדיאנט תחתון כאשר המשתמש הגיע לסוף הגלילה */
-.quiz-card.is-scrollable.scrolled-to-end::after {
-  opacity: 0;
-}
-
-/* ############################################################### */
-/* ##########         תיקון גרדיאנט וגלילה            ########## */
-/* ############################################################### */
-
-/* תיקון בעיית z-index: הצגת הרמז/הסבר מעל הגרדיאנט */
-.controls {
-  /* הגרדיאנט נמצא ב-z-index: 12. 
-      העלאת ה-z-index של כל אזור הכפתורים ל-15 תגרום לו ולכל מה שבתוכו 
-      (כולל הטולטיפ שצץ ממנו) להופיע מעל אפקט הגרדיאנט.
-    */
-  z-index: 15;
-}
-
-.controls {
-  background-color: #111111 !important;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-label.answer-label {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: slideIn 0.3s ease-out forwards;
-  animation-delay: calc(0.1s * var(--animation-order, 1)); /* השהיה הדרגתית */
-}
-
-@keyframes fadeInThenOut {
+/* (בונוס) אנימציית פופ לאייקון סיום */
+@keyframes pop {
   0% {
+    transform: scale(0.5);
     opacity: 0;
-    visibility: visible;
   }
-  10% {
-    opacity: 1;
-  }
-  90% {
+  60% {
+    transform: scale(1.1);
     opacity: 1;
   }
   100% {
-    opacity: 0;
-    visibility: hidden;
+    transform: scale(1);
+    opacity: 1;
   }
+}
+.animate-pop {
+  animation: pop 0.5s ease-out forwards;
+}
+
+@keyframes welcomeToQuizFade {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.quiz-layout-grid.initial-load {
+  animation: welcomeToQuizFade 0.4s ease-out forwards;
+}
+
+/* style.css */
+
+/* הפיכת ה div של הטיימר לעוגן עבור המיקום האבסולוטי */
+.timer {
+  position: relative;
+}
+
+/* עיצוב בועית ההודעה כשהיא מוסתרת */
+#timerOutMessage {
+  position: absolute;
+  left: 110%; /* מיקום מימין לטיימר */
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1f1f1f;
+  color: var(--text-muted);
+  border: 1px solid #454545;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* עיצוב הבועית כשהיא גלויה */
+#timerOutMessage.visible {
+  opacity: 1;
+  visibility: visible;
 }
