@@ -32,15 +32,11 @@ function initializeApp() {
   const isMobile =
     navigator.maxTouchPoints > 0 && /Mobi|Android/i.test(navigator.userAgent);
 
+  alert(isMobile);
+
   // בדיקה ראשונה: האם המשתמש גולש ממכשיר נייד?
   if (isMobile) {
-    // בדיקה שנייה: האם המשתמש מנסה להציג "מצב דסקטופ"?
-    // נבדוק זאת אם רוחב המסך המדווח גדול מרוחב ממוצע של נייד.
-    if (window.innerWidth > 900) {
-      document.getElementById("mobileBlockerDesktop").style.display = "flex";
-    } else {
-      document.getElementById("mobileBlockerNormal").style.display = "flex";
-    }
+    document.getElementById("mobileBlocker").style.display = "flex";
     return; // עצירת טעינת האתר
   }
 

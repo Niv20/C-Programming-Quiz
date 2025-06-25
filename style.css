@@ -28,8 +28,7 @@ body {
 /* --- מסכי חסימה --- */
 /* שים לב: החלפנו את #mobileBlocker בשני המזהים החדשים */
 #pleaseEnlargeScreen,
-#mobileBlockerNormal,
-#mobileBlockerDesktop {
+#mobileBlocker {
   display: none;
   position: fixed;
   top: 0;
@@ -48,22 +47,19 @@ body {
 
 /* מעדכנים את כללי העיצוב לאייקונים, כותרות ופסקאות בהתאמה */
 #pleaseEnlargeScreen i,
-#mobileBlockerNormal i,
-#mobileBlockerDesktop i {
+#mobileBlocker i {
   font-size: 4rem;
   color: var(--primary-color);
   margin-bottom: 30px;
 }
 #pleaseEnlargeScreen h1,
-#mobileBlockerNormal h1,
-#mobileBlockerDesktop h1 {
+#mobileBlocker h1 {
   font-size: 2rem;
   color: var(--text-primary);
   margin-bottom: 10px;
 }
 #pleaseEnlargeScreen p,
-#mobileBlockerNormal p,
-#mobileBlockerDesktop p {
+#mobileBlocker p {
   font-size: 1.1rem;
   line-height: 1.6;
   max-width: 500px;
