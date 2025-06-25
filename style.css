@@ -874,8 +874,8 @@ body {
     justify-content: center;
     flex-grow: 1;
     background-color: #2a2a2a;
-    color: #c4b5fd;
-    border: 1px solid #8b5cf6;
+    color: #c3aaff;
+    border: 1px solid #c3aaff;
     border-radius: 12px;
     font-size: 1rem; /* הוספת שורה זו */
   }
@@ -885,7 +885,6 @@ body {
     flex-direction: row !important;
     padding: 12px !important;
     gap: 12px !important;
-    background-color: #0a0a0a !important;
     border-top: 1px solid #373737 !important;
   }
 
@@ -1039,8 +1038,31 @@ body {
   z-index: 15;
 }
 
+.controls {
+  background-color: #111111 !important;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+label.answer-label {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideIn 0.3s ease-out forwards;
+  animation-delay: calc(0.1s * var(--animation-order, 1)); /* השהיה הדרגתית */
+}
+
+/* --- תיקון ריווח עליון לקוד במובייל --- */
 @media (max-width: 768px) {
-  .controls {
-    background-color: #0a0a0a !important;
+  .code-section {
+    padding-top: 15px !important;
   }
 }

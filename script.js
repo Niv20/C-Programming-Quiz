@@ -269,6 +269,10 @@ function loadQuestion() {
     question.answers.forEach((answer, index) => {
       const option = document.createElement("div");
       option.className = "answer-option";
+
+      // השורה שמפעילה את האנימציה המדורגת
+      option.style.setProperty("--animation-order", index);
+
       if (isLtrText(answer)) option.classList.add("ltr-answer");
       option.setAttribute("data-answer", index);
       option.innerHTML = `<div class="answer-text">${formatAnswerText(
