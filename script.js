@@ -4,6 +4,7 @@ let score = 0;
 let selectedAnswer = null;
 let answered = false;
 let timerInterval = null;
+let isDeviceMobile = false; // הוספה: משתנה שיזכור אם המכשיר הוא נייד
 
 const quizTopics = [
   { name: "פוינטרים", file: "quizzes/pointers.js" },
@@ -21,10 +22,13 @@ Prism.plugins.autoloader.languages_path =
 document.addEventListener("DOMContentLoaded", initializeApp);
 document.addEventListener("keydown", handleKeyPress);
 window.addEventListener("resize", () => {
-  if (window.innerWidth < 1200 || window.innerHeight < 700) {
-    document.getElementById("pleaseEnlargeScreen").style.display = "flex";
-  } else {
-    document.getElementById("pleaseEnlargeScreen").style.display = "none";
+  // שינוי: הוספנו תנאי שבודק אם המכשיר אינו נייד
+  if (!isDeviceMobile) {
+    if (window.innerWidth < 1200 || window.innerHeight < 700) {
+      document.getElementById("pleaseEnlargeScreen").style.display = "flex";
+    } else {
+      document.getElementById("pleaseEnlargeScreen").style.display = "none";
+    }
   }
 });
 
@@ -32,7 +36,10 @@ function initializeApp() {
   const isMobile =
     navigator.maxTouchPoints > 0 && /Mobi|Android/i.test(navigator.userAgent);
 
-  alert(isMobile);
+  isDeviceMobile = isMobile; // הוספה: קובעים את ערך המשתנה הגלובלי
+
+  // אני ממליץ למחוק את שורת ה-alert הזו, היא שימשה רק לבדיקות
+  // alert(isMobile);
 
   // בדיקה ראשונה: האם המשתמש גולש ממכשיר נייד?
   if (isMobile) {
