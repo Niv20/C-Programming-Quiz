@@ -109,6 +109,7 @@ body {
 .quiz-header {
   flex-shrink: 0;
   position: sticky;
+  z-index: 10; /* גבוה יותר מהגרדיאנט */
   top: 0;
   z-index: 10;
   display: flex;
@@ -178,6 +179,14 @@ body {
 .timer-message-container.visible {
   opacity: 1;
   visibility: visible;
+  animation: fadeInThenOut 5s ease forwards;
+}
+
+@keyframes fadeOutMessage {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
 }
 
 .timer-popup {
@@ -993,11 +1002,18 @@ body {
   height: 45px; /* גובה אפקט ה-fade */
 }
 
-/* הגרדיאנט העליון */
 .quiz-card::before {
-  /* מיקום מדויק מתחת לכותרת העליונה (header) */
-  top: 68px;
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 0;
+  height: 150px; /* במקום 69px */
   background: linear-gradient(to bottom, #111111 10%, rgba(17, 17, 17, 0) 100%);
+  z-index: 5; /* מתחת ל-header */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: none;
 }
 
 /* הגרדיאנט התחתון */
@@ -1058,74 +1074,19 @@ label.answer-label {
   animation-delay: calc(0.1s * var(--animation-order, 1)); /* השהיה הדרגתית */
 }
 
-/* ========================================================== */
-/* תיקון מיקום גרדיאנט עליון בטלפון             */
-/* ========================================================== */
-
-/* ========================================================== */
-/* תיקון מיקום גרדיאנט עליון בטלפון             */
-/* ========================================================== */
-
-@media (max-width: 768px) {
-  /* תיקון נוסף: וידוא שהתוכן לא מתחיל מתחת לכותרת */
-  .quiz-content {
-    padding-top: 25px; /* מרווח נוסף מהחלק העליון */
+@keyframes fadeInThenOut {
+  0% {
+    opacity: 0;
+    visibility: visible;
   }
-}
-
-/* תיקון א': מיקום מדויק של הגרדיאנט העליון */
-.quiz-card::before {
-  /* מיקום מדויק בסוף החלק העליון ללא רווח */
-  top: 69px; /* גובה header (69px) ללא רווח נוסף */
-  background: linear-gradient(to bottom, #111111 10%, rgba(17, 17, 17, 0) 100%);
-}
-
-/* תיקון ב': פתרון בעיית קוד בורח למעלה בטלפון אמיתי */
-@media (max-width: 768px) {
-  /* תיקון מיקום הגרדיאנט העליון בטלפון */
-  .quiz-card::before {
-    top: 69px; /* גובה מדויק של החלק העליון */
+  10% {
+    opacity: 1;
   }
-
-  /* תיקון בעיית הקוד שבורח למעלה בטלפון אמיתי */
-  .quiz-content {
-    padding-top: 35px; /* הגדלת המרווח העליון */
-    padding-bottom: 25px; /* שמירה על המרווח התחתון */
-    padding-left: 20px;
-    padding-right: 20px;
+  90% {
+    opacity: 1;
   }
-
-  /* וידוא שהקוד לא בורח מהמסגרת */
-  .code-section {
-    margin-top: 15px; /* מרווח נוסף מהשאלה */
-    min-height: 150px;
-    padding: 15px; /* padding פנימי לקוד */
-    background: rgba(255, 255, 255, 0.02); /* רקע עדין לבדיקה */
-    border-radius: 8px;
-  }
-
-  /* תיקון נוסף לקוד - מניעת overflow */
-  .code-block {
-    overflow-x: auto; /* מאפשר גלילה אופקית במידת הצורך */
-    overflow-y: hidden; /* מונע גלילה אנכית של הקוד */
-    max-width: 100%;
-  }
-
-  .code-block pre,
-  .code-block code[class*="language-"] {
-    white-space: pre-wrap;
-    word-break: break-all;
-    overflow-wrap: break-word;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* וידוא שהשאלה והתשובות לא נדחקות */
-  .question-title {
-    margin-bottom: 30px; /* מרווח גדול יותר מהקוד */
-  }
-
-  .answers-container {
-    margin-top: 25px; /* מרווח מהקוד */
+  100% {
+    opacity: 0;
+    visibility: hidden;
   }
 }

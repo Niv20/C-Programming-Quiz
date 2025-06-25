@@ -183,8 +183,30 @@ function startTimer() {
   clearInterval(timerInterval);
   timeLeft = 10;
   const timerSpan = document.getElementById("timer");
+  const timerWrapper = document.querySelector(".timer-wrapper");
 
   const update = () => {
+    if (timeLeft < 0) {
+      setTimeout(() => {
+        messageContainer.remove();
+      }, 5000);
+
+      clearInterval(timerInterval);
+      timeLeft = 0;
+      if (timerSpan) timerSpan.textContent = "00:00";
+
+      // הצג הודעה ליד השעון
+      const messageContainer = document.createElement("div");
+      messageContainer.className = "timer-message-container visible";
+      messageContainer.innerHTML = `
+        <div class="timer-popup">
+          חחח סתם רציתי להלחיץ. אין באמת משמעות לטיימר
+        </div>
+      `;
+      timerWrapper.appendChild(messageContainer);
+      return;
+    }
+
     if (timerSpan) {
       const minutes = Math.floor(timeLeft / 60);
       const seconds = timeLeft % 60;
@@ -195,7 +217,7 @@ function startTimer() {
     timeLeft--;
   };
 
-  update(); // Update immediately
+  update(); // עדכון מיידי
   timerInterval = setInterval(update, 1000);
 }
 
