@@ -11,9 +11,6 @@ body {
   font-family: "Assistant", sans-serif;
   background: #0a0a0a;
   color: #ffffff;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
   align-items: center;
   text-align: right;
 }
@@ -79,15 +76,13 @@ body {
 .container {
   max-width: 1200px;
   width: 90%;
+  height: 100vh;
   margin: 0 auto;
   padding: 40px 20px;
-  min-height: 100vh;
   opacity: 0;
   transition: opacity 0.5s ease;
   display: none;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .container.visible {
@@ -96,9 +91,9 @@ body {
 
 .quiz-card {
   background: #111111;
-  border-radius: 12px;
+  border-radius: 0;
   padding: 40px;
-  border: 1px solid #1f1f1f;
+  border: none;
   width: 100%;
   max-width: 1000px;
   opacity: 0;
@@ -106,8 +101,8 @@ body {
   transition: opacity 0.5s ease-out, transform 0.5s ease-out;
   display: flex;
   flex-direction: column;
-  height: auto;
-  max-height: 95vh;
+  height: 100%;
+  max-height: 100vh;
 }
 
 .quiz-card.show {
@@ -116,12 +111,17 @@ body {
 }
 
 .quiz-header {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #111111;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 0;
   padding: 0;
-  flex-shrink: 0;
+  padding-bottom: 20px;
 }
 
 .question-counter {
@@ -416,10 +416,15 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 40px;
   padding-top: 20px;
   border-top: 1px solid #1f1f1f;
   flex-shrink: 0;
+
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: #111111;
+  padding-top: 20px;
 }
 
 .control-left {
@@ -696,14 +701,15 @@ body {
 
   .quiz-card {
     padding: 20px;
-    height: 100%;
-    max-height: 100%;
+    height: 100%; /* חשוב מאוד */
+    max-height: 100%; /* חשוב מאוד */
     border-radius: 0;
     border: none;
   }
   .container {
     padding: 0;
     width: 100%;
+    height: 100vh; /* חשוב מאוד */
   }
 
   .question-title {
@@ -712,6 +718,8 @@ body {
   .quiz-content {
     grid-template-columns: 1fr;
     gap: 30px;
+    flex-grow: 1;
+    overflow-y: auto;
   }
   .code-section {
     order: 1;
