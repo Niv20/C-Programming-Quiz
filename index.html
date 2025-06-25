@@ -78,9 +78,6 @@
               <span id="timer">10:00</span>
               <i class="fas fa-clock icon-purple"></i>
             </div>
-            <div id="timerMessageContainer" class="timer-message-container">
-              <div class="timer-popup">סתם הלחצתי אתכם, אין משמעות לטיימר</div>
-            </div>
           </div>
         </div>
 
@@ -97,12 +94,17 @@
         </div>
 
         <div class="controls">
-          <div class="control-left">
+          <div class="desktop-controls">
             <div id="hintContainer"></div>
-            <div class="explanation-container" id="explanationContainer"></div>
+            <div id="explanationContainer"></div>
           </div>
+          <button class="btn-mobile-secondary" id="hintExplanationBtn">
+            רמז
+          </button>
           <button class="btn" id="nextBtn">בדיקה</button>
         </div>
+
+        <div class="tooltip-popup" id="tooltipPopup"></div>
       </div>
     </div>
 

@@ -15,12 +15,6 @@ body {
   text-align: right;
 }
 
-/* Scrollbar Styles */
-::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
 /* Welcome Screen */
 .welcome-screen {
   position: fixed;
@@ -76,13 +70,15 @@ body {
 .container {
   max-width: 1200px;
   width: 90%;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 40px 20px;
   opacity: 0;
   transition: opacity 0.5s ease;
   display: none;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .container.visible {
@@ -91,9 +87,9 @@ body {
 
 .quiz-card {
   background: #111111;
-  border-radius: 0;
-  padding: 40px;
-  border: none;
+  border-radius: 16px;
+  border: 1px solid #373737;
+  padding: 0;
   width: 100%;
   max-width: 1000px;
   opacity: 0;
@@ -101,8 +97,8 @@ body {
   transition: opacity 0.5s ease-out, transform 0.5s ease-out;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  max-height: 100vh;
+  max-height: calc(100vh - 80px);
+  overflow: hidden;
 }
 
 .quiz-card.show {
@@ -115,13 +111,25 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #111111;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0;
-  padding: 0;
-  padding-bottom: 20px;
+  padding: 20px 40px;
+  /* Default Desktop State (flat) */
+  background-color: #111111;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Dynamic Desktop Scroll State */
+.quiz-card.is-scrollable .quiz-header {
+  background-color: rgba(17, 17, 17, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.quiz-card.has-scrolled .quiz-header {
+  border-bottom-color: #373737;
 }
 
 .question-counter {
@@ -195,7 +203,13 @@ body {
   flex-grow: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 15px;
+  padding: 25px 40px;
+  background: #111111;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+}
+
+.quiz-content::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome, Safari, etc. */
 }
 
 .quiz-content.no-code-layout {
@@ -211,7 +225,10 @@ body {
   margin: 0 auto;
 }
 .quiz-content.no-code-layout .answer-option {
-  text-align: right;
+  text-align: center;
+}
+.quiz-content.no-code-layout .answer-option.ltr-answer {
+  text-align: center;
 }
 
 .code-section {
@@ -219,6 +236,7 @@ body {
   align-items: center;
   justify-content: center;
   direction: ltr;
+  min-height: 200px;
 }
 
 .code-block {
@@ -322,14 +340,7 @@ body {
   padding: 16px;
   cursor: pointer;
   position: relative;
-  opacity: 0;
-  transform: translateX(20px);
   transition: all 0.3s ease-out;
-}
-
-.answer-option.visible {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 .ltr-answer {
@@ -339,7 +350,7 @@ body {
 
 .answer-option:hover {
   border-color: #a78bfa;
-  transform: scale(1.05);
+  transform: scale(1.02);
   z-index: 5;
 }
 
@@ -393,7 +404,8 @@ body {
   font-weight: 500;
   line-height: 1.5;
   color: #ffffff;
-  overflow-wrap: break-word; /* Fix for long text in answers */
+  overflow-wrap: break-word;
+  word-break: break-all;
 }
 
 .answer-text code,
@@ -407,27 +419,37 @@ body {
   font-size: 0.9em;
   border: 1px solid #21262d;
   direction: ltr;
-  text-align: left; /* קובע יישור טקסט לשמאל בתוך הקוד */
-  unicode-bidi: embed; /* מחזק את שינוי הכיווניות */
-  display: inline-block; /* מבטיח שהבלוק יתנהג כיחידה עצמאית */
+  text-align: left;
+  unicode-bidi: embed;
+  display: inline-block;
 }
 
 .controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 20px;
-  border-top: 1px solid #1f1f1f;
   flex-shrink: 0;
-
   position: sticky;
   bottom: 0;
   z-index: 10;
-  background: #111111;
-  padding-top: 20px;
+  padding: 20px 40px;
+  /* Default Desktop State (flat) */
+  background-color: #111111;
+  border-top: 1px solid transparent;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
-.control-left {
+/* Dynamic Desktop Scroll State */
+.quiz-card.is-scrollable .controls {
+  background-color: rgba(17, 17, 17, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.quiz-card.has-scrolled .controls {
+  border-top-color: #373737;
+}
+
+.desktop-controls {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -446,7 +468,7 @@ body {
   font-weight: 700;
 }
 
-.btn:hover {
+.btn:hover:not(:disabled) {
   background: #a78bfa;
 }
 
@@ -532,13 +554,7 @@ body {
 
 .tooltip-container.disabled {
   pointer-events: none;
-}
-
-.tooltip-container.disabled .tooltip-btn {
-  color: #6b7280;
-  cursor: not-allowed;
-  text-decoration: none;
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 .tooltip-btn {
@@ -559,11 +575,10 @@ body {
   color: #8b5cf6;
 }
 
-.tooltip-popup {
+.desktop-controls .tooltip-popup {
   position: absolute;
   bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 0;
   background: #1f1f1f;
   color: #d1d5db;
   border: 1px solid #454545;
@@ -579,7 +594,7 @@ body {
   transition: opacity 0.3s ease, visibility 0.3s ease;
   pointer-events: none;
   box-shadow: 0px -5px 25px rgba(0, 0, 0, 0.5);
-  overflow-wrap: break-word; /* Fix for long text in tooltips */
+  overflow-wrap: break-word;
 }
 
 .tooltip-container:hover .tooltip-popup,
@@ -681,7 +696,7 @@ body {
   font-size: 0.8rem;
 }
 
-/* Responsive Design */
+/* Original Responsive Design */
 @media (max-width: 768px) {
   .welcome-title {
     font-size: 2.5rem;
@@ -699,17 +714,27 @@ body {
     display: flex; /* Show mobile message */
   }
 
-  .quiz-card {
-    padding: 20px;
-    height: 100%; /* חשוב מאוד */
-    max-height: 100%; /* חשוב מאוד */
-    border-radius: 0;
-    border: none;
-  }
   .container {
     padding: 0;
     width: 100%;
-    height: 100vh; /* חשוב מאוד */
+    height: 100vh;
+    min-height: 100vh;
+    justify-content: flex-start;
+  }
+
+  .quiz-card {
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    border: none;
+  }
+
+  .quiz-header {
+    padding: 15px 20px;
+  }
+
+  .controls {
+    padding: 15px 20px;
   }
 
   .question-title {
@@ -718,35 +743,21 @@ body {
   .quiz-content {
     grid-template-columns: 1fr;
     gap: 30px;
-    flex-grow: 1;
-    overflow-y: auto;
+    padding: 20px;
   }
   .code-section {
     order: 1;
-  }
-  .question-section {
-    order: 2;
-  }
-  .controls {
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
-  }
-  .control-left {
-    justify-content: space-between;
+    min-height: 150px;
   }
 
-  /* --- NEW ROBUST TOOLTIP FIX FOR MOBILE --- */
-  .tooltip-popup {
-    position: fixed; /* Position relative to the screen */
-    left: 50%;
-    transform: translateX(-50%); /* Center horizontally */
-    bottom: 100px; /* Position 100px from the bottom of the screen */
-    width: 90vw;
-    max-height: 70vh; /* A bit smaller to ensure it fits */
-    overflow-y: auto;
-    z-index: 9999;
-    /* The 'top' and 'translateY' properties are removed */
+  .code-block pre,
+  .code-block code[class*="language-"] {
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .question-section {
+    order: 2;
   }
 
   .end-title {
@@ -758,11 +769,9 @@ body {
 }
 
 /* --- Screen State Messages --- */
-
-/* Base style for both overlay messages */
 #pleaseEnlargeScreen,
 #pleaseRotateDevice {
-  display: none; /* Hidden by default */
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
@@ -770,48 +779,246 @@ body {
   height: 100%;
   background: #0a0a0a;
   color: #d1d5db;
-  z-index: 99999; /* On top of everything */
+  z-index: 99999;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   padding: 20px;
 }
-
 #pleaseEnlargeScreen i,
 #pleaseRotateDevice i {
   font-size: 4rem;
-  color: #8b5cf6; /* Purple icon */
+  color: #8b5cf6;
   margin-bottom: 30px;
 }
-
 #pleaseEnlargeScreen h1 {
   font-size: 2rem;
   color: #ffffff;
   margin-bottom: 10px;
 }
-
 #pleaseEnlargeScreen p,
 #pleaseRotateDevice p {
   font-size: 1.1rem;
   line-height: 1.6;
   max-width: 500px;
 }
-
-/* --- Media Queries to show the messages --- */
-
-/* 1. Show message on narrow OR short DESKTOP screens */
 @media (max-width: 900px) and (pointer: fine),
   (max-height: 550px) and (pointer: fine) {
   #pleaseEnlargeScreen {
     display: flex;
   }
 }
-
-/* 2. Show message on phones in landscape mode */
-/* This targets devices that are in landscape AND have a small height (like a phone) AND have a touch screen */
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   #pleaseRotateDevice {
     display: flex;
   }
+}
+
+/* ############################################################### */
+/* ########## תוספות ותיקונים - נא לא למחוק או לשנות ########### */
+/* ############################################################### */
+
+/* כפתור רמז/הסבר למובייל - מוסתר בדסקטופ כברירת מחדל */
+.btn-mobile-secondary {
+  display: none;
+}
+
+/* חלונית פופאפ למובייל */
+.tooltip-popup {
+  position: fixed;
+  bottom: 80px;
+  left: 5vw;
+  width: 90vw;
+  background: #2a2a2a;
+  color: #d1d5db;
+  border: 1px solid #454545;
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 100;
+  box-shadow: 0px -5px 25px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+  transform: translateY(20px);
+}
+
+.tooltip-popup.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* עיצובים שדורסים את הכללים הישנים רק במצב טלפון */
+@media (max-width: 768px) {
+  /* הסתר את כפתורי הטקסט של הדסקטופ */
+  .desktop-controls {
+    display: none !important;
+  }
+
+  /* הצג את הכפתור החדש של המובייל */
+  .btn-mobile-secondary {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    background-color: #2a2a2a;
+    color: #c4b5fd;
+    border: 1px solid #8b5cf6;
+    border-radius: 12px;
+  }
+
+  /* עיצוב כללי של אזור הכפתורים התחתון במובייל */
+  .controls {
+    flex-direction: row !important;
+    padding: 12px !important;
+    gap: 12px !important;
+    background-color: #0a0a0a !important;
+    border-top: 1px solid #373737 !important;
+  }
+
+  /* סידור ועיצוב הכפתורים עצמם במובייל */
+  .controls #nextBtn {
+    flex-grow: 1;
+    order: 2; /* כפתור "בדיקה" יהיה משמאל */
+    height: auto;
+    padding: 14px;
+    font-size: 1rem;
+    border-radius: 12px;
+  }
+  .controls .btn-mobile-secondary {
+    order: 1; /* כפתור "רמז" יהיה מימין */
+  }
+
+  /* עיצוב למצב מושבת של כפתור הרמז/הסבר */
+  .btn-mobile-secondary:disabled {
+    background-color: #2a2a2a;
+    color: #6b7280;
+    border-color: #454545;
+    opacity: 0.7;
+  }
+}
+
+/* ############################################################### */
+/* ##########          תיקונים ותוספות חדשות           ########## */
+/* ############################################################### */
+
+/* תיקון #2 - מאפשר לטולטיפ ההסבר בדסקטופ להופיע כראוי */
+#explanationContainer .tooltip-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* תיקון #3 - קווי הפרדה דינמיים בדסקטופ */
+/* כברירת מחדל, אם הכרטיס נגלל, הצג את הקו התחתון */
+.quiz-card.is-scrollable .controls {
+  border-top-color: #373737;
+}
+
+/* כאשר גוללים עד הסוף, הסתר את הקו התחתון */
+.quiz-card.is-scrollable.scrolled-to-end .controls {
+  border-top-color: transparent;
+}
+
+/* ======== כללים למסכי מובייל (768px ומטה) ======== */
+@media (max-width: 768px) {
+  /* תיקון #1 - גודל אחיד לכפתורים במובייל */
+  .controls .btn-mobile-secondary {
+    padding: 14px; /* גובה אחיד כמו כפתור "בדיקה" */
+    flex-basis: 0; /* בסיס רוחב שווה עם כפתור "בדיקה" */
+    height: auto;
+  }
+
+  .controls #nextBtn {
+    flex-basis: 0; /* ודא שגם הכפתור הראשי מתנהג באופן זהה */
+  }
+
+  /* תיקון #3 - קווי הפרדה קבועים במובייל */
+  .quiz-header {
+    border-bottom: 1px solid #373737;
+  }
+
+  /* הקו התחתון כבר מטופל בכלל שהוספת בקובץ המקורי */
+}
+
+/* ############################################################### */
+/* ##########         שיפורים לחוויית המשתמש          ########## */
+/* ############################################################### */
+
+/* בקשה #1 - התאמת הטולטיפ בדסקטופ */
+/* כלל זה ישפיע רק על תצוגת מחשב (מעל 768px) */
+@media (min-width: 769px) {
+  .desktop-controls .tooltip-popup {
+    width: 440px; /* הרחבת התיבה לקריאות נוחה יותר */
+    bottom: 135%; /* הגדלת המרווח כדי שהתיבה תופיע מעל העכבר */
+  }
+}
+
+/* בקשה #2 - הוספת גרדיאנט לגלילה בדסקטופ */
+
+/* הורה הכרטיס צריך להיות בסיס המיקום של הגרדיאנטים */
+.quiz-card {
+  position: relative;
+}
+
+/* הגדרת העיצוב הבסיסי של הגרדיאנטים (מוסתרים כברירת מחדל) */
+.quiz-card::before,
+.quiz-card::after {
+  content: "";
+  position: absolute;
+  left: 1px; /* מרווח קטן כדי לא לחתוך את הגבול של הכרטיס */
+  right: 1px;
+  z-index: 12; /* מעל התוכן ומתחת לפופאפים */
+  pointer-events: none; /* מאפשר ללחוץ "דרך" הגרדיאנט */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  height: 45px; /* גובה אפקט ה-fade */
+}
+
+/* הגרדיאנט העליון */
+.quiz-card::before {
+  /* מיקום מדויק מתחת לכותרת העליונה (header) */
+  top: 68px;
+  background: linear-gradient(to bottom, #111111 10%, rgba(17, 17, 17, 0) 100%);
+}
+
+/* הגרדיאנט התחתון */
+.quiz-card::after {
+  /* מיקום מדויק מעל אזור הכפתורים התחתון (controls) */
+  bottom: 68px;
+  background: linear-gradient(to top, #111111 10%, rgba(17, 17, 17, 0) 100%);
+}
+
+/* לוגיקת הצגת הגרדיאנטים - רק לתצוגת מחשב */
+@media (min-width: 769px) {
+  /* 1. הצג גרדיאנט עליון רק כאשר המשתמש גלל למטה */
+  .quiz-card.has-scrolled::before {
+    opacity: 1;
+  }
+
+  /* 2. הצג גרדיאנט תחתון כאשר ניתן לגלול (והמשתמש לא בסוף) */
+  .quiz-card.is-scrollable::after {
+    opacity: 1;
+  }
+
+  /* 3. הסתר גרדיאנט תחתון כאשר המשתמש הגיע לסוף הגלילה */
+  .quiz-card.is-scrollable.scrolled-to-end::after {
+    opacity: 0;
+  }
+}
+
+/* ############################################################### */
+/* ##########         תיקון גרדיאנט וגלילה            ########## */
+/* ############################################################### */
+
+/* תיקון בעיית z-index: הצגת הרמז/הסבר מעל הגרדיאנט */
+.controls {
+  /* הגרדיאנט נמצא ב-z-index: 12. 
+      העלאת ה-z-index של כל אזור הכפתורים ל-15 תגרום לו ולכל מה שבתוכו 
+      (כולל הטולטיפ שצץ ממנו) להופיע מעל אפקט הגרדיאנט.
+    */
+  z-index: 15;
 }

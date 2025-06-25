@@ -5,88 +5,30 @@ let selectedAnswer = null;
 let answered = false;
 let timeLeft = 600;
 let timerInterval = null;
+let hintExplanationState = "hint"; // 'hint', 'explanation', or 'disabled'
 
 const quizTopics = [
   { name: "פוינטרים", file: "quizzes/pointers.js" },
   { name: "מחרוזות", file: "quizzes/strings.js" },
   { name: "מאקרואים", file: "quizzes/macros.js" },
-  { name: "פעולות על ביטים", file: "quizzes/bitwise.js" },
+  { name: "ביטוויז", file: "quizzes/bitwise.js" },
   { name: "קומפילציה", file: "quizzes/compilation.js" },
-  { name: "שונות", file: "quizzes/other.js" }, // <-- הוסף את השורה הזו
+  { name: "שונות", file: "quizzes/other.js" },
 ];
 
 Prism.plugins.autoloader.languages_path =
   "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/";
 
-document.addEventListener("keydown", (e) => {
-  const key = e.key.toLowerCase();
-
-  // Handle Enter key for starting/progressing
-  if (key === "enter") {
-    e.preventDefault();
-    if (
-      document.getElementById("welcomeScreen").classList.contains("visible")
-    ) {
-      document.getElementById("startBtn").click();
-    } else if (
-      document.getElementById("mainContainer").classList.contains("visible")
-    ) {
-      const nextBtn = document.getElementById("nextBtn");
-      if (!nextBtn.disabled) {
-        nextBtn.click();
-      }
-    }
-  }
-
-  // Handle number key presses for answer selection
-  if (["1", "2", "3", "4", "5", "6"].includes(key)) {
-    if (answered) return; // Don't allow selection if already answered
-    e.preventDefault();
-    const answerIndex = parseInt(key, 10) - 1;
-    const answerButton = document.querySelector(
-      `.answer-option[data-answer="${answerIndex}"]`
-    );
-    if (answerButton) {
-      answerButton.click();
-    }
-  }
-
-  // Handle 'h' or 'י' for hint
-  if (key === "h" || key === "י") {
-    if (answered) return;
-    e.preventDefault();
-    const hintContainer = document.getElementById("hintContainer");
-    const tooltipContainer = hintContainer.querySelector(".tooltip-container");
-    if (!tooltipContainer) return;
-
-    const isVisible = tooltipContainer.classList.contains("hint-visible");
-
-    if (isVisible) {
-      tooltipContainer.classList.remove("hint-visible");
-    } else {
-      tooltipContainer.classList.add("hint-visible");
-      // Add a one-time event listener to hide the hint on mouse move
-      document.addEventListener(
-        "mousemove",
-        () => {
-          tooltipContainer.classList.remove("hint-visible");
-        },
-        { once: true }
-      );
-    }
-  }
+// General Event Listeners
+document.addEventListener("keydown", (e) => handleKeyPress(e));
+document.addEventListener("DOMContentLoaded", () => {
+  initializeWelcomeScreen();
+  setupDynamicBehaviors();
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Step 1: Immediately tell the welcome screen to appear.
-  // This is the most important change - we make the screen visible FIRST.
+function initializeWelcomeScreen() {
   showScreen("welcomeScreen");
-
-  // Step 2: Now that the screen is visible, find the container inside it.
   const topicContainer = document.getElementById("topicContainer");
-
-  // Step 3: Populate the container with the topic buttons.
-  // We also add a check to make sure the container was found, just to be safe.
   if (topicContainer) {
     quizTopics.forEach((topic) => {
       const button = document.createElement("button");
@@ -96,21 +38,94 @@ document.addEventListener("DOMContentLoaded", () => {
       topicContainer.appendChild(button);
     });
   }
-});
+}
+
+function setupDynamicBehaviors() {
+  const quizContent = document.getElementById("quizContent");
+  if (quizContent) {
+    // Desktop scroll effects logic
+    quizContent.addEventListener("scroll", () => {
+      const quizCard = document.getElementById("quizCard");
+      const scrollTop = quizContent.scrollTop;
+      const scrollHeight = quizContent.scrollHeight;
+      const clientHeight = quizContent.clientHeight;
+
+      // For top border (matches existing CSS .has-scrolled)
+      quizCard.classList.toggle("has-scrolled", scrollTop > 5);
+
+      // For bottom border (hides border when at the end)
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 5;
+      quizCard.classList.toggle("scrolled-to-end", isAtBottom);
+    });
+
+    // Mobile tooltip scroll hide
+    quizContent.addEventListener(
+      "scroll",
+      () => {
+        if (window.innerWidth <= 768) {
+          hideMobileTooltip();
+        }
+      },
+      { passive: true }
+    );
+  }
+
+  // Mobile tooltip button logic
+  const hintExplanationBtn = document.getElementById("hintExplanationBtn");
+  if (hintExplanationBtn) {
+    hintExplanationBtn.addEventListener("click", toggleMobileTooltip);
+  }
+
+  // Hide mobile tooltip on outside click
+  document.addEventListener("click", (event) => {
+    const tooltipPopup = document.getElementById("tooltipPopup");
+    const hintBtn = document.getElementById("hintExplanationBtn");
+    if (hintBtn && tooltipPopup) {
+      const isClickInside =
+        hintBtn.contains(event.target) || tooltipPopup.contains(event.target);
+      if (!isClickInside && tooltipPopup.classList.contains("visible")) {
+        hideMobileTooltip();
+      }
+    }
+  });
+}
+
+function handleKeyPress(e) {
+  const key = e.key.toLowerCase();
+  if (key === "enter") {
+    e.preventDefault();
+    const nextBtn = document.getElementById("nextBtn");
+    if (nextBtn && !nextBtn.disabled) nextBtn.click();
+  }
+  if (["1", "2", "3", "4", "5", "6"].includes(key) && !answered) {
+    e.preventDefault();
+    const answerIndex = parseInt(key, 10) - 1;
+    const answerButton = document.querySelector(
+      `.answer-option[data-answer="${answerIndex}"]`
+    );
+    if (answerButton) answerButton.click();
+  }
+  if ((key === "h" || key === "י") && !answered) {
+    e.preventDefault();
+    const hintContainer = document
+      .getElementById("hintContainer")
+      ?.querySelector(".tooltip-container");
+    if (hintContainer) {
+      hintContainer.classList.toggle("hint-visible");
+    }
+  }
+}
+
 function showScreen(screenId) {
   document
     .querySelectorAll(".welcome-screen, .container, .end-screen")
     .forEach((screen) => {
-      screen.classList.remove("visible", "show");
+      screen.classList.remove("visible");
       screen.style.display = "none";
     });
-
   const screenElement = document.getElementById(screenId);
   screenElement.style.display = "flex";
-
-  setTimeout(() => {
-    screenElement.classList.add("visible");
-  }, 10);
+  setTimeout(() => screenElement.classList.add("visible"), 10);
 }
 
 function shuffleArray(array) {
@@ -126,36 +141,25 @@ function isLtrText(text) {
 }
 
 function loadAndStartQuiz(quizFile) {
-  // הסר תג סקריפט קודם אם קיים כדי למנוע התנגשויות
   const oldScript = document.getElementById("quiz-data-script");
-  if (oldScript) {
-    oldScript.remove();
-  }
+  if (oldScript) oldScript.remove();
 
-  // צור תג סקריפט חדש
   const script = document.createElement("script");
   script.src = quizFile;
   script.id = "quiz-data-script";
-
-  // הגדר מה יקרה כשהסקריפט ייטען
   script.onload = () => {
-    // ודא שהמשתנה quizData אכן נטען
     if (typeof quizData !== "undefined" && quizData.length > 0) {
       showScreen("mainContainer");
-      setTimeout(initQuiz, 50); // קרא ל-initQuiz רק אחרי שהמסך הוחלף
+      setTimeout(initQuiz, 50);
     } else {
       console.error("Failed to load quiz data from:", quizFile);
       alert("שגיאה בטעינת השאלון. אנא נסה שוב.");
     }
   };
-
-  // טפל במקרה של שגיאה בטעינה
   script.onerror = () => {
     console.error("Error loading script:", quizFile);
     alert("לא ניתן היה למצוא את קובץ השאלון.");
   };
-
-  // הוסף את הסקריפט ל-DOM כדי להתחיל את הטעינה
   document.body.appendChild(script);
 }
 
@@ -177,50 +181,28 @@ function initQuiz() {
 
 function startTimer() {
   clearInterval(timerInterval);
-  timeLeft = 10;
-  updateTimerDisplay();
-
-  const timerMessageContainer = document.getElementById(
-    "timerMessageContainer"
-  );
-
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    updateTimerDisplay();
-
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      if (timerMessageContainer) {
-        timerMessageContainer.classList.add("visible");
-        setTimeout(() => {
-          timerMessageContainer.classList.remove("visible");
-        }, 3000); // Hide after 3 seconds
-      }
-    }
-  }, 1000);
-}
-
-function updateTimerDisplay() {
+  timeLeft = 600;
   const timerSpan = document.getElementById("timer");
-  if (timerSpan) {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    timerSpan.textContent = `${minutes.toString().padStart(2, "0")}:${seconds
-      .toString()
-      .padStart(2, "0")}`;
-  }
+
+  const update = () => {
+    if (timerSpan) {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerSpan.textContent = `${minutes.toString().padStart(2, "0")}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
+    }
+    timeLeft--;
+  };
+
+  update(); // Update immediately
+  timerInterval = setInterval(update, 1000);
 }
 
 function animateQuizCard(show, callback) {
   const quizCard = document.getElementById("quizCard");
-  if (show) {
-    quizCard.classList.remove("show");
-    void quizCard.offsetWidth;
-    quizCard.classList.add("show");
-  } else {
-    quizCard.classList.remove("show");
-  }
-  if (callback) setTimeout(callback, 500);
+  quizCard.classList.toggle("show", show);
+  if (callback) setTimeout(callback, 300);
 }
 
 function loadQuestion() {
@@ -230,13 +212,19 @@ function loadQuestion() {
   }
 
   animateQuizCard(false, () => {
-    const question = sessionQuizData[currentQuestion];
-    document.getElementById("currentQ").textContent = currentQuestion + 1;
-    document
-      .getElementById("timerMessageContainer")
-      .classList.remove("visible");
-
+    const quizCard = document.getElementById("quizCard");
     const quizContent = document.getElementById("quizContent");
+    const question = sessionQuizData[currentQuestion];
+
+    quizCard.classList.remove(
+      "has-scrolled",
+      "is-scrollable",
+      "scrolled-to-end"
+    );
+    quizContent.scrollTop = 0;
+
+    document.getElementById("currentQ").textContent = currentQuestion + 1;
+
     const codeSection = document.getElementById("codeSection");
     const codeDisplay = document.getElementById("codeDisplay");
 
@@ -253,36 +241,41 @@ function loadQuestion() {
 
     const hintContainer = document.getElementById("hintContainer");
     hintContainer.innerHTML = "";
+    document.getElementById("explanationContainer").innerHTML = "";
+
+    // Fix for Desktop Hint Tooltip
     if (question.hint) {
       hintContainer.innerHTML = `
         <div class="tooltip-container">
-          <button class="tooltip-btn">רמז</button>
-          <div class="tooltip-popup">${formatAnswerText(question.hint)}</div>
+            <button class="tooltip-btn">רמז</button>
+            <div class="tooltip-popup">${formatAnswerText(question.hint)}</div>
         </div>`;
     }
 
-    document.getElementById("explanationContainer").innerHTML = "";
+    hintExplanationState = "hint";
+    const hintExplanationBtn = document.getElementById("hintExplanationBtn");
+    if (hintExplanationBtn) {
+      hintExplanationBtn.textContent = "רמז";
+      hintExplanationBtn.disabled = !question.hint;
+    }
+    hideMobileTooltip();
 
-    const questionTitle = document.getElementById("questionTitle");
-    questionTitle.innerHTML = formatAnswerText(question.question);
+    document.getElementById("questionTitle").innerHTML = formatAnswerText(
+      question.question
+    );
 
-    const container = document.getElementById("answersContainer");
-    container.innerHTML = "";
+    const answersContainer = document.getElementById("answersContainer");
+    answersContainer.innerHTML = "";
     question.answers.forEach((answer, index) => {
       const option = document.createElement("div");
       option.className = "answer-option";
-      if (isLtrText(answer)) {
-        option.classList.add("ltr-answer");
-      }
+      if (isLtrText(answer)) option.classList.add("ltr-answer");
       option.setAttribute("data-answer", index);
       option.innerHTML = `<div class="answer-text">${formatAnswerText(
         answer
       )}</div>`;
       option.addEventListener("click", () => selectAnswer(index));
-      container.appendChild(option);
-      setTimeout(() => {
-        option.classList.add("visible");
-      }, 150 + index * 50);
+      answersContainer.appendChild(option);
     });
 
     selectedAnswer = null;
@@ -291,8 +284,108 @@ function loadQuestion() {
     document.getElementById("nextBtn").disabled = true;
 
     startTimer();
+
+    setTimeout(() => {
+      if (quizContent.scrollHeight > quizContent.clientHeight) {
+        quizCard.classList.add("is-scrollable");
+      }
+    }, 150);
+
     animateQuizCard(true);
   });
+}
+
+function checkAnswer() {
+  if (selectedAnswer === null) return;
+
+  clearInterval(timerInterval); // Stop the timer
+
+  answered = true;
+
+  const desktopHintContainer = document
+    .getElementById("hintContainer")
+    ?.querySelector(".tooltip-container");
+  if (desktopHintContainer) desktopHintContainer.classList.add("disabled");
+
+  const question = sessionQuizData[currentQuestion];
+  const options = document.querySelectorAll(".answer-option");
+  options.forEach((option) => (option.style.pointerEvents = "none"));
+  options[question.correct].classList.add("correct");
+
+  const hintExplanationBtn = document.getElementById("hintExplanationBtn");
+  const explanationContainer = document.getElementById("explanationContainer");
+
+  if (selectedAnswer === question.correct) {
+    score++;
+    if (hintExplanationBtn) hintExplanationBtn.disabled = true;
+    hintExplanationState = "disabled";
+  } else {
+    options[selectedAnswer].classList.add("incorrect");
+
+    if (question.explanation) {
+      explanationContainer.innerHTML = `
+        <div class="tooltip-container">
+          <button class="tooltip-btn">הסבר תשובה</button>
+          <div class="tooltip-popup">${formatAnswerText(
+            question.explanation
+          )}</div>
+        </div>`;
+
+      if (hintExplanationBtn) {
+        hintExplanationBtn.textContent = "הסבר תשובה";
+        hintExplanationBtn.disabled = false;
+      }
+      hintExplanationState = "explanation";
+    } else {
+      if (hintExplanationBtn) hintExplanationBtn.disabled = true;
+      hintExplanationState = "disabled";
+    }
+  }
+
+  document.getElementById("nextBtn").textContent =
+    currentQuestion === sessionQuizData.length - 1 ? "סיום" : "השאלה הבאה";
+  document.getElementById("nextBtn").disabled = false;
+
+  // ===>>> תוספת חדשה: גלילה אוטומטית לחלק התחתון <<<===
+  const quizContent = document.getElementById("quizContent");
+  setTimeout(() => {
+    quizContent.scrollTo({
+      top: quizContent.scrollHeight,
+      behavior: "smooth",
+    });
+  }, 100); // השהיה קטנה לחוויה חלקה יותר
+}
+function toggleMobileTooltip() {
+  const tooltipPopup = document.getElementById("tooltipPopup");
+  if (tooltipPopup.classList.contains("visible")) {
+    hideMobileTooltip();
+  } else {
+    showMobileTooltip();
+  }
+}
+
+function showMobileTooltip() {
+  const question = sessionQuizData[currentQuestion];
+  const tooltipPopup = document.getElementById("tooltipPopup");
+  let content = "";
+
+  if (hintExplanationState === "hint" && question.hint) {
+    content = question.hint;
+  } else if (hintExplanationState === "explanation" && question.explanation) {
+    content = question.explanation;
+  }
+
+  if (content) {
+    tooltipPopup.innerHTML = formatAnswerText(content);
+    tooltipPopup.classList.add("visible");
+  }
+}
+
+function hideMobileTooltip() {
+  const tooltipPopup = document.getElementById("tooltipPopup");
+  if (tooltipPopup) {
+    tooltipPopup.classList.remove("visible");
+  }
 }
 
 function formatAnswerText(text) {
@@ -320,58 +413,10 @@ function handleNextAction() {
 }
 document.getElementById("nextBtn").onclick = handleNextAction;
 
-function checkAnswer() {
-  if (selectedAnswer === null) return;
-  answered = true;
-  clearInterval(timerInterval);
-  const hintContainer = document
-    .getElementById("hintContainer")
-    .querySelector(".tooltip-container");
-  if (hintContainer) {
-    hintContainer.classList.add("disabled");
-  }
-
-  const question = sessionQuizData[currentQuestion];
-  const options = document.querySelectorAll(".answer-option");
-  options.forEach((option) => {
-    option.style.pointerEvents = "none";
-  });
-
-  options[question.correct].classList.add("correct");
-
-  // בדוק אם התשובה שנבחרה נכונה
-  if (selectedAnswer === question.correct) {
-    score++; // <--- כאן התיקון! הוספת נקודה לניקוד
-  } else {
-    // אם התשובה לא נכונה
-    options[selectedAnswer].classList.add("incorrect");
-    if (question.explanation) {
-      const explanationContainer = document.getElementById(
-        "explanationContainer"
-      );
-      explanationContainer.innerHTML = `
-          <div class="tooltip-container">
-            <button class="tooltip-btn">הצג הסבר</button>
-            <div class="tooltip-popup">${formatAnswerText(
-              question.explanation
-            )}</div>
-          </div>`;
-    }
-  }
-
-  if (currentQuestion === sessionQuizData.length - 1) {
-    document.getElementById("nextBtn").textContent = "סיום";
-  } else {
-    document.getElementById("nextBtn").textContent = "השאלה הבאה";
-  }
-  document.getElementById("nextBtn").disabled = false;
-}
-
 function showEndScreen() {
   const endIconContainer = document.getElementById("endIconContainer");
   const endMessage = document.getElementById("endMessage");
   const endScoreDetails = document.getElementById("endScoreDetails");
-
   const totalQuestions = sessionQuizData.length;
   const quarter = totalQuestions / 4;
 
@@ -393,6 +438,5 @@ function showEndScreen() {
     endMessage.textContent = "כל הכבוד!";
     endScoreDetails.textContent = `צדקת ב-${score} מתוך ${totalQuestions} שאלות.`;
   }
-
   showScreen("endScreen");
 }
