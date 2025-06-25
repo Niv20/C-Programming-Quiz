@@ -1063,6 +1063,6 @@ label.answer-label {
 /* --- תיקון ריווח עליון לקוד במובייל --- */
 @media (max-width: 768px) {
   .code-section {
-    padding-top: 15px !important;
+    padding-top: 100px !important;
   }
 }
