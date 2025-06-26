@@ -4,7 +4,8 @@ let score = 0;
 let selectedAnswer = null;
 let answered = false;
 let timerInterval = null;
-let isDeviceMobile = false; // הוספה: משתנה שיזכור אם המכשיר הוא נייד
+let isDeviceMobile = false;
+let isFirstErrorOccurred = false;
 
 const quizTopics = [
   { name: "פוינטרים", file: "quizzes/pointers.js" },
@@ -22,7 +23,6 @@ Prism.plugins.autoloader.languages_path =
 document.addEventListener("DOMContentLoaded", initializeApp);
 document.addEventListener("keydown", handleKeyPress);
 window.addEventListener("resize", () => {
-  // שינוי: הוספנו תנאי שבודק אם המכשיר אינו נייד
   if (!isDeviceMobile) {
     if (window.innerWidth < 1200 || window.innerHeight < 700) {
       document.getElementById("pleaseEnlargeScreen").style.display = "flex";
@@ -36,15 +36,11 @@ function initializeApp() {
   const isMobile =
     navigator.maxTouchPoints > 0 && /Mobi|Android/i.test(navigator.userAgent);
 
-  isDeviceMobile = isMobile; // הוספה: קובעים את ערך המשתנה הגלובלי
+  isDeviceMobile = isMobile;
 
-  // אני ממליץ למחוק את שורת ה-alert הזו, היא שימשה רק לבדיקות
-  // alert(isMobile);
-
-  // בדיקה ראשונה: האם המשתמש גולש ממכשיר נייד?
   if (isMobile) {
     document.getElementById("mobileBlocker").style.display = "flex";
-    return; // עצירת טעינת האתר
+    return;
   }
 
   if (window.innerWidth < 1200 || window.innerHeight < 700) {
@@ -92,7 +88,6 @@ function handleScroll(element, parentCard) {
   if (!element || !parentCard) return;
   const { scrollTop, scrollHeight, clientHeight } = element;
 
-  // (ה) שליטה על נראות חץ עליון ותחתון
   parentCard.classList.toggle("has-scrolled", scrollTop > 10);
   const isAtBottom = scrollHeight - scrollTop - clientHeight < 10;
   parentCard.classList.toggle("scrolled-to-end", isAtBottom);
@@ -118,43 +113,35 @@ function checkScrollability() {
   }
 }
 
-// script.js
-
-// פונקציה שמסתירה את הבועיות ומסירה את המאזין לתזוזת העכבר
 function hideTooltipsAndListeners() {
   document
     .querySelectorAll(".tooltip-container.visible")
     .forEach((container) => {
       container.classList.remove("visible");
     });
-  // מסירים את המאזין כדי שלא ירוץ ללא צורך
   document.removeEventListener("mousemove", hideTooltipsAndListeners);
 }
 
-// פונקציה שמופעלת בלחיצת מקש או כפתור
 function toggleTooltip(container) {
   const isVisible = container.classList.contains("visible");
-
-  // סוגרים בועיות אחרות לפני פתיחת החדשה
   hideTooltipsAndListeners();
-
   container.classList.toggle("visible", !isVisible);
-
-  // אם הבועית הוצגה, נוסיף מאזין חד-פעמי לתזוזת עכבר
   if (container.classList.contains("visible")) {
     document.addEventListener("mousemove", hideTooltipsAndListeners);
   }
 }
 
-// פונקציה גלובלית שמטפלת בקליקים כלליים
 function handleGlobalClick(e) {
-  // בדוק אם הקליק לא היה על כפתור שמציג בועית
   if (!e.target.closest(".tooltip-container")) {
     hideTooltipsAndListeners();
   }
 }
 
 function handleKeyPress(e) {
+  if (document.getElementById("endScreen").classList.contains("visible")) {
+    return;
+  }
+
   const key = e.key.toLowerCase();
   if (key === "enter") {
     e.preventDefault();
@@ -162,7 +149,6 @@ function handleKeyPress(e) {
     return;
   }
 
-  // Allow 'h' to work anytime for hint
   if (key === "h" || key === "י") {
     e.preventDefault();
     const hintContainer = document
@@ -171,7 +157,7 @@ function handleKeyPress(e) {
     if (hintContainer && !hintContainer.classList.contains("disabled")) {
       toggleTooltip(hintContainer);
     }
-    return; // Stop further execution for 'h'
+    return;
   }
 
   if (answered) return;
@@ -220,7 +206,6 @@ function loadAndStartQuiz(quizFile) {
       showScreen("mainContainer");
       const quizLayoutGrid = document.getElementById("quizLayoutGrid");
       quizLayoutGrid.classList.add("initial-load");
-
       setTimeout(initQuiz, 50);
     } else {
       console.error("Failed to load quiz data from:", quizFile);
@@ -246,6 +231,7 @@ function initQuiz() {
   });
   currentQuestion = 0;
   score = 0;
+  isFirstErrorOccurred = false;
   document.getElementById("totalQ").textContent = sessionQuizData.length;
   loadQuestion();
   quizLayoutGrid.classList.remove("initial-load");
@@ -259,12 +245,10 @@ function startTimer() {
   const update = () => {
     if (timeLeft < 0) {
       clearInterval(timerInterval);
-
       if (timerSpan) timerSpan.textContent = "00:00";
-
       const msgElement = document.getElementById("timerOutMessage");
       if (msgElement) {
-        msgElement.textContent = "חחח סתם הלחצתי אתכם. אין משמעות לטיימר ";
+        msgElement.textContent = "חחח סתם הלחצתי אתכם. אין משמעות לטיימר";
         msgElement.classList.add("visible");
         setTimeout(() => {
           msgElement.classList.remove("visible");
@@ -272,7 +256,6 @@ function startTimer() {
       }
       return;
     }
-
     if (timerSpan) {
       const minutes = Math.floor(timeLeft / 60);
       const seconds = timeLeft % 60;
@@ -282,7 +265,6 @@ function startTimer() {
     }
     timeLeft--;
   };
-
   update();
   timerInterval = setInterval(update, 1000);
 }
@@ -291,7 +273,6 @@ function attachTooltipListener(containerId) {
   const container = document.getElementById(containerId);
   const tooltipContainer = container?.querySelector(".tooltip-container");
   if (tooltipContainer) {
-    // Listener is now only needed for click/toggle functionality
     tooltipContainer.addEventListener("click", (e) => {
       e.stopPropagation();
       toggleTooltip(tooltipContainer);
@@ -307,16 +288,13 @@ function loadQuestion() {
 
   const question = sessionQuizData[currentQuestion];
   const quizLayoutGrid = document.getElementById("quizLayoutGrid");
-
   quizLayoutGrid.classList.add("fade-out");
 
   setTimeout(() => {
     document.getElementById("timerOutMessage")?.classList.remove("visible");
-
     hideTooltipsAndListeners();
     document.getElementById("quizContent").scrollTop = 0;
     document.getElementById("code-block").scrollTop = 0;
-
     document.getElementById("currentQ").textContent = currentQuestion + 1;
     const codeDisplay = document.getElementById("codeDisplay");
 
@@ -365,15 +343,13 @@ function loadQuestion() {
     document.getElementById("nextBtn").disabled = true;
 
     startTimer();
-
     quizLayoutGrid.classList.remove("fade-out");
     quizLayoutGrid.classList.add("fade-in");
-
     setTimeout(() => {
       quizLayoutGrid.classList.remove("fade-in");
       checkScrollability();
     }, 300);
-  }, 300); // Duration matches CSS transition
+  }, 300);
 }
 
 function checkAnswer() {
@@ -392,22 +368,101 @@ function checkAnswer() {
   options.forEach((option) => (option.style.pointerEvents = "none"));
   options[question.correct].classList.add("correct");
 
-  const explanationContainer = document.getElementById("explanationContainer");
-
   if (selectedAnswer === question.correct) {
     score++;
   } else {
     options[selectedAnswer].classList.add("incorrect");
+
     if (question.explanation) {
-      explanationContainer.innerHTML = `
+      document.getElementById("explanationContainer").innerHTML = `
         <div class="tooltip-container">
           <button class="tooltip-btn">הסבר תשובה</button>
           <div class="tooltip-popup">${formatAnswerText(
             question.explanation
           )}</div>
         </div>`;
-      // No listener needed if it's pure hover, but we keep it for click support
       attachTooltipListener("explanationContainer");
+    }
+
+    // --- החזרת המנגנון המקורי והמשולב לטעות הראשונה ---
+    if (!isFirstErrorOccurred) {
+      isFirstErrorOccurred = true;
+
+      // יצירת רכיבי בסיס
+      const overlay = document.createElement("div");
+      overlay.id = "darkOverlay";
+      document.body.appendChild(overlay);
+
+      const banner = document.createElement("div");
+      banner.id = "firstErrorBanner";
+      banner.style.whiteSpace = "pre-line";
+      banner.style.textAlign = "center";
+      banner.textContent =
+        "אופסי, נראה שבחרת את התשובה השגויה.\nלחץ על 'הסבר תשובה' כדי לעבור על הפתרון.";
+      document.body.appendChild(banner);
+
+      // מנגנון שיבוט הכפתור
+      const originalExplanationContainer = document.querySelector(
+        "#explanationContainer .tooltip-container"
+      );
+      let clonedExplanationContainer = null;
+
+      if (originalExplanationContainer) {
+        originalExplanationContainer.style.visibility = "hidden";
+        clonedExplanationContainer =
+          originalExplanationContainer.cloneNode(true);
+        clonedExplanationContainer.classList.add("explanation-clone");
+
+        clonedExplanationContainer.style.visibility = "visible";
+
+        const originalRect =
+          originalExplanationContainer.getBoundingClientRect();
+        clonedExplanationContainer.style.left = originalRect.left + "px";
+        clonedExplanationContainer.style.top = originalRect.top + "px";
+
+        document.body.appendChild(clonedExplanationContainer);
+
+        clonedExplanationContainer.addEventListener("click", (e) => {
+          e.stopPropagation(); // מונע סגירה מיידית של החוויה
+          toggleTooltip(clonedExplanationContainer);
+        });
+      }
+
+      // פונקציה שמנקה הכל
+      const hideErrorExperience = () => {
+        // הסתרת הרכיבים עם אנימציה
+        if (document.body.contains(overlay))
+          overlay.classList.remove("visible");
+        if (document.body.contains(banner)) banner.classList.remove("visible");
+
+        // ניקוי מלא מה-DOM לאחר האנימציה
+        setTimeout(() => {
+          if (document.body.contains(overlay)) overlay.remove();
+          if (document.body.contains(banner)) banner.remove();
+          if (clonedExplanationContainer) clonedExplanationContainer.remove();
+        }, 300);
+
+        // החזרת הכפתור המקורי לנראות
+        if (originalExplanationContainer) {
+          originalExplanationContainer.style.visibility = "visible";
+        }
+
+        // ניקוי המאזינים
+        document.removeEventListener("click", hideErrorExperience);
+        clearTimeout(timeoutId);
+      };
+
+      // הגדרת מנגנוני הסגירה
+      const timeoutId = setTimeout(hideErrorExperience, 4000); // ניתן לשנות חזרה ל-3000 אם רוצים
+      setTimeout(() => {
+        document.addEventListener("click", hideErrorExperience);
+      }, 100);
+
+      // הפעלת האנימציה
+      setTimeout(() => {
+        overlay.classList.add("visible");
+        banner.classList.add("visible");
+      }, 10);
     }
   }
 
@@ -449,9 +504,8 @@ function showEndScreen() {
   const totalQuestions = sessionQuizData.length;
   const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
 
-  // (בונוס) إعادة تشغيل האנימציה
   endIconContainer.classList.remove("animate-pop");
-  void endIconContainer.offsetWidth; // Trigger reflow
+  void endIconContainer.offsetWidth;
   endIconContainer.classList.add("animate-pop");
 
   if (percentage === 100) {
@@ -471,7 +525,6 @@ function showEndScreen() {
     endMessage.textContent = "אפשר להשתפר";
     endScoreDetails.textContent = `צדקת ב-${score} מתוך ${totalQuestions}. נסה שוב, בטוח שתצליח יותר!`;
   } else {
-    // 0%
     endIconContainer.innerHTML = '<i class="fas fa-poo"></i>';
     endMessage.textContent = "אוי ואבוי...";
     endScoreDetails.textContent =

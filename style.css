@@ -26,7 +26,6 @@ body {
 }
 
 /* --- מסכי חסימה --- */
-/* שים לב: החלפנו את #mobileBlocker בשני המזהים החדשים */
 #pleaseEnlargeScreen,
 #mobileBlocker {
   display: none;
@@ -45,7 +44,6 @@ body {
   padding: 20px;
 }
 
-/* מעדכנים את כללי העיצוב לאייקונים, כותרות ופסקאות בהתאמה */
 #pleaseEnlargeScreen i,
 #mobileBlocker i {
   font-size: 4rem;
@@ -133,16 +131,14 @@ body {
 }
 .how-to-play {
   position: absolute;
-  bottom: 60px; /* ניתן לשנות ערך זה כדי לקבוע את המרחק מהתחתית */
+  bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
-
   width: 100%;
   max-width: 800px;
   padding-top: 20px;
   border-top: 2px solid #2a2a2a;
 }
-
 .instructions-title {
   font-size: 1rem;
   font-weight: 600;
@@ -181,9 +177,8 @@ body {
   padding: 40px;
   opacity: 0;
   transition: opacity 0.5s ease;
-
   display: none;
-  flex-direction: column; /* הוסף את זה */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
@@ -191,23 +186,18 @@ body {
   opacity: 1;
   display: flex;
 }
-
 .quiz-layout-grid {
   display: grid;
   grid-template-columns: auto auto;
   justify-content: center;
-  align-items: stretch; /* מותח את התיבות לגובה זהה */
+  align-items: stretch;
   gap: 20px;
   width: auto;
   margin: 0 auto;
-  height: auto; /* מאפשר לתוכן לקבוע את הגובה */
-
-  /* --- השורה החשובה נמצאת כאן --- */
+  height: auto;
   max-height: min(750px, calc(100vh - 80px)) !important;
   transition: opacity 0.3s ease-out, transform 0.3s ease-out;
 }
-
-/* (ו) אנימציית מעבר בין שאלות */
 .quiz-layout-grid.fade-out {
   opacity: 0;
   transform: scale(0.95);
@@ -216,7 +206,6 @@ body {
   opacity: 1;
   transform: scale(1);
 }
-
 .quiz-layout-grid.no-code-mode {
   grid-template-columns: auto;
 }
@@ -247,7 +236,6 @@ body {
   position: relative;
   transition: height 0.4s ease, max-height 0.4s ease;
 }
-
 .quiz-card {
   width: 700px;
 }
@@ -298,6 +286,11 @@ body {
   align-items: center;
   gap: 16px;
 }
+#explanationContainer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
 .btn {
   background: var(--primary-color);
   color: white;
@@ -317,22 +310,19 @@ body {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
 .quiz-content,
 .code-block {
   flex-grow: 1;
   overflow-y: auto;
   display: flex;
   min-height: 0;
-  /* (ג) הסתרת פסי גלילה */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .quiz-content::-webkit-scrollbar,
 .code-block::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, and Opera */
+  display: none;
 }
-
 .question-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -389,9 +379,6 @@ body {
 }
 
 /* --- תיבת הקוד (שמאל) --- */
-.code-block pre {
-  width: 100%;
-}
 .code-block pre,
 .code-block code[class*="language-"] {
   direction: ltr;
@@ -401,8 +388,9 @@ body {
   line-height: 1.6;
   background: transparent !important;
 }
-
-/* --- Wrapper פנימי לגלילה וריווח --- */
+.code-block pre {
+  width: 100%;
+}
 .scroll-wrapper {
   margin: auto 0;
   width: 100%;
@@ -412,7 +400,7 @@ body {
   padding: 2rem;
 }
 
-/* --- מערכת גרדיאנטים --- */
+/* --- מערכת גרדיאנטים לגלילה --- */
 .quiz-card::before,
 .quiz-card::after,
 .code-card::before,
@@ -421,14 +409,12 @@ body {
   position: absolute;
   left: 0;
   right: 0;
-  height: 50px; /* הגדלת שטח הגרדיאנט */
+  height: 50px;
   pointer-events: none;
   transition: opacity 0.3s ease;
   opacity: 0;
   z-index: 5;
 }
-
-/* (ד) גרדיאנטים מודגשים יותר */
 .quiz-card::before {
   top: 69px;
   background: linear-gradient(
@@ -461,7 +447,6 @@ body {
     transparent 100%
   );
 }
-
 .quiz-card.has-scrolled::before,
 .code-card.has-scrolled::before {
   opacity: 1;
@@ -471,7 +456,7 @@ body {
   opacity: 1;
 }
 
-/* (ה) עיצוב חצים עליון ותחתון */
+/* --- חצי גלילה --- */
 .scroll-indicator {
   position: absolute;
   left: 50%;
@@ -540,8 +525,6 @@ body {
   width: max-content;
   max-width: 450px;
 }
-
-/* (א) הצגת ה-tooltip בריחוף ובאמצעות קלאס .visible (עבור מקש H) */
 .tooltip-container:not(.disabled):hover .tooltip-btn {
   color: var(--primary-color-light);
 }
@@ -613,6 +596,7 @@ body {
   font-size: 1rem;
 }
 
+/* --- אנימציות --- */
 @keyframes correctAnswerGrow {
   0%,
   100% {
@@ -637,8 +621,6 @@ body {
     transform: translateX(5px);
   }
 }
-
-/* (בונוס) אנימציית פופ לאייקון סיום */
 @keyframes pop {
   0% {
     transform: scale(0.5);
@@ -656,7 +638,6 @@ body {
 .animate-pop {
   animation: pop 0.5s ease-out forwards;
 }
-
 @keyframes welcomeToQuizFade {
   0% {
     opacity: 0;
@@ -667,22 +648,17 @@ body {
     transform: scale(1);
   }
 }
-
 .quiz-layout-grid.initial-load {
   animation: welcomeToQuizFade 0.4s ease-out forwards;
 }
 
-/* style.css */
-
-/* הפיכת ה div של הטיימר לעוגן עבור המיקום האבסולוטי */
+/* --- הודעת טיימר --- */
 .timer {
   position: relative;
 }
-
-/* עיצוב בועית ההודעה כשהיא מוסתרת */
 #timerOutMessage {
   position: absolute;
-  left: 110%; /* מיקום מימין לטיימר */
+  left: 110%;
   top: 50%;
   transform: translateY(-50%);
   background: #1f1f1f;
@@ -696,9 +672,57 @@ body {
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
-
-/* עיצוב הבועית כשהיא גלויה */
 #timerOutMessage.visible {
   opacity: 1;
   visibility: visible;
+}
+
+/* --- אפקט טעות ראשונה --- */
+#darkOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+#darkOverlay.visible {
+  opacity: 1;
+}
+
+#firstErrorBanner {
+  position: fixed;
+  bottom: 50%;
+  left: 50%;
+  transform: translate(-50%, 20px);
+  background-color: #1f1f1f;
+  color: var(--text-muted);
+  padding: 15px 25px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.5);
+  z-index: 1002;
+  font-size: 1.1rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  pointer-events: none;
+}
+#firstErrorBanner.visible {
+  opacity: 1;
+  transform: translateX(-50%);
+}
+
+/* עיצוב עבור השיבוט של כפתור ההסבר */
+.explanation-clone {
+  position: fixed; /* חשוב כדי לברוח מה-stacking context */
+  z-index: 1001; /* מעל החושך */
+}
+
+/* ודואגים שהפופאפ של השיבוט יהיה אפילו גבוה יותר */
+.explanation-clone .tooltip-popup {
+  z-index: 1002;
 }
