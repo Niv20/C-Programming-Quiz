@@ -8,12 +8,18 @@ let isDeviceMobile = false;
 let isFirstErrorOccurred = false;
 
 const quizTopics = [
+  {
+    name: "ביטוויז",
+    difficulties: [
+      { name: "שאלות קלות", file: "quizzes/bitwise_easy.js" },
+      { name: "שאלות קשות", file: "quizzes/bitwise_hard.js" },
+    ],
+  },
+  { name: "תהליך הקומפילציה", file: "quizzes/compilation.js" },
+  { name: "תווים ומחרוזות", file: "quizzes/strings.js" },
+  { name: "מאקרו", file: "quizzes/macros.js" },
+  { name: "פונקציות", file: "quizzes/functions.js" },
   { name: "פוינטרים", file: "quizzes/pointers.js" },
-  { name: "מחרוזות", file: "quizzes/strings.js" },
-  { name: "מאקרואים", file: "quizzes/macros.js" },
-  { name: "ביטוויז", file: "quizzes/bitwise.js" },
-  { name: "קומפילציה", file: "quizzes/compilation.js" },
-  { name: "שונות", file: "quizzes/other.js" },
 ];
 
 Prism.plugins.autoloader.languages_path =
@@ -35,20 +41,16 @@ window.addEventListener("resize", () => {
 function initializeApp() {
   const isMobile =
     navigator.maxTouchPoints > 0 && /Mobi|Android/i.test(navigator.userAgent);
-
   isDeviceMobile = isMobile;
-
   if (isMobile) {
     document.getElementById("mobileBlocker").style.display = "flex";
     return;
   }
-
   if (window.innerWidth < 1200 || window.innerHeight < 700) {
     document.getElementById("pleaseEnlargeScreen").style.display = "flex";
   }
-
   document.addEventListener("click", handleGlobalClick);
-
+  // No more setupPrismHook() call
   initializeWelcomeScreen();
   setupScrollListeners();
 }
@@ -62,10 +64,52 @@ function initializeWelcomeScreen() {
       const button = document.createElement("button");
       button.className = "topic-btn";
       button.textContent = topic.name;
-      button.onclick = () => loadAndStartQuiz(topic.file);
+      if (topic.difficulties) {
+        button.onclick = () => showDifficultyModal(topic);
+      } else {
+        button.onclick = () => loadAndStartQuiz(topic.file);
+      }
       topicContainer.appendChild(button);
     });
   }
+}
+
+function showDifficultyModal(topic) {
+  const overlay = document.createElement("div");
+  overlay.className = "difficulty-modal-overlay";
+
+  const modal = document.createElement("div");
+  modal.className = "difficulty-modal";
+
+  const title = document.createElement("h3");
+  title.className = "difficulty-modal-title";
+  title.textContent = "בחר רמת קושי";
+  modal.appendChild(title);
+
+  const buttonContainer = document.createElement("div");
+  buttonContainer.className = "difficulty-modal-buttons";
+
+  topic.difficulties.forEach((difficulty) => {
+    const button = document.createElement("button");
+    button.className = "topic-btn";
+    button.textContent = difficulty.name;
+    button.onclick = () => {
+      document.body.removeChild(overlay);
+      loadAndStartQuiz(difficulty.file);
+    };
+    buttonContainer.appendChild(button);
+  });
+
+  modal.appendChild(buttonContainer);
+  overlay.appendChild(modal);
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+    }
+  });
+
+  document.body.appendChild(overlay);
 }
 
 function setupScrollListeners() {
@@ -221,11 +265,11 @@ function loadAndStartQuiz(quizFile) {
 
 function initQuiz() {
   sessionQuizData = JSON.parse(JSON.stringify(quizData));
-  shuffleArray(sessionQuizData);
+  // shuffleArray(sessionQuizData); ניבניב
   sessionQuizData.forEach((question) => {
     if (question.answers) {
       const correctAnswerText = question.answers[question.correct];
-      shuffleArray(question.answers);
+      // shuffleArray(question.answers);ניבניב
       question.correct = question.answers.indexOf(correctAnswerText);
     }
   });
@@ -280,6 +324,112 @@ function attachTooltipListener(containerId) {
   }
 }
 
+// change: 3. Handle reverse highlighting
+function setupHighlightListeners() {
+  // From Code -> To Answer
+  const codeSlots = document.querySelectorAll("#codeDisplay .code-slot");
+  codeSlots.forEach((slot) => {
+    const slotId = slot.dataset.slotId;
+    if (!slotId) return;
+
+    slot.addEventListener("mouseenter", () => {
+      const answerSlots = document.querySelectorAll(
+        `.answer-slot[data-slot-id="${slotId}"]`
+      );
+      answerSlots.forEach((answerSlot) =>
+        answerSlot.classList.add("highlight")
+      );
+    });
+
+    slot.addEventListener("mouseleave", () => {
+      const answerSlots = document.querySelectorAll(
+        `.answer-slot[data-slot-id="${slotId}"]`
+      );
+      answerSlots.forEach((answerSlot) =>
+        answerSlot.classList.remove("highlight")
+      );
+    });
+  });
+
+  // From Answer -> To Code
+  const allAnswerSlots = document.querySelectorAll(".answer-slot");
+  allAnswerSlots.forEach((slot) => {
+    const slotId = slot.dataset.slotId;
+    if (!slotId) return;
+
+    slot.addEventListener("mouseenter", () => {
+      const codeSlot = document.querySelector(
+        `.code-slot[data-slot-id="${slotId}"]`
+      );
+      if (codeSlot) {
+        codeSlot.classList.add("highlight");
+      }
+    });
+
+    slot.addEventListener("mouseleave", () => {
+      const codeSlot = document.querySelector(
+        `.code-slot[data-slot-id="${slotId}"]`
+      );
+      if (codeSlot) {
+        codeSlot.classList.remove("highlight");
+      }
+    });
+  });
+}
+
+function formatText(text) {
+  if (typeof text !== "string") {
+    return String(text);
+  }
+
+  const slotPlaceholders = new Map();
+  let placeholderIndex = 0;
+
+  // Step 1: Find, format, and replace answer slots with placeholders
+  let processedText = text.replace(
+    /\[\[(\d+):\s*([\s\S]+?)\]\]/g,
+    (match, slotId, rawContent) => {
+      let content = rawContent.trim();
+      if (content.startsWith("$$") && content.endsWith("$$")) {
+        content = content.substring(2, content.length - 2).trim();
+      }
+
+      // Escape HTML characters to prevent rendering issues
+      const escapedContent = content
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      const slotHTML = `<span class="answer-slot" data-slot-id="${slotId}">
+                          <span class="answer-slot-number">${slotId}</span>
+                          <code class="answer-slot-code">${escapedContent}</code>
+                        </span>`;
+
+      const placeholder = `__SLOT_PLACEHOLDER_${placeholderIndex++}__`;
+      slotPlaceholders.set(placeholder, slotHTML);
+      return placeholder;
+    }
+  );
+
+  // Step 2: Process paragraphs for the remaining text
+  processedText = processedText
+    .split("\n")
+    .map((paragraph) => (paragraph.trim() ? `<p>${paragraph}</p>` : ""))
+    .join("");
+
+  // Step 3: Re-insert the formatted slots back, removing wrapping <p> if necessary
+  slotPlaceholders.forEach((slotHTML, placeholder) => {
+    const regex = new RegExp(`<p>${placeholder}</p>|${placeholder}`, "g");
+    processedText = processedText.replace(regex, slotHTML);
+  });
+
+  // Step 4: Handle simple backtick code blocks
+  processedText = processedText.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  return processedText;
+}
+
+// Replace the code display section in your loadQuestion function with this:
+
 function loadQuestion() {
   if (currentQuestion >= sessionQuizData.length) {
     showEndScreen();
@@ -296,17 +446,47 @@ function loadQuestion() {
     document.getElementById("quizContent").scrollTop = 0;
     document.getElementById("code-block").scrollTop = 0;
     document.getElementById("currentQ").textContent = currentQuestion + 1;
-    const codeDisplay = document.getElementById("codeDisplay");
 
+    const codeDisplay = document.getElementById("codeDisplay");
     if (question.code && question.code.trim() !== "") {
       quizLayoutGrid.classList.remove("no-code-mode");
-      codeDisplay.textContent = question.code;
-      Prism.highlightElement(codeDisplay);
+
+      // NEW APPROACH: Use unique placeholders that won't be tokenized by Prism
+      const rawCode = question.code;
+      const placeholderMap = new Map();
+      let placeholderCounter = 0;
+
+      // Replace [[n]] with unique placeholders
+      const codeWithPlaceholders = rawCode.replace(
+        /\[\[\s*(\d+)\s*\]\]/g,
+        (match, slotId) => {
+          const placeholder = `SLOT_PLACEHOLDER_${placeholderCounter++}_END`;
+          placeholderMap.set(placeholder, slotId);
+          return placeholder;
+        }
+      );
+
+      // Highlight code with placeholders
+      const highlighted = Prism.highlight(
+        codeWithPlaceholders,
+        Prism.languages.c,
+        "c"
+      );
+
+      // Replace placeholders with slot elements
+      let finalHTML = highlighted;
+      placeholderMap.forEach((slotId, placeholder) => {
+        const slotHTML = `<span class="code-slot" data-slot-id="${slotId}">${slotId}</span>`;
+        finalHTML = finalHTML.replace(new RegExp(placeholder, "g"), slotHTML);
+      });
+
+      codeDisplay.innerHTML = finalHTML;
     } else {
       quizLayoutGrid.classList.add("no-code-mode");
-      codeDisplay.textContent = "";
+      codeDisplay.innerHTML = "";
     }
 
+    // Rest of your existing code remains the same...
     document.getElementById("hintContainer").innerHTML = "";
     document.getElementById("explanationContainer").innerHTML = "";
 
@@ -314,12 +494,12 @@ function loadQuestion() {
       document.getElementById("hintContainer").innerHTML = `
         <div class="tooltip-container">
             <button class="tooltip-btn">רמז</button>
-            <div class="tooltip-popup">${formatAnswerText(question.hint)}</div>
+            <div class="tooltip-popup">${formatText(question.hint)}</div>
         </div>`;
       attachTooltipListener("hintContainer");
     }
 
-    document.getElementById("questionTitle").innerHTML = formatAnswerText(
+    document.getElementById("questionTitle").innerHTML = formatText(
       question.question
     );
 
@@ -330,12 +510,19 @@ function loadQuestion() {
       option.className = "answer-option";
       if (isLtrText(answer)) option.classList.add("ltr-answer");
       option.setAttribute("data-answer", index);
-      option.innerHTML = `<div class="answer-text">${formatAnswerText(
+      option.innerHTML = `<span class="answer-text">${formatText(
         answer
-      )}</div>`;
+      )}</span>`;
       option.addEventListener("click", () => selectAnswer(index));
       answersContainer.appendChild(option);
     });
+
+    // change: 4. Add/remove class for center alignment
+    if (answersContainer.querySelector(".answer-slot")) {
+      answersContainer.classList.add("center-align-answers");
+    } else {
+      answersContainer.classList.remove("center-align-answers");
+    }
 
     selectedAnswer = null;
     answered = false;
@@ -348,6 +535,7 @@ function loadQuestion() {
     setTimeout(() => {
       quizLayoutGrid.classList.remove("fade-in");
       checkScrollability();
+      setupHighlightListeners();
     }, 300);
   }, 300);
 }
@@ -377,18 +565,14 @@ function checkAnswer() {
       document.getElementById("explanationContainer").innerHTML = `
         <div class="tooltip-container">
           <button class="tooltip-btn">הסבר תשובה</button>
-          <div class="tooltip-popup">${formatAnswerText(
-            question.explanation
-          )}</div>
+          <div class="tooltip-popup">${formatText(question.explanation)}</div>
         </div>`;
       attachTooltipListener("explanationContainer");
     }
 
-    // --- החזרת המנגנון המקורי והמשולב לטעות הראשונה ---
     if (!isFirstErrorOccurred) {
       isFirstErrorOccurred = true;
 
-      // יצירת רכיבי בסיס
       const overlay = document.createElement("div");
       overlay.id = "darkOverlay";
       document.body.appendChild(overlay);
@@ -401,7 +585,6 @@ function checkAnswer() {
         "אופסי, נראה שבחרת את התשובה השגויה.\nלחץ על 'הסבר תשובה' כדי לעבור על הפתרון.";
       document.body.appendChild(banner);
 
-      // מנגנון שיבוט הכפתור
       const originalExplanationContainer = document.querySelector(
         "#explanationContainer .tooltip-container"
       );
@@ -412,53 +595,39 @@ function checkAnswer() {
         clonedExplanationContainer =
           originalExplanationContainer.cloneNode(true);
         clonedExplanationContainer.classList.add("explanation-clone");
-
         clonedExplanationContainer.style.visibility = "visible";
-
         const originalRect =
           originalExplanationContainer.getBoundingClientRect();
         clonedExplanationContainer.style.left = originalRect.left + "px";
         clonedExplanationContainer.style.top = originalRect.top + "px";
-
         document.body.appendChild(clonedExplanationContainer);
-
         clonedExplanationContainer.addEventListener("click", (e) => {
-          e.stopPropagation(); // מונע סגירה מיידית של החוויה
+          e.stopPropagation();
           toggleTooltip(clonedExplanationContainer);
         });
       }
 
-      // פונקציה שמנקה הכל
       const hideErrorExperience = () => {
-        // הסתרת הרכיבים עם אנימציה
         if (document.body.contains(overlay))
           overlay.classList.remove("visible");
         if (document.body.contains(banner)) banner.classList.remove("visible");
-
-        // ניקוי מלא מה-DOM לאחר האנימציה
         setTimeout(() => {
           if (document.body.contains(overlay)) overlay.remove();
           if (document.body.contains(banner)) banner.remove();
           if (clonedExplanationContainer) clonedExplanationContainer.remove();
         }, 300);
-
-        // החזרת הכפתור המקורי לנראות
         if (originalExplanationContainer) {
           originalExplanationContainer.style.visibility = "visible";
         }
-
-        // ניקוי המאזינים
         document.removeEventListener("click", hideErrorExperience);
         clearTimeout(timeoutId);
       };
 
-      // הגדרת מנגנוני הסגירה
-      const timeoutId = setTimeout(hideErrorExperience, 4000); // ניתן לשנות חזרה ל-3000 אם רוצים
+      const timeoutId = setTimeout(hideErrorExperience, 4000);
       setTimeout(() => {
         document.addEventListener("click", hideErrorExperience);
       }, 100);
 
-      // הפעלת האנימציה
       setTimeout(() => {
         overlay.classList.add("visible");
         banner.classList.add("visible");
@@ -469,11 +638,6 @@ function checkAnswer() {
   document.getElementById("nextBtn").textContent =
     currentQuestion === sessionQuizData.length - 1 ? "סיום" : "השאלה הבאה";
   document.getElementById("nextBtn").disabled = false;
-}
-
-function formatAnswerText(text) {
-  if (typeof text !== "string") return String(text);
-  return text.replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\\n/g, "<br>");
 }
 
 function selectAnswer(index) {
@@ -511,24 +675,24 @@ function showEndScreen() {
   if (percentage === 100) {
     endIconContainer.innerHTML = '<i class="fas fa-trophy"></i>';
     endMessage.textContent = "אתה תותח אמיתי!";
-    endScoreDetails.textContent = `ענית נכון על כל ${totalQuestions} השאלות!`;
+    endScoreDetails.textContent = "ענית נכון על כל השאלות";
   } else if (percentage >= 80) {
     endIconContainer.innerHTML = '<i class="fas fa-check-circle"></i>';
     endMessage.textContent = "כל הכבוד!";
-    endScoreDetails.textContent = `צדקת ב-${score} מתוך ${totalQuestions} שאלות.`;
-  } else if (percentage >= 40) {
+    endScoreDetails.textContent = `צדקת ב־${score} מתוך ${totalQuestions} שאלות`;
+  } else if (percentage >= 30) {
     endIconContainer.innerHTML = '<i class="fas fa-thumbs-up"></i>';
-    endMessage.textContent = "לא רע בכלל!";
-    endScoreDetails.textContent = `צדקת ב-${score} מתוך ${totalQuestions} שאלות, יש מקום לשיפור.`;
+    endMessage.textContent = "עבודה טובה";
+    endScoreDetails.textContent = `צדקת ב־${score} מתוך ${totalQuestions} שאלות`;
   } else if (percentage > 0) {
-    endIconContainer.innerHTML = '<i class="fas fa-redo"></i>';
-    endMessage.textContent = "אפשר להשתפר";
-    endScoreDetails.textContent = `צדקת ב-${score} מתוך ${totalQuestions}. נסה שוב, בטוח שתצליח יותר!`;
-  } else {
     endIconContainer.innerHTML = '<i class="fas fa-poo"></i>';
-    endMessage.textContent = "אוי ואבוי...";
+    endMessage.textContent = "איזה מזל נאחס";
     endScoreDetails.textContent =
-      "לא נורא, פעם הבאה תצליח. הכי חשוב זה ללמוד מהטעויות!";
+      "טעית בכל־כך הרבה שאלות, שסטטיסטית היה עדיף שתנחש";
+  } else {
+    endIconContainer.innerHTML = '<i class="fas fa-redo"></i>';
+    endMessage.textContent = "אתה עושה לי דווקא?";
+    endScoreDetails.textContent = "בחייאת ראבק, אין סיכוי שבאמת טעית בהכל";
   }
   showScreen("endScreen");
 }

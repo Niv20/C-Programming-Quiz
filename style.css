@@ -1,31 +1,76 @@
 @import url("https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&display=swap");
 
+/***********************************************************/
+/* ROOT & GENERAL SETUP                                       */
+/***********************************************************/
+
+:root {
+  /* --- Palette --- */
+  --background-color: #0a0a0a;
+  --background-secondary: #1f1f1f;
+  --background-hover: #1a1a1a;
+  --card-background: #111111;
+
+  --border-color: #373737;
+  --border-secondary: #2a2a2a;
+  --border-tertiary: #454545;
+
+  --primary-color: #8b5cf6;
+  --primary-color-light: #a78bfa;
+
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --text-muted: #d1d5db;
+  --text-key-display: #c4b5fd;
+
+  /* --- UI Elements --- */
+  --key-display-bg: #a78bfa26;
+  --key-display-border: #8b5cf666;
+  --selected-answer-bg: #2a203f;
+  --code-slot-bg: #2a2a2a;
+
+  /* --- Feedback Colors --- */
+  --correct-answer-border: #10b981;
+  --correct-answer-bg: rgba(16, 185, 129, 0.1);
+  --incorrect-answer-border: #ef4444;
+  --incorrect-answer-bg: rgba(239, 68, 68, 0.1);
+  --trophy-color: #f59e0b;
+
+  /* --- Inline Code Snippets --- */
+  --code-snippet-bg: #0d1117;
+  --code-snippet-text: #f8f8f2;
+  --code-snippet-border: #21262d;
+
+  /* --- Overlays & Shadows --- */
+  --overlay-bg: rgba(0, 0, 0, 0.8);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --highlight-shadow: rgba(0, 0, 0, 0.9);
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-:root {
-  --background-color: #0a0a0a;
-  --card-background: #111111;
-  --border-color: #373737;
-  --primary-color: #8b5cf6;
-  --primary-color-light: #a78bfa;
-  --text-primary: #ffffff;
-  --text-secondary: #9ca3af;
-  --text-muted: #d1d5db;
-}
-
+/* הגדרות בסיסיות לגוף הדף: פונט, צבע רקע וטקסט, ומניעת בחירת טקסט */
 body {
   font-family: "Assistant", sans-serif;
   background: var(--background-color);
   color: var(--text-primary);
   text-align: right;
   overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
-/* --- מסכי חסימה --- */
+/***********************************************************/
+/* BLOCKER SCREENS                                           */
+/***********************************************************/
+
+/* מסכים שנועדו לחסום את השימוש באפליקציה במכשירים ניידים או בחלונות דפדפן קטנים מדי */
 #pleaseEnlargeScreen,
 #mobileBlocker {
   display: none;
@@ -63,7 +108,11 @@ body {
   max-width: 500px;
 }
 
-/* --- מסך פתיחה --- */
+/***********************************************************/
+/* WELCOME SCREEN                                           */
+/***********************************************************/
+
+/* עיצוב מסך הפתיחה, המאפשר בחירת נושא והצגת הוראות משחק */
 .welcome-screen {
   position: fixed;
   top: 0;
@@ -113,7 +162,7 @@ body {
 }
 .topic-btn {
   font-family: "Assistant", sans-serif;
-  background: #1f1f1f;
+  background: var(--background-secondary);
   color: var(--text-muted);
   border: 2px solid var(--border-color);
   padding: 20px;
@@ -125,10 +174,12 @@ body {
 }
 .topic-btn:hover {
   border-color: var(--primary-color);
-  background: #1a1a1a;
+  background: var(--background-hover);
   transform: translateY(-5px);
   color: var(--text-primary);
 }
+
+/* אזור ההוראות בתחתית מסך הפתיחה */
 .how-to-play {
   position: absolute;
   bottom: 60px;
@@ -137,7 +188,7 @@ body {
   width: 100%;
   max-width: 800px;
   padding-top: 20px;
-  border-top: 2px solid #2a2a2a;
+  border-top: 2px solid var(--border-secondary);
 }
 .instructions-title {
   font-size: 1rem;
@@ -161,15 +212,19 @@ body {
   color: var(--text-secondary);
 }
 .key-display {
-  background: #a78bfa26;
-  color: #c4b5fd;
+  background: var(--key-display-bg);
+  color: var(--text-key-display);
   border-radius: 6px;
   padding: 3px 9px;
   font-family: "SF Mono", Monaco, Consolas, "Courier New", monospace;
-  border: 1px solid #8b5cf666;
+  border: 1px solid var(--key-display-border);
 }
 
-/* --- מבנה החידון הראשי --- */
+/***********************************************************/
+/* MAIN QUIZ LAYOUT                                        */
+/***********************************************************/
+
+/* הקונטיינר הראשי של החידון */
 .container {
   width: 100%;
   min-height: 100vh;
@@ -186,6 +241,8 @@ body {
   opacity: 1;
   display: flex;
 }
+
+/* הגדרת הגריד שמכיל את כרטיס השאלה וכרטיס הקוד */
 .quiz-layout-grid {
   display: grid;
   grid-template-columns: auto auto;
@@ -206,6 +263,8 @@ body {
   opacity: 1;
   transform: scale(1);
 }
+
+/* מצב מיוחד לחידונים ללא קוד, הגריד הופך לטור יחיד */
 .quiz-layout-grid.no-code-mode {
   grid-template-columns: auto;
 }
@@ -222,7 +281,11 @@ body {
   text-align: center;
 }
 
-/* --- עיצוב התיבות (כרטיסים) --- */
+/***********************************************************/
+/* GENERAL CARD STYLING                                      */
+/***********************************************************/
+
+/* עיצוב בסיסי משותף לכרטיס השאלה וכרטיס הקוד */
 .quiz-card,
 .code-card {
   background: var(--card-background);
@@ -236,6 +299,8 @@ body {
   position: relative;
   transition: height 0.4s ease, max-height 0.4s ease;
 }
+
+/* הגדרות רוחב ספציפיות לכל כרטיס */
 .quiz-card {
   width: 700px;
 }
@@ -245,7 +310,11 @@ body {
   max-width: 800px;
 }
 
-/* --- תיבת השאלה (ימין) --- */
+/***********************************************************/
+/* QUIZ CARD (RIGHT PANE)                                     */
+/***********************************************************/
+
+/* Header ו-Footer של כרטיס השאלה */
 .quiz-header,
 .controls {
   flex-shrink: 0;
@@ -266,9 +335,11 @@ body {
   align-items: center;
   border-top: 1px solid var(--border-color);
 }
+
+/* מונה שאלות וטיימר */
 .question-counter,
 .timer {
-  background: #1f1f1f;
+  background: var(--background-secondary);
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 0.9rem;
@@ -281,6 +352,8 @@ body {
   color: var(--primary-color);
   font-size: 1.1rem;
 }
+
+/* כפתורים ופקדים */
 .desktop-controls {
   display: flex;
   align-items: center;
@@ -293,7 +366,7 @@ body {
 }
 .btn {
   background: var(--primary-color);
-  color: white;
+  color: var(--text-primary);
   border: none;
   padding: 12px 24px;
   border-radius: 8px;
@@ -310,19 +383,27 @@ body {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.quiz-content,
-.code-block {
+
+/* אזור התוכן הנגלל של השאלות והתשובות */
+.quiz-content {
   flex-grow: 1;
   overflow-y: auto;
+  overflow-x: auto;
   display: flex;
   min-height: 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-.quiz-content::-webkit-scrollbar,
-.code-block::-webkit-scrollbar {
+.quiz-content::-webkit-scrollbar {
   display: none;
 }
+.scroll-wrapper {
+  margin: auto 0;
+  width: 100%;
+  padding: 2rem 4rem;
+}
+
+/* עיצוב השאלה והתשובות */
 .question-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -334,9 +415,12 @@ body {
   flex-direction: column;
   gap: 12px;
 }
+.answers-container.center-align-answers .answer-option {
+  text-align: center;
+}
 .answer-option {
-  background: #1f1f1f;
-  border: 2px solid #1f1f1f;
+  background: var(--background-secondary);
+  border: 2px solid var(--background-secondary);
   border-radius: 8px;
   padding: 16px;
   cursor: pointer;
@@ -350,35 +434,59 @@ body {
   border-color: var(--primary-color-light);
   transform: scale(1.02);
 }
+
+/* מצבים שונים של תשובה (נבחר, נכון, לא נכון) */
 .answer-option.selected {
   border-color: var(--primary-color);
-  background: #2a203f;
+  background: var(--selected-answer-bg);
   transform: scale(1);
 }
 .answer-option.correct {
-  border-color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--correct-answer-border);
+  background: var(--correct-answer-bg);
   animation: correctAnswerGrow 0.6s ease-out;
 }
 .answer-option.incorrect {
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--incorrect-answer-border);
+  background: var(--incorrect-answer-bg);
   animation: incorrectAnswer 0.5s ease;
 }
+
+/* עיצוב קטעי קוד קטנים בתוך טקסט */
 .answer-text code,
 .tooltip-popup code {
   font-family: "SF Mono", Monaco, "Courier New", monospace;
-  background: #0d1117;
-  color: #f8f8f2;
+  background: var(--code-snippet-bg);
+  color: var(--code-snippet-text);
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.9em;
-  border: 1px solid #21262d;
+  border: 1px solid var(--code-snippet-border);
   direction: ltr;
   display: inline-block;
 }
+.answer-text {
+  display: inline;
+}
 
-/* --- תיבת הקוד (שמאל) --- */
+/***********************************************************/
+/* CODE CARD (LEFT PANE)                                     */
+/***********************************************************/
+
+/* עיצוב בלוק הקוד בכרטיס השמאלי */
+.code-block {
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  display: flex;
+  min-height: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.code-block::-webkit-scrollbar,
+.code-block pre::-webkit-scrollbar {
+  display: none;
+}
 .code-block pre,
 .code-block code[class*="language-"] {
   direction: ltr;
@@ -390,17 +498,19 @@ body {
 }
 .code-block pre {
   width: 100%;
-}
-.scroll-wrapper {
-  margin: auto 0;
-  width: 100%;
-  padding: 2rem 4rem;
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .code-block .scroll-wrapper {
   padding: 2rem;
 }
 
-/* --- מערכת גרדיאנטים לגלילה --- */
+/*********************************/
+/* SCROLL GRADIENTS & INDICATORS */
+/*********************************/
+
+/* מערכת גרדיאנטים המדמה הצללה בקצוות האזורים הנגללים כדי לסמן שיש עוד תוכן */
 .quiz-card::before,
 .quiz-card::after,
 .code-card::before,
@@ -409,7 +519,7 @@ body {
   position: absolute;
   left: 0;
   right: 0;
-  height: 50px;
+  height: 70px;
   pointer-events: none;
   transition: opacity 0.3s ease;
   opacity: 0;
@@ -419,7 +529,7 @@ body {
   top: 69px;
   background: linear-gradient(
     to bottom,
-    var(--card-background) 20%,
+    var(--card-background) 40%,
     transparent 100%
   );
 }
@@ -447,6 +557,8 @@ body {
     transparent 100%
   );
 }
+
+/* הצגת הגרדיאנטים בהתאם למצב הגלילה */
 .quiz-card.has-scrolled::before,
 .code-card.has-scrolled::before {
   opacity: 1;
@@ -456,7 +568,7 @@ body {
   opacity: 1;
 }
 
-/* --- חצי גלילה --- */
+/* חיווי גלילה (חצים) שמופיע בקצוות הכרטיסים */
 .scroll-indicator {
   position: absolute;
   left: 50%;
@@ -469,19 +581,31 @@ body {
   pointer-events: none;
 }
 .scroll-indicator.bottom {
-  bottom: 10px;
+  bottom: 30px;
 }
 .scroll-indicator.top {
-  top: 10px;
+  top: 30px;
 }
-.code-card.is-scrollable:not(.scrolled-to-end) .scroll-indicator.bottom {
+.quiz-card .scroll-indicator.top {
+  top: 85px; /* Position below the header */
+}
+.quiz-card .scroll-indicator.bottom {
+  bottom: 93px; /* Position above the controls */
+}
+.code-card.is-scrollable:not(.scrolled-to-end) .scroll-indicator.bottom,
+.quiz-card.is-scrollable:not(.scrolled-to-end) .scroll-indicator.bottom {
   opacity: 1;
 }
-.code-card.has-scrolled .scroll-indicator.top {
+.code-card.has-scrolled .scroll-indicator.top,
+.quiz-card.has-scrolled .scroll-indicator.top {
   opacity: 1;
 }
 
-/* --- Tooltip (רמז/הסבר) --- */
+/***********************************************************/
+/* TOOLTIP SYSTEM                                          */
+/***********************************************************/
+
+/* מערכת ה-Tooltip להצגת רמזים והסברים */
 .tooltip-container {
   position: relative;
   display: flex;
@@ -502,13 +626,15 @@ body {
   text-underline-offset: 4px;
   pointer-events: none;
 }
+
+/* חלונית הפופאפ של ה-Tooltip */
 .tooltip-popup {
   position: absolute;
   bottom: 125%;
   right: 0;
-  background: #1f1f1f;
+  background: var(--background-secondary);
   color: var(--text-muted);
-  border: 1px solid #454545;
+  border: 1px solid var(--border-tertiary);
   border-radius: 8px;
   padding: 15px;
   z-index: 20;
@@ -518,7 +644,7 @@ body {
   visibility: hidden;
   transition: opacity 0.3s ease, transform 0.2s ease, visibility 0.3s;
   pointer-events: none;
-  box-shadow: 0px -5px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px -5px 25px var(--shadow-color);
   overflow-wrap: break-word;
   text-align: right;
   transform: translateY(10px);
@@ -535,8 +661,18 @@ body {
   pointer-events: auto;
   transform: translateY(0);
 }
+.tooltip-popup p {
+  margin-bottom: 0.8em;
+}
+.tooltip-popup p:last-child {
+  margin-bottom: 0;
+}
 
-/* --- מסך סיום --- */
+/***********************************************************/
+/* END SCREEN                                            */
+/***********************************************************/
+
+/* עיצוב מסך הסיום המוצג בסוף החידון */
 .end-screen {
   position: fixed;
   top: 0;
@@ -561,7 +697,7 @@ body {
   background: var(--card-background);
   border-radius: 12px;
   padding: 40px;
-  border: 1px solid #1f1f1f;
+  border: 1px solid var(--background-secondary);
   width: 100%;
   max-width: 600px;
   display: flex;
@@ -577,7 +713,7 @@ body {
   color: var(--primary-color);
 }
 .fa-trophy {
-  color: #f59e0b;
+  color: var(--trophy-color);
 }
 .fa-poo {
   color: var(--text-secondary);
@@ -596,7 +732,10 @@ body {
   font-size: 1rem;
 }
 
-/* --- אנימציות --- */
+/***********************************************************/
+/* ANIMATIONS                                            */
+/***********************************************************/
+
 @keyframes correctAnswerGrow {
   0%,
   100% {
@@ -651,8 +790,20 @@ body {
 .quiz-layout-grid.initial-load {
   animation: welcomeToQuizFade 0.4s ease-out forwards;
 }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
-/* --- הודעת טיימר --- */
+/***********************************************************/
+/* UI FEEDBACK & SPECIAL EFFECTS                                */
+/***********************************************************/
+
+/* הודעת "נגמר הזמן" שמופיעה ליד הטיימר */
 .timer {
   position: relative;
 }
@@ -661,9 +812,9 @@ body {
   left: 110%;
   top: 50%;
   transform: translateY(-50%);
-  background: #1f1f1f;
+  background: var(--background-secondary);
   color: var(--text-muted);
-  border: 1px solid #454545;
+  border: 1px solid var(--border-tertiary);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 0.9rem;
@@ -677,14 +828,14 @@ body {
   visibility: visible;
 }
 
-/* --- אפקט טעות ראשונה --- */
+/* אפקט מיוחד עבור הטעות הראשונה: מסך כהה ובאנר הסבר */
 #darkOverlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.65);
+  background-color: var(--overlay-bg);
   z-index: 1000;
   opacity: 0;
   transition: opacity 0.3s ease-out;
@@ -692,18 +843,17 @@ body {
 #darkOverlay.visible {
   opacity: 1;
 }
-
 #firstErrorBanner {
   position: fixed;
   bottom: 50%;
   left: 50%;
   transform: translate(-50%, 20px);
-  background-color: #1f1f1f;
+  background-color: var(--background-secondary);
   color: var(--text-muted);
   padding: 15px 25px;
   border-radius: 12px;
   border: 1px solid var(--border-color);
-  box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 5px 25px var(--shadow-color);
   z-index: 1002;
   font-size: 1.1rem;
   font-weight: 500;
@@ -716,13 +866,142 @@ body {
   transform: translateX(-50%);
 }
 
-/* עיצוב עבור השיבוט של כפתור ההסבר */
+/* סגנון עבור השיבוט של כפתור ההסבר (כדי שיבלוט מעל שכבת האפלה) */
 .explanation-clone {
-  position: fixed; /* חשוב כדי לברוח מה-stacking context */
-  z-index: 1001; /* מעל החושך */
+  position: fixed;
+  z-index: 1001;
 }
-
-/* ודואגים שהפופאפ של השיבוט יהיה אפילו גבוה יותר */
 .explanation-clone .tooltip-popup {
   z-index: 1002;
+}
+
+/***********************************************************/
+/* DIFFICULTY SELECTION MODAL                                  */
+/***********************************************************/
+
+/* מודאל (חלון קופץ) לבחירת רמת קושי */
+.difficulty-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--overlay-bg);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+.difficulty-modal {
+  background: var(--card-background);
+  padding: 30px 40px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+  animation: pop 0.3s ease-out;
+}
+.difficulty-modal-title {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 25px;
+}
+.difficulty-modal-buttons {
+  display: flex;
+  gap: 15px;
+}
+.difficulty-modal .topic-btn {
+  padding: 15px 30px;
+}
+
+/***********************************************************/
+/* COMPLETION SLOTS (CODE & ANSWER)                               */
+/***********************************************************/
+
+/* עיצוב ה"חריצים" הריקים בתוך הקוד, שעליהם יש ללחוץ */
+.code-slot {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  height: 22px;
+  padding: 2px 10px;
+  margin: 0 4px;
+  background-color: var(--code-slot-bg);
+  color: var(--primary-color);
+  border: 1.5px solid var(--primary-color);
+  border-radius: 6px;
+  font-family: "SF Mono", Monaco, "Courier New", monospace;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+  line-height: 1;
+}
+.code-slot:hover {
+  background-color: var(--primary-color);
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+/* עיצוב החריצים בתשובות, שמציגים את הבחירה של המשתמש */
+.answer-slot {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family: "SF Mono", Monaco, "Courier New", monospace;
+  font-size: 0.95em;
+  vertical-align: middle;
+  transition: all 0.2s ease;
+  margin: 0 2px;
+  text-align: left;
+}
+.answer-slot:hover {
+  border-color: var(--primary-color-light);
+  background-color: var(--background-hover);
+}
+.answer-slot-number {
+  color: var(--primary-color);
+  font-weight: 800;
+  margin-right: 8px;
+  padding-left: 2px;
+}
+.answer-slot-code {
+  color: var(--text-primary);
+  background: none;
+  padding: 0;
+  border: none;
+  font-size: 1em;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+/* אפקטי הדגשה (highlight) עבור החריצים בקוד ובתשובות */
+.answer-slot.highlight {
+  border-color: var(--primary-color-light);
+  border-style: solid;
+  box-shadow: 0 0 25px var(--highlight-shadow);
+}
+.code-slot.highlight {
+  background-color: var(--primary-color);
+  color: var(--text-primary);
+  box-shadow: 0 0 12px var(--highlight-shadow);
+}
+
+/***********************************************************/
+/* MISC & FIXES                                            */
+/***********************************************************/
+
+/* תיקון קטן למנוע הצגה כפולה של סוגריים ב-Prism.js במקרים מסוימים */
+.token.punctuation:has(
+    + .token.punctuation
+      + .token.number
+      + .token.punctuation
+      + .token.punctuation
+  ) {
+  display: none;
 }
