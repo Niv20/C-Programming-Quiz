@@ -7,6 +7,110 @@ let timerInterval = null;
 let isDeviceMobile = false;
 let isFirstErrorOccurred = false;
 
+const palettes = {
+  default: {
+    name: "סגול ברירת מחדל",
+    colors: {
+      "--primary-color": "#8b5cf6",
+      "--primary-color-light": "#a78bfa",
+      "--text-key-display": "#c4b5fd",
+      "--key-display-bg": "#a78bfa26",
+      "--key-display-border": "#8b5cf666",
+      "--selected-answer-bg": "#2a203f",
+    },
+  },
+  ocean: {
+    name: "כחול אוקיינוס",
+    colors: {
+      "--primary-color": "#3b82f6",
+      "--primary-color-light": "#60a5fa",
+      "--text-key-display": "#bfdbfe",
+      "--key-display-bg": "#60a5fa26",
+      "--key-display-border": "#3b82f666",
+      "--selected-answer-bg": "#1e293b",
+    },
+  },
+  forest: {
+    name: "ירוק יער",
+    colors: {
+      "--primary-color": "#2dd4bf",
+      "--primary-color-light": "#5eead4",
+      "--text-key-display": "#a7f3d0",
+      "--key-display-bg": "#5eead426",
+      "--key-display-border": "#2dd4bf66",
+      "--selected-answer-bg": "#11302d",
+    },
+  },
+  sunset: {
+    name: "כתום שקיעה",
+    colors: {
+      "--primary-color": "#f97316",
+      "--primary-color-light": "#fb923c",
+      "--text-key-display": "#fed7aa",
+      "--key-display-bg": "#fb923c26",
+      "--key-display-border": "#f9731666",
+      "--selected-answer-bg": "#431407",
+    },
+  },
+  indigo: {
+    name: "כחול אינדיגו",
+    colors: {
+      "--primary-color": "#6366f1",
+      "--primary-color-light": "#818cf8",
+      "--text-key-display": "#c7d2fe",
+      "--key-display-bg": "#818cf826",
+      "--key-display-border": "#6366f166",
+      "--selected-answer-bg": "#222349",
+    },
+  },
+  fuchsia: {
+    name: "ורוד פוקסיה",
+    colors: {
+      "--primary-color": "#d946ef",
+      "--primary-color-light": "#e879f9",
+      "--text-key-display": "#f5d0fe",
+      "--key-display-bg": "#e879f926",
+      "--key-display-border": "#d946ef66",
+      "--selected-answer-bg": "#3e1342",
+    },
+  },
+  amber: {
+    name: "צהוב ענבר",
+    colors: {
+      "--primary-color": "#f59e0b",
+      "--primary-color-light": "#fbbf24",
+      "--text-key-display": "#fde68a",
+      "--key-display-bg": "#fbbf2426",
+      "--key-display-border": "#f59e0b66",
+      "--selected-answer-bg": "#422006",
+    },
+  },
+  slate: {
+    name: "אפור צפחה",
+    colors: {
+      "--primary-color": "#64748b",
+      "--primary-color-light": "#94a3b8",
+      "--text-key-display": "#e2e8f0",
+      "--key-display-bg": "#94a3b826",
+      "--key-display-border": "#64748b66",
+      "--selected-answer-bg": "#1e293b",
+    },
+  },
+};
+
+const timerOptions = {
+  180: "3 דקות",
+  300: "5 דקות",
+  600: "10 דקות",
+  900: "15 דקות",
+};
+
+// Default settings
+let currentSettings = {
+  theme: "default",
+  timerDuration: 600,
+};
+
 const quizTopics = [
   {
     name: "ביטוויז",
@@ -25,7 +129,6 @@ const quizTopics = [
 Prism.plugins.autoloader.languages_path =
   "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/";
 
-// --- Event Listeners ---
 document.addEventListener("DOMContentLoaded", initializeApp);
 document.addEventListener("keydown", handleKeyPress);
 window.addEventListener("resize", () => {
@@ -50,9 +153,136 @@ function initializeApp() {
     document.getElementById("pleaseEnlargeScreen").style.display = "flex";
   }
   document.addEventListener("click", handleGlobalClick);
-  // No more setupPrismHook() call
+
+  loadSettings();
+  buildSettingsPanel();
   initializeWelcomeScreen();
   setupScrollListeners();
+}
+
+function saveSettings() {
+  localStorage.setItem("quizSettings", JSON.stringify(currentSettings));
+}
+
+function loadSettings() {
+  const savedSettings = localStorage.getItem("quizSettings");
+  if (savedSettings) {
+    const parsedSettings = JSON.parse(savedSettings);
+    currentSettings = {
+      theme: parsedSettings.theme ?? "default",
+      timerDuration: parsedSettings.timerDuration ?? 600,
+    };
+  }
+  applyTheme(currentSettings.theme);
+}
+
+function applyTheme(themeName) {
+  const palette = palettes[themeName];
+  if (!palette) return;
+
+  currentSettings.theme = themeName;
+  for (const [property, value] of Object.entries(palette.colors)) {
+    document.documentElement.style.setProperty(property, value);
+  }
+
+  document.querySelectorAll(".palette-option").forEach((opt) => {
+    opt.classList.toggle("selected", opt.dataset.theme === themeName);
+  });
+}
+
+function setTimer(duration, element) {
+  currentSettings.timerDuration = parseInt(duration, 10);
+  document
+    .querySelectorAll(".time-option")
+    .forEach((opt) => opt.classList.remove("selected"));
+  element.classList.add("selected");
+  saveSettings();
+}
+
+function buildSettingsPanel() {
+  const container = document.getElementById("settingsPanelContainer");
+  if (!container) return;
+
+  const panel = document.createElement("div");
+  panel.id = "settingsPanel";
+  panel.className = "settings-panel";
+
+  // 1. Timer
+  let timerHTML = `<div class="settings-section">
+        <h3 class="settings-title">זמן טיימר לשאלה</h3>
+        <div class="settings-options-grid">`;
+  for (const [seconds, text] of Object.entries(timerOptions)) {
+    const isSelected =
+      parseInt(seconds, 10) === currentSettings.timerDuration ? "selected" : "";
+    timerHTML += `<button class="time-option ${isSelected}" data-duration="${seconds}">${text}</button>`;
+  }
+  timerHTML += `</div></div>`;
+
+  // 2. Palettes
+  let paletteHTML = `<div class="settings-section">
+        <h3 class="settings-title">פלטת צבעים</h3>
+        <div class="settings-options-grid">`;
+  Object.entries(palettes).forEach(([key, palette], index) => {
+    const isSelected = key === currentSettings.theme ? "selected" : "";
+    paletteHTML += `<div class="palette-option ${isSelected}" data-theme="${key}">
+            <div class="palette-colors">
+                <span class="palette-color" style="background-color: ${palette.colors["--primary-color"]};"></span>
+                <span class="palette-color" style="background-color: ${palette.colors["--primary-color-light"]};"></span>
+                <span class="palette-color" style="background-color: ${palette.colors["--selected-answer-bg"]};"></span>
+            </div>
+        </div>`;
+    if ((index + 1) % 4 === 0 && index + 1 < Object.keys(palettes).length) {
+      paletteHTML += `</div><div class="settings-options-grid" style="margin-top: 10px;">`;
+    }
+  });
+  paletteHTML += `</div></div>`;
+
+  // 3. Shortcuts
+  let shortcutsHTML = `<div class="settings-section">
+        <div class="how-to-play">
+            <h3 class="settings-title">קיצורי מקשים למגניבים</h3>
+            <ul class="instructions-list">
+                <li><span class="key-display">1</span> - <span class="key-display">6</span> לבחירת תשובה</li>
+                <li><span class="key-display">Enter</span> לבדיקה ולמעבר שאלה</li>
+                <li><span class="key-display">H</span> לקבלת רמז</li>
+            </ul>
+        </div>
+    </div>`;
+
+  // 4. Final Message
+  let messageHTML = `<div class="settings-section">
+        <p class="final-message">שיהיה המון בהצלחה במבחן, תנו בראש!<br>מקווה שהאתר עזר לכם להבין את החומר קצת יותר טוב.</p>
+    </div>`;
+
+  panel.innerHTML = [timerHTML, paletteHTML, shortcutsHTML, messageHTML].join(
+    "<hr>"
+  );
+  container.appendChild(panel);
+
+  // Add event listeners
+  const settingsBtn = document.getElementById("settingsBtn");
+  const overlay = document.getElementById("settingsOverlay");
+  const icon = settingsBtn.querySelector("i");
+  settingsBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isVisible = panel.classList.toggle("visible");
+    overlay.classList.toggle("visible", isVisible);
+    // Toggle the 'paused' class based on visibility
+    icon.classList.toggle("paused", isVisible);
+  });
+
+  panel.addEventListener("click", (e) => e.stopPropagation());
+
+  document.querySelectorAll(".time-option").forEach((btn) => {
+    btn.addEventListener("click", () => setTimer(btn.dataset.duration, btn));
+  });
+
+  document.querySelectorAll(".palette-option").forEach((opt) => {
+    opt.addEventListener("click", () => {
+      applyTheme(opt.dataset.theme);
+      saveSettings();
+    });
+  });
 }
 
 function initializeWelcomeScreen() {
@@ -163,21 +393,31 @@ function hideTooltipsAndListeners() {
     .forEach((container) => {
       container.classList.remove("visible");
     });
-  document.removeEventListener("mousemove", hideTooltipsAndListeners);
 }
 
 function toggleTooltip(container) {
   const isVisible = container.classList.contains("visible");
   hideTooltipsAndListeners();
   container.classList.toggle("visible", !isVisible);
-  if (container.classList.contains("visible")) {
-    document.addEventListener("mousemove", hideTooltipsAndListeners);
-  }
 }
 
 function handleGlobalClick(e) {
   if (!e.target.closest(".tooltip-container")) {
     hideTooltipsAndListeners();
+  }
+
+  const settingsPanel = document.getElementById("settingsPanel");
+  const overlay = document.getElementById("settingsOverlay");
+  const icon = document.querySelector("#settingsBtn i");
+
+  if (
+    settingsPanel?.classList.contains("visible") &&
+    !e.target.closest("#settingsPanel") &&
+    !e.target.closest("#settingsBtn")
+  ) {
+    settingsPanel.classList.remove("visible");
+    overlay.classList.remove("visible");
+    icon.classList.remove("paused");
   }
 }
 
@@ -265,14 +505,17 @@ function loadAndStartQuiz(quizFile) {
 
 function initQuiz() {
   sessionQuizData = JSON.parse(JSON.stringify(quizData));
-  // shuffleArray(sessionQuizData); ניבניב
+
+  // shuffleArray(sessionQuizData); // Shuffle is disabled
+
   sessionQuizData.forEach((question) => {
     if (question.answers) {
       const correctAnswerText = question.answers[question.correct];
-      // shuffleArray(question.answers);ניבניב
+      // shuffleArray(question.answers);
       question.correct = question.answers.indexOf(correctAnswerText);
     }
   });
+
   currentQuestion = 0;
   score = 0;
   isFirstErrorOccurred = false;
@@ -283,7 +526,7 @@ function initQuiz() {
 
 function startTimer() {
   clearInterval(timerInterval);
-  let timeLeft = 3;
+  let timeLeft = currentSettings.timerDuration;
   const timerSpan = document.getElementById("timer");
 
   const update = () => {
@@ -292,12 +535,11 @@ function startTimer() {
       if (timerSpan) timerSpan.textContent = "00:00";
       const msgElement = document.getElementById("timerOutMessage");
       if (msgElement) {
-        msgElement.textContent = "חחח סתם הלחצתי אתכם. אין משמעות לטיימר";
+        msgElement.textContent = "נגמר הזמן!";
         msgElement.classList.add("visible");
-        setTimeout(() => {
-          msgElement.classList.remove("visible");
-        }, 4000);
+        setTimeout(() => msgElement.classList.remove("visible"), 4000);
       }
+      handleNextAction();
       return;
     }
     if (timerSpan) {
@@ -324,9 +566,7 @@ function attachTooltipListener(containerId) {
   }
 }
 
-// change: 3. Handle reverse highlighting
 function setupHighlightListeners() {
-  // From Code -> To Answer
   const codeSlots = document.querySelectorAll("#codeDisplay .code-slot");
   codeSlots.forEach((slot) => {
     const slotId = slot.dataset.slotId;
@@ -351,7 +591,6 @@ function setupHighlightListeners() {
     });
   });
 
-  // From Answer -> To Code
   const allAnswerSlots = document.querySelectorAll(".answer-slot");
   allAnswerSlots.forEach((slot) => {
     const slotId = slot.dataset.slotId;
@@ -385,7 +624,6 @@ function formatText(text) {
   const slotPlaceholders = new Map();
   let placeholderIndex = 0;
 
-  // Step 1: Find, format, and replace answer slots with placeholders
   let processedText = text.replace(
     /\[\[(\d+):\s*([\s\S]+?)\]\]/g,
     (match, slotId, rawContent) => {
@@ -394,10 +632,7 @@ function formatText(text) {
         content = content.substring(2, content.length - 2).trim();
       }
 
-      // Escape HTML characters to prevent rendering issues
-      const escapedContent = content
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+      const escapedContent = content.replace(/</g, "<").replace(/>/g, ">");
 
       const slotHTML = `<span class="answer-slot" data-slot-id="${slotId}">
                           <span class="answer-slot-number">${slotId}</span>
@@ -410,25 +645,20 @@ function formatText(text) {
     }
   );
 
-  // Step 2: Process paragraphs for the remaining text
   processedText = processedText
     .split("\n")
     .map((paragraph) => (paragraph.trim() ? `<p>${paragraph}</p>` : ""))
     .join("");
 
-  // Step 3: Re-insert the formatted slots back, removing wrapping <p> if necessary
   slotPlaceholders.forEach((slotHTML, placeholder) => {
     const regex = new RegExp(`<p>${placeholder}</p>|${placeholder}`, "g");
     processedText = processedText.replace(regex, slotHTML);
   });
 
-  // Step 4: Handle simple backtick code blocks
   processedText = processedText.replace(/`([^`]+)`/g, "<code>$1</code>");
 
   return processedText;
 }
-
-// Replace the code display section in your loadQuestion function with this:
 
 function loadQuestion() {
   if (currentQuestion >= sessionQuizData.length) {
@@ -451,12 +681,10 @@ function loadQuestion() {
     if (question.code && question.code.trim() !== "") {
       quizLayoutGrid.classList.remove("no-code-mode");
 
-      // NEW APPROACH: Use unique placeholders that won't be tokenized by Prism
       const rawCode = question.code;
       const placeholderMap = new Map();
       let placeholderCounter = 0;
 
-      // Replace [[n]] with unique placeholders
       const codeWithPlaceholders = rawCode.replace(
         /\[\[\s*(\d+)\s*\]\]/g,
         (match, slotId) => {
@@ -466,14 +694,12 @@ function loadQuestion() {
         }
       );
 
-      // Highlight code with placeholders
       const highlighted = Prism.highlight(
         codeWithPlaceholders,
         Prism.languages.c,
         "c"
       );
 
-      // Replace placeholders with slot elements
       let finalHTML = highlighted;
       placeholderMap.forEach((slotId, placeholder) => {
         const slotHTML = `<span class="code-slot" data-slot-id="${slotId}">${slotId}</span>`;
@@ -486,7 +712,6 @@ function loadQuestion() {
       codeDisplay.innerHTML = "";
     }
 
-    // Rest of your existing code remains the same...
     document.getElementById("hintContainer").innerHTML = "";
     document.getElementById("explanationContainer").innerHTML = "";
 
@@ -517,7 +742,6 @@ function loadQuestion() {
       answersContainer.appendChild(option);
     });
 
-    // change: 4. Add/remove class for center alignment
     if (answersContainer.querySelector(".answer-slot")) {
       answersContainer.classList.add("center-align-answers");
     } else {

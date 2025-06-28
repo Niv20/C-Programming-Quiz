@@ -53,7 +53,6 @@
   box-sizing: border-box;
 }
 
-/* הגדרות בסיסיות לגוף הדף: פונט, צבע רקע וטקסט, ומניעת בחירת טקסט */
 body {
   font-family: "Assistant", sans-serif;
   background: var(--background-color);
@@ -67,10 +66,9 @@ body {
 }
 
 /***********************************************************/
-/* BLOCKER SCREENS                                           */
+/* BLOCKER & OVERLAY SCREENS                                 */
 /***********************************************************/
 
-/* מסכים שנועדו לחסום את השימוש באפליקציה במכשירים ניידים או בחלונות דפדפן קטנים מדי */
 #pleaseEnlargeScreen,
 #mobileBlocker {
   display: none;
@@ -88,7 +86,6 @@ body {
   text-align: center;
   padding: 20px;
 }
-
 #pleaseEnlargeScreen i,
 #mobileBlocker i {
   font-size: 4rem;
@@ -108,11 +105,28 @@ body {
   max-width: 500px;
 }
 
+/* Settings Overlay */
+.settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.settings-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /***********************************************************/
-/* WELCOME SCREEN                                           */
+/* WELCOME SCREEN & SETTINGS PANEL                           */
 /***********************************************************/
 
-/* עיצוב מסך הפתיחה, המאפשר בחירת נושא והצגת הוראות משחק */
 .welcome-screen {
   position: fixed;
   top: 0;
@@ -121,14 +135,14 @@ body {
   height: 100%;
   background: var(--background-color);
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: center;
   align-items: center;
   z-index: 1000;
   transition: opacity 0.5s ease, visibility 0.5s ease;
   opacity: 0;
   visibility: hidden;
   display: none;
-  padding: 0 20px 10vh 20px;
+  padding: 20px;
 }
 .welcome-screen.visible {
   opacity: 1;
@@ -179,23 +193,152 @@ body {
   color: var(--text-primary);
 }
 
-/* אזור ההוראות בתחתית מסך הפתיחה */
-.how-to-play {
+/* Settings Button with Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.settings-toggle-btn {
   position: absolute;
-  bottom: 60px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
-  width: 100%;
-  max-width: 800px;
-  padding-top: 20px;
-  border-top: 2px solid var(--border-secondary);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: "Assistant", sans-serif;
+  font-weight: 300;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 15px 25px;
+  border-radius: 8px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
-.instructions-title {
+.settings-toggle-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--background-secondary);
+}
+.settings-toggle-btn i {
+  animation: spin 4s linear infinite;
+}
+.settings-toggle-btn i.paused {
+  animation-play-state: paused;
+}
+.settings-toggle-btn:hover i {
+  animation-play-state: paused;
+}
+
+/* Settings Panel */
+#settingsPanelContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1002;
+}
+.settings-panel {
+  pointer-events: auto;
+  margin-bottom: 100px;
+  transform: translateY(150%);
+  width: 100%;
+  max-width: 700px;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 25px 30px;
+  box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.settings-panel.visible {
+  transform: translateY(0);
+}
+.settings-section {
+  margin-bottom: 20px;
+}
+.settings-section:last-child {
+  margin-bottom: 0;
+}
+.settings-title {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   text-align: center;
+}
+.settings-panel hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 20px 0;
+}
+.settings-options-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.time-option {
+  font-family: "Assistant", sans-serif;
+  background-color: var(--background-secondary);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+.time-option.selected,
+.time-option:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+}
+.palette-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+.palette-option.selected {
+  border-color: var(--primary-color);
+}
+.palette-colors {
+  display: flex;
+  gap: 4px;
+}
+.palette-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+}
+.final-message {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.how-to-play {
+  width: 100%;
+  padding-top: 0;
+  border-top: none;
 }
 .instructions-list {
   list-style: none;
@@ -224,7 +367,6 @@ body {
 /* MAIN QUIZ LAYOUT                                        */
 /***********************************************************/
 
-/* הקונטיינר הראשי של החידון */
 .container {
   width: 100%;
   min-height: 100vh;
@@ -241,8 +383,6 @@ body {
   opacity: 1;
   display: flex;
 }
-
-/* הגדרת הגריד שמכיל את כרטיס השאלה וכרטיס הקוד */
 .quiz-layout-grid {
   display: grid;
   grid-template-columns: auto auto;
@@ -263,8 +403,6 @@ body {
   opacity: 1;
   transform: scale(1);
 }
-
-/* מצב מיוחד לחידונים ללא קוד, הגריד הופך לטור יחיד */
 .quiz-layout-grid.no-code-mode {
   grid-template-columns: auto;
 }
@@ -285,7 +423,6 @@ body {
 /* GENERAL CARD STYLING                                      */
 /***********************************************************/
 
-/* עיצוב בסיסי משותף לכרטיס השאלה וכרטיס הקוד */
 .quiz-card,
 .code-card {
   background: var(--card-background);
@@ -299,8 +436,6 @@ body {
   position: relative;
   transition: height 0.4s ease, max-height 0.4s ease;
 }
-
-/* הגדרות רוחב ספציפיות לכל כרטיס */
 .quiz-card {
   width: 700px;
 }
@@ -314,7 +449,6 @@ body {
 /* QUIZ CARD (RIGHT PANE)                                     */
 /***********************************************************/
 
-/* Header ו-Footer של כרטיס השאלה */
 .quiz-header,
 .controls {
   flex-shrink: 0;
@@ -335,8 +469,6 @@ body {
   align-items: center;
   border-top: 1px solid var(--border-color);
 }
-
-/* מונה שאלות וטיימר */
 .question-counter,
 .timer {
   background: var(--background-secondary);
@@ -352,8 +484,6 @@ body {
   color: var(--primary-color);
   font-size: 1.1rem;
 }
-
-/* כפתורים ופקדים */
 .desktop-controls {
   display: flex;
   align-items: center;
@@ -384,7 +514,6 @@ body {
   cursor: not-allowed;
 }
 
-/* אזור התוכן הנגלל של השאלות והתשובות */
 .quiz-content {
   flex-grow: 1;
   overflow-y: auto;
@@ -403,7 +532,6 @@ body {
   padding: 2rem 4rem;
 }
 
-/* עיצוב השאלה והתשובות */
 .question-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -435,7 +563,6 @@ body {
   transform: scale(1.02);
 }
 
-/* מצבים שונים של תשובה (נבחר, נכון, לא נכון) */
 .answer-option.selected {
   border-color: var(--primary-color);
   background: var(--selected-answer-bg);
@@ -452,7 +579,6 @@ body {
   animation: incorrectAnswer 0.5s ease;
 }
 
-/* עיצוב קטעי קוד קטנים בתוך טקסט */
 .answer-text code,
 .tooltip-popup code {
   font-family: "SF Mono", Monaco, "Courier New", monospace;
@@ -473,7 +599,6 @@ body {
 /* CODE CARD (LEFT PANE)                                     */
 /***********************************************************/
 
-/* עיצוב בלוק הקוד בכרטיס השמאלי */
 .code-block {
   flex-grow: 1;
   overflow-y: auto;
@@ -510,7 +635,6 @@ body {
 /* SCROLL GRADIENTS & INDICATORS */
 /*********************************/
 
-/* מערכת גרדיאנטים המדמה הצללה בקצוות האזורים הנגללים כדי לסמן שיש עוד תוכן */
 .quiz-card::before,
 .quiz-card::after,
 .code-card::before,
@@ -557,8 +681,6 @@ body {
     transparent 100%
   );
 }
-
-/* הצגת הגרדיאנטים בהתאם למצב הגלילה */
 .quiz-card.has-scrolled::before,
 .code-card.has-scrolled::before {
   opacity: 1;
@@ -568,7 +690,6 @@ body {
   opacity: 1;
 }
 
-/* חיווי גלילה (חצים) שמופיע בקצוות הכרטיסים */
 .scroll-indicator {
   position: absolute;
   left: 50%;
@@ -605,7 +726,6 @@ body {
 /* TOOLTIP SYSTEM                                          */
 /***********************************************************/
 
-/* מערכת ה-Tooltip להצגת רמזים והסברים */
 .tooltip-container {
   position: relative;
   display: flex;
@@ -627,7 +747,6 @@ body {
   pointer-events: none;
 }
 
-/* חלונית הפופאפ של ה-Tooltip */
 .tooltip-popup {
   position: absolute;
   bottom: 125%;
@@ -672,7 +791,6 @@ body {
 /* END SCREEN                                            */
 /***********************************************************/
 
-/* עיצוב מסך הסיום המוצג בסוף החידון */
 .end-screen {
   position: fixed;
   top: 0;
@@ -803,7 +921,6 @@ body {
 /* UI FEEDBACK & SPECIAL EFFECTS                                */
 /***********************************************************/
 
-/* הודעת "נגמר הזמן" שמופיעה ליד הטיימר */
 .timer {
   position: relative;
 }
@@ -827,8 +944,6 @@ body {
   opacity: 1;
   visibility: visible;
 }
-
-/* אפקט מיוחד עבור הטעות הראשונה: מסך כהה ובאנר הסבר */
 #darkOverlay {
   position: fixed;
   top: 0;
@@ -865,8 +980,6 @@ body {
   opacity: 1;
   transform: translateX(-50%);
 }
-
-/* סגנון עבור השיבוט של כפתור ההסבר (כדי שיבלוט מעל שכבת האפלה) */
 .explanation-clone {
   position: fixed;
   z-index: 1001;
@@ -879,7 +992,6 @@ body {
 /* DIFFICULTY SELECTION MODAL                                  */
 /***********************************************************/
 
-/* מודאל (חלון קופץ) לבחירת רמת קושי */
 .difficulty-modal-overlay {
   position: fixed;
   top: 0;
@@ -918,7 +1030,6 @@ body {
 /* COMPLETION SLOTS (CODE & ANSWER)                               */
 /***********************************************************/
 
-/* עיצוב ה"חריצים" הריקים בתוך הקוד, שעליהם יש ללחוץ */
 .code-slot {
   display: inline-flex;
   justify-content: center;
@@ -945,7 +1056,6 @@ body {
   transform: scale(1.1);
 }
 
-/* עיצוב החריצים בתשובות, שמציגים את הבחירה של המשתמש */
 .answer-slot {
   display: inline-flex;
   align-items: center;
@@ -980,7 +1090,6 @@ body {
   line-height: 1.4;
 }
 
-/* אפקטי הדגשה (highlight) עבור החריצים בקוד ובתשובות */
 .answer-slot.highlight {
   border-color: var(--primary-color-light);
   border-style: solid;
@@ -996,7 +1105,6 @@ body {
 /* MISC & FIXES                                            */
 /***********************************************************/
 
-/* תיקון קטן למנוע הצגה כפולה של סוגריים ב-Prism.js במקרים מסוימים */
 .token.punctuation:has(
     + .token.punctuation
       + .token.number

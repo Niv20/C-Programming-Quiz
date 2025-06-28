@@ -1,11 +1,3 @@
-<!--
-חחחח אני לא מאמין שהיה מישהו משועמם מספיק שנכנס לראות את הקוד
-(מצד שני, בתור המשועמם הראשי שהכין את האתר, אין לי זכות דיבור)
-בקיצור, בהצלחה מבחן
-אם כבר הגעת לכאן, אז כאן נמצאים כל הסודות הכמוסים שלי:
-https://www.youtube.com/watch?v=dQw4w9WgXcQ
--->
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
   <head>
@@ -46,18 +38,10 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
         <p class="welcome-subtitle">בחר את הנושא שעליו תרצה להיבחן</p>
         <div class="topic-container" id="topicContainer"></div>
       </div>
-      <div class="how-to-play">
-        <h3 class="instructions-title">קיצורי מקשים למגניבים</h3>
-        <ul class="instructions-list">
-          <li>
-            <span class="key-display">1</span> -
-            <span class="key-display">6</span>
-            לבחירת תשובה
-          </li>
-          <li><span class="key-display">Enter</span> לבדיקה ולמעבר שאלה</li>
-          <li><span class="key-display">H</span> לקבלת רמז</li>
-        </ul>
-      </div>
+
+      <button id="settingsBtn" class="settings-toggle-btn">
+        <i class="fas fa-cog"></i> הגדרות והוראות
+      </button>
     </div>
 
     <div class="container" id="mainContainer">
@@ -125,6 +109,9 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
         <p class="restart-text">כדי לנסות שוב, יש לרענן את הדף</p>
       </div>
     </div>
+
+    <div id="settingsOverlay" class="settings-overlay"></div>
+    <div id="settingsPanelContainer"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
