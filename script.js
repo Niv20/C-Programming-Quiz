@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", initializeApp);
 document.addEventListener("keydown", handleKeyPress);
 window.addEventListener("resize", () => {
   if (!isDeviceMobile) {
-    if (window.innerWidth < 1200 || window.innerHeight < 700) {
+    if (window.innerWidth < 1024 || window.innerHeight < 600) {
       document.getElementById("pleaseEnlargeScreen").style.display = "flex";
     } else {
       document.getElementById("pleaseEnlargeScreen").style.display = "none";
@@ -149,7 +149,7 @@ function initializeApp() {
     document.getElementById("mobileBlocker").style.display = "flex";
     return;
   }
-  if (window.innerWidth < 1200 || window.innerHeight < 700) {
+  if (window.innerWidth < 1024 || window.innerHeight < 600) {
     document.getElementById("pleaseEnlargeScreen").style.display = "flex";
   }
   document.addEventListener("click", handleGlobalClick);
@@ -904,7 +904,7 @@ function showEndScreen() {
     endIconContainer.innerHTML = '<i class="fas fa-check-circle"></i>';
     endMessage.textContent = "כל הכבוד!";
     endScoreDetails.textContent = `צדקת ב־${score} מתוך ${totalQuestions} שאלות`;
-  } else if (percentage >= 30) {
+  } else if (percentage >= 20) {
     endIconContainer.innerHTML = '<i class="fas fa-thumbs-up"></i>';
     endMessage.textContent = "עבודה טובה";
     endScoreDetails.textContent = `צדקת ב־${score} מתוך ${totalQuestions} שאלות`;

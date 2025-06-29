@@ -538,14 +538,17 @@ body {
   margin-bottom: 25px;
   line-height: 1.5;
 }
+
 .answers-container {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
+
 .answers-container.center-align-answers .answer-option {
   text-align: center;
 }
+
 .answer-option {
   background: var(--background-secondary);
   border: 2px solid var(--background-secondary);
@@ -1112,4 +1115,9 @@ body {
       + .token.punctuation
   ) {
   display: none;
+}
+
+.question-title,
+.answer-text {
+  white-space: pre-wrap;
 }
