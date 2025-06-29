@@ -298,8 +298,15 @@ body {
   transition: all 0.2s ease;
   font-size: 0.9rem;
 }
-.time-option.selected,
-.time-option:hover {
+/* צבע רקע שונה לריחוף (שאינו בחור) */
+.time-option:not(.selected):hover {
+  background-color: var(--background-hover);
+  border-color: var(--border -tertiary);
+  color: var(--text-muted);
+}
+
+/* הצבע הראשי רק עבור האפשרות שנבחרה */
+.time-option.selected {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: var(--text-primary);
@@ -327,6 +334,11 @@ body {
   height: 20px;
   border-radius: 50%;
   border: 1px solid var(--border-color);
+}
+/* חיווי ריחוף לאפשרויות הצבעים */
+.palette-option:not(.selected):hover {
+  border-color: var(--border-tertiary);
+  transition: border-color 0.5s ease;
 }
 .final-message {
   font-size: 0.9rem;
@@ -385,16 +397,18 @@ body {
 }
 .quiz-layout-grid {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: minmax(450px, 1.1fr) fit-content(800px);
   justify-content: center;
   align-items: stretch;
   gap: 20px;
-  width: auto;
+  width: 100%;
+  max-width: 1300px;
   margin: 0 auto;
   height: auto;
   max-height: min(750px, calc(100vh - 80px)) !important;
   transition: opacity 0.3s ease-out, transform 0.3s ease-out;
 }
+
 .quiz-layout-grid.fade-out {
   opacity: 0;
   transform: scale(0.95);
@@ -404,7 +418,7 @@ body {
   transform: scale(1);
 }
 .quiz-layout-grid.no-code-mode {
-  grid-template-columns: auto;
+  grid-template-columns: minmax(0, 850px);
 }
 .quiz-layout-grid.no-code-mode .code-card {
   display: none;
@@ -437,12 +451,10 @@ body {
   transition: height 0.4s ease, max-height 0.4s ease;
 }
 .quiz-card {
-  width: 700px;
+  width: 100%;
 }
 .code-card {
-  width: max-content;
-  min-width: 500px;
-  max-width: 800px;
+  width: 100%;
 }
 
 /***********************************************************/
@@ -631,7 +643,7 @@ body {
   -ms-overflow-style: none;
 }
 .code-block .scroll-wrapper {
-  padding: 2rem;
+  padding: 2rem, 2.5rem;
 }
 
 /*********************************/
