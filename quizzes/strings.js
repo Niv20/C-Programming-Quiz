@@ -8,11 +8,9 @@ const quizData = [
     putchar(**p + 1);
 }
 
-int main(int argc, char *argv[]) {
+void main(int argc, char *argv[]) {
     for (int i = 1; i < argc; i++)
         print(argv + i);
-
-    return 0;
 }`,
     question:
       "מה יהיה פלט התוכנית אם נפעיל אותה עם הארגומנטים הבאים `aaa eee iii`? (הסימן `↵` מייצג ירידת שורה)",
@@ -46,7 +44,7 @@ int main(int argc, char *argv[]) {
 
 void main() {
     char s[100] = { 0 };
-    foo( 4, 2, s);
+    foo(4, 2, s);
 }`,
     question: "מה יהיה תוכן המחרוזת `s` בסוף התכנית?",
     answers: [
@@ -126,7 +124,7 @@ void main() {
       "הפונקציה `f` היא פונקציה רקורסיבית, והפלט נוצר על ידי קריאות `printf` המבוצעות בין שתי קריאות רקורסיביות (בסדר המזכיר סריקת `in-order` של עץ). הדרך הטובה ביותר לפתור זאת היא לעקוב אחר עץ הקריאות.\n\nהקריאה הראשית `f('D','C','D')` מפעילה ענף רקורסיבי שמאלי (`f('B','C','D')`), מדפיסה `DCD`, ולאחר מכן מפעילה ענף ימני (`f('C','B','D')`). כל אחת מהקריאות הללו מתפצלת באופן דומה עד שתנאי העצירה (כאשר אחד הפרמטרים מגיע לערך `'A'`) מתקיים.\n\nכאשר עוקבים אחר סדר ההדפסה לפי סדר הביצוע, מתקבל השרשור הבא: תחילה `BCD`, אחריו `CBB`, לאחר מכן `DCD` מהקריאה הראשית, ולבסוף `CBD`. התוצאה הסופית המורכבת היא `BCDCBBDCDCBD`.",
   },
   {
-    code: `int main() {
+    code: `void main() {
 
     char student[100] = "Avi Lavie";
     char *teacher;
@@ -135,7 +133,6 @@ void main() {
     /* line 2*/ teacher = student;
     /* line 3*/ strcpy(student,"Albert Einstein");
     /* line 4*/ student = teacher;
-    return 0;
 }`,
     question: "אילו מהשורות 1-4 תקינות (מתקמפלות ואינן מכילות באגים):",
     answers: ["2 ו־3", "2 ו־4", "2, 3 ו־4", "1, 2 ו־4", "1 ,2 ו־3"],
@@ -157,7 +154,7 @@ void main() {
     foo(n-1, c, b, a);
 }
 
-int main() {
+void main() {
     foo(3, 'A', 'C', 'B');
 }`,
     question: "מה שמונת התווים הראשונים שיודפסו על המסך?",
@@ -183,12 +180,11 @@ int main() {
     }
 }
 
-int main(void) {
+void main(void) {
     char str1[] = "software"; 
     char str2[] = "project"; 
     bar(str2, str1); 
     printf("%s\\n", str1); 
-    return 0;
 }`,
     question: "מה יהיה הפלט של התכנית הבאה?",
     answers: [
@@ -214,10 +210,9 @@ char *funB() {
     return str;
 }
 
-int main() {
+void main() {
     printf("%s", funA());
     printf("%s", funB());
-    return 0;
 }`,
     question: "מה יהיה הפלט של התכנית הבאה?",
     answers: [
@@ -264,10 +259,9 @@ void f(char *s) {
     y++;
 }
 
-int main() {
+void main() {
     f(s);
     f(s + y);
-    return 0;
 }`,
     question: "מה יודפס על ידי הקריאה השנייה לפונקציה `f`?",
     answers: ["`5`", "`7`", "`4`", "`6`", "כל התשובות האחרות אינן נכונות"],

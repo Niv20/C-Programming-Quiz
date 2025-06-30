@@ -6,6 +6,7 @@ let answered = false;
 let timerInterval = null;
 let isDeviceMobile = false;
 let isFirstErrorOccurred = false;
+let isTransitioning = false;
 
 const palettes = {
   default: {
@@ -344,16 +345,19 @@ function showDifficultyModal(topic) {
 
 function setupScrollListeners() {
   const quizContent = document.getElementById("quizContent");
-  const codeBlock = document.getElementById("code-block");
+  const codeBlockEl = document.getElementById("code-block");
 
+  // Vertical scroll for quiz card
   if (quizContent) {
     quizContent.addEventListener("scroll", () =>
       handleScroll(quizContent, document.getElementById("quizCard"))
     );
   }
-  if (codeBlock) {
-    codeBlock.addEventListener("scroll", () =>
-      handleScroll(codeBlock, document.getElementById("codeCard"))
+
+  // Vertical scroll for code card
+  if (codeBlockEl) {
+    codeBlockEl.addEventListener("scroll", () =>
+      handleScroll(codeBlockEl, document.getElementById("codeCard"))
     );
   }
 }
@@ -506,12 +510,12 @@ function loadAndStartQuiz(quizFile) {
 function initQuiz() {
   sessionQuizData = JSON.parse(JSON.stringify(quizData));
 
-  // shuffleArray(sessionQuizData); // Shuffle is disabled
+  shuffleArray(sessionQuizData);
 
   sessionQuizData.forEach((question) => {
     if (question.answers) {
       const correctAnswerText = question.answers[question.correct];
-      // shuffleArray(question.answers);
+      shuffleArray(question.answers);
       question.correct = question.answers.indexOf(correctAnswerText);
     }
   });
@@ -674,7 +678,9 @@ function loadQuestion() {
     document.getElementById("timerOutMessage")?.classList.remove("visible");
     hideTooltipsAndListeners();
     document.getElementById("quizContent").scrollTop = 0;
-    document.getElementById("code-block").scrollTop = 0;
+    const codeBlock = document.getElementById("code-block");
+    if (codeBlock) codeBlock.scrollTop = 0;
+
     document.getElementById("currentQ").textContent = currentQuestion + 1;
 
     const codeDisplay = document.getElementById("codeDisplay");
@@ -760,6 +766,7 @@ function loadQuestion() {
       quizLayoutGrid.classList.remove("fade-in");
       checkScrollability();
       setupHighlightListeners();
+      isTransitioning = false;
     }, 300);
   }, 300);
 }
@@ -876,9 +883,12 @@ function selectAnswer(index) {
 }
 
 function handleNextAction() {
+  if (isTransitioning) return;
+
   if (!answered) {
     checkAnswer();
   } else {
+    isTransitioning = true;
     currentQuestion++;
     loadQuestion();
   }
@@ -890,7 +900,9 @@ function showEndScreen() {
   const endMessage = document.getElementById("endMessage");
   const endScoreDetails = document.getElementById("endScoreDetails");
   const totalQuestions = sessionQuizData.length;
-  const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+  let percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+
+  percentage = 0;
 
   endIconContainer.classList.remove("animate-pop");
   void endIconContainer.offsetWidth;
@@ -904,7 +916,7 @@ function showEndScreen() {
     endIconContainer.innerHTML = '<i class="fas fa-check-circle"></i>';
     endMessage.textContent = "כל הכבוד!";
     endScoreDetails.textContent = `צדקת ב־${score} מתוך ${totalQuestions} שאלות`;
-  } else if (percentage >= 20) {
+  } else if (percentage >= 25) {
     endIconContainer.innerHTML = '<i class="fas fa-thumbs-up"></i>';
     endMessage.textContent = "עבודה טובה";
     endScoreDetails.textContent = `צדקת ב־${score} מתוך ${totalQuestions} שאלות`;
@@ -914,7 +926,7 @@ function showEndScreen() {
     endScoreDetails.textContent =
       "טעית בכל־כך הרבה שאלות, שסטטיסטית היה עדיף שתנחש";
   } else {
-    endIconContainer.innerHTML = '<i class="fas fa-redo"></i>';
+    endIconContainer.innerHTML = '<i class="fas fa-face-angry"></i>';
     endMessage.textContent = "אתה עושה לי דווקא?";
     endScoreDetails.textContent = "בחייאת ראבק, אין סיכוי שבאמת טעית בהכל";
   }
