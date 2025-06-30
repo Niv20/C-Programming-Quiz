@@ -900,9 +900,7 @@ function showEndScreen() {
   const endMessage = document.getElementById("endMessage");
   const endScoreDetails = document.getElementById("endScoreDetails");
   const totalQuestions = sessionQuizData.length;
-  let percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
-
-  percentage = 0;
+  const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
 
   endIconContainer.classList.remove("animate-pop");
   void endIconContainer.offsetWidth;
