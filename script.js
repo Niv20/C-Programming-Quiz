@@ -984,78 +984,105 @@ function checkAnswer() {
 
     if (question.explanation) {
       document.getElementById("explanationContainer").innerHTML = `
-        <div class="tooltip-container ${
-          currentSettings.showExplanationAutomatically ? "visible" : ""
-        }">
+      <div class="tooltip-container">
           <button class="tooltip-btn">הסבר תשובה</button>
           <div class="tooltip-popup">${formatText(question.explanation)}</div>
         </div>`;
       attachTooltipListener("explanationContainer");
     }
+    // --- הדבק את הקוד החדש כאן ---
 
-    if (!isFirstErrorOccurred && currentSettings.showExplanationAutomatically) {
-      // Trigger banner only if auto-show is on
-      isFirstErrorOccurred = true;
+    // If an explanation exists, handle the logic for showing it.
+    if (question.explanation) {
+      // First, create the explanation button and tooltip (it starts hidden).
+      document.getElementById("explanationContainer").innerHTML = `
+        <div class="tooltip-container">
+            <button class="tooltip-btn">הסבר תשובה</button>
+            <div class="tooltip-popup">${formatText(question.explanation)}</div>
+        </div>`;
+      attachTooltipListener("explanationContainer");
 
-      const overlay = document.createElement("div");
-      overlay.id = "darkOverlay";
-      document.body.appendChild(overlay);
+      // NOW, DECIDE HOW TO SHOW IT:
 
-      const banner = document.createElement("div");
-      banner.id = "firstErrorBanner";
-      banner.style.whiteSpace = "pre-line";
-      banner.style.textAlign = "center";
-      banner.textContent =
-        "אופסי, נראה שבחרת את התשובה השגויה.\nלחץ על 'הסבר תשובה' כדי לעבור על הפתרון.";
-      document.body.appendChild(banner);
-
-      const originalExplanationContainer = document.querySelector(
-        "#explanationContainer .tooltip-container"
-      );
-      let clonedExplanationContainer = null;
-
-      if (originalExplanationContainer) {
-        originalExplanationContainer.style.visibility = "hidden";
-        clonedExplanationContainer =
-          originalExplanationContainer.cloneNode(true);
-        clonedExplanationContainer.classList.add("explanation-clone");
-        clonedExplanationContainer.style.visibility = "visible";
-        const originalRect =
-          originalExplanationContainer.getBoundingClientRect();
-        clonedExplanationContainer.style.left = originalRect.left + "px";
-        clonedExplanationContainer.style.top = originalRect.top + "px";
-        document.body.appendChild(clonedExplanationContainer);
-        clonedExplanationContainer.addEventListener("click", (e) => {
-          e.stopPropagation();
-          toggleTooltip(clonedExplanationContainer);
-        });
-      }
-
-      const hideErrorExperience = () => {
-        if (document.body.contains(overlay))
-          overlay.classList.remove("visible");
-        if (document.body.contains(banner)) banner.classList.remove("visible");
+      // SCENARIO 1: Auto-show setting is ON
+      if (currentSettings.showExplanationAutomatically) {
+        // If ON, simply open the explanation after a 1-second delay. No banner needed.
         setTimeout(() => {
-          if (document.body.contains(overlay)) overlay.remove();
-          if (document.body.contains(banner)) banner.remove();
-          if (clonedExplanationContainer) clonedExplanationContainer.remove();
-        }, 300);
+          const explanationContainer = document.querySelector(
+            "#explanationContainer .tooltip-container"
+          );
+          if (explanationContainer) {
+            explanationContainer.classList.add("visible");
+          }
+        }, 1000);
+
+        // SCENARIO 2: Auto-show setting is OFF, and it's the first mistake
+      } else if (!isFirstErrorOccurred) {
+        // If OFF, show the special banner to teach the user about the explanation button.
+        isFirstErrorOccurred = true;
+
+        const overlay = document.createElement("div");
+        overlay.id = "darkOverlay";
+        document.body.appendChild(overlay);
+
+        const banner = document.createElement("div");
+        banner.id = "firstErrorBanner";
+        banner.style.whiteSpace = "pre-line";
+        banner.style.textAlign = "center";
+        banner.textContent =
+          "אופסי, נראה שבחרת את התשובה השגויה.\nלחץ על 'הסבר תשובה' כדי לעבור על הפתרון.";
+        document.body.appendChild(banner);
+
+        const originalExplanationContainer = document.querySelector(
+          "#explanationContainer .tooltip-container"
+        );
+        let clonedExplanationContainer = null;
+
         if (originalExplanationContainer) {
-          originalExplanationContainer.style.visibility = "visible";
+          originalExplanationContainer.style.visibility = "hidden";
+          clonedExplanationContainer =
+            originalExplanationContainer.cloneNode(true);
+          clonedExplanationContainer.classList.add("explanation-clone");
+          clonedExplanationContainer.style.visibility = "visible";
+          const originalRect =
+            originalExplanationContainer.getBoundingClientRect();
+          clonedExplanationContainer.style.left = originalRect.left + "px";
+          clonedExplanationContainer.style.top = originalRect.top + "px";
+          document.body.appendChild(clonedExplanationContainer);
+          clonedExplanationContainer.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleTooltip(clonedExplanationContainer);
+          });
         }
-        document.removeEventListener("click", hideErrorExperience);
-        clearTimeout(timeoutId);
-      };
 
-      const timeoutId = setTimeout(hideErrorExperience, 4000);
-      setTimeout(() => {
-        document.addEventListener("click", hideErrorExperience);
-      }, 100);
+        const hideErrorExperience = () => {
+          if (document.body.contains(overlay))
+            overlay.classList.remove("visible");
+          if (document.body.contains(banner))
+            banner.classList.remove("visible");
 
-      setTimeout(() => {
-        overlay.classList.add("visible");
-        banner.classList.add("visible");
-      }, 10);
+          setTimeout(() => {
+            if (document.body.contains(overlay)) overlay.remove();
+            if (document.body.contains(banner)) banner.remove();
+            if (clonedExplanationContainer) clonedExplanationContainer.remove();
+          }, 300);
+          if (originalExplanationContainer) {
+            originalExplanationContainer.style.visibility = "visible";
+          }
+          document.removeEventListener("click", hideErrorExperience);
+          clearTimeout(timeoutId);
+        };
+
+        const timeoutId = setTimeout(hideErrorExperience, 4000);
+        setTimeout(() => {
+          document.addEventListener("click", hideErrorExperience);
+        }, 100);
+
+        setTimeout(() => {
+          overlay.classList.add("visible");
+          banner.classList.add("visible");
+        }, 10);
+      }
     }
   }
 
