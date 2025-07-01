@@ -532,20 +532,34 @@ function startTimer() {
   clearInterval(timerInterval);
   let timeLeft = currentSettings.timerDuration;
   const timerSpan = document.getElementById("timer");
+  const timerContainer = timerSpan.closest(".timer"); // Get the parent .timer element
+  const timerIcon = timerContainer.querySelector(".icon-purple"); // Get the icon
+
+  // Reset any previous states
+  timerContainer.style.animation = "";
+  timerContainer.classList.remove("critical-time");
+  timerIcon.classList.remove("fa-bomb");
+  timerIcon.classList.add("fa-clock");
 
   const update = () => {
     if (timeLeft < 0) {
       clearInterval(timerInterval);
       if (timerSpan) timerSpan.textContent = "00:00";
+      timerContainer.style.animation = ""; // Stop animation
+      timerContainer.classList.remove("critical-time"); // Remove red text
+      timerIcon.classList.remove("fa-bomb"); // Remove bomb icon
+      timerIcon.classList.add("fa-clock"); // Restore clock icon
+
       const msgElement = document.getElementById("timerOutMessage");
       if (msgElement) {
-        msgElement.textContent = "נגמר הזמן!";
+        msgElement.textContent = "חחחח סתם רציתי להלחיץ, אין משמעות לטיימר";
         msgElement.classList.add("visible");
         setTimeout(() => msgElement.classList.remove("visible"), 4000);
       }
       handleNextAction();
       return;
     }
+
     if (timerSpan) {
       const minutes = Math.floor(timeLeft / 60);
       const seconds = timeLeft % 60;
@@ -553,6 +567,27 @@ function startTimer() {
         .toString()
         .padStart(2, "0")}`;
     }
+
+    // Timer flashing logic
+    if (timeLeft <= 30 && timeLeft > 10) {
+      timerContainer.style.animation =
+        "timerFlashWarning 1s infinite steps(2, start)"; // Constant 1-second flash
+      timerContainer.classList.remove("critical-time");
+      timerIcon.classList.remove("fa-bomb");
+      timerIcon.classList.add("fa-clock");
+    } else if (timeLeft <= 10) {
+      timerContainer.style.animation =
+        "timerFlashCritical 0.5s infinite steps(2, start)"; // Faster 0.5-second flash
+      timerContainer.classList.add("critical-time"); // Red text
+      timerIcon.classList.remove("fa-clock");
+      timerIcon.classList.add("fa-bomb"); // Bomb icon
+    } else {
+      timerContainer.style.animation = ""; // No animation
+      timerContainer.classList.remove("critical-time");
+      timerIcon.classList.remove("fa-bomb");
+      timerIcon.classList.add("fa-clock");
+    }
+
     timeLeft--;
   };
   update();

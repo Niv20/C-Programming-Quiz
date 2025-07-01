@@ -506,6 +506,35 @@ body {
   align-items: center;
   gap: 15px;
 }
+
+/* Timer Animations */
+@keyframes timerFlashWarning {
+  0% {
+    background-color: var(--background-secondary);
+  }
+  100% {
+    background-color: var(--code-slot-bg);
+  }
+}
+
+@keyframes timerFlashCritical {
+  0% {
+    background-color: var(--background-secondary);
+  }
+  100% {
+    background-color: var(--code-slot-bg);
+  }
+}
+
+/* Timer text color for critical phase */
+.timer.critical-time {
+  color: var(--incorrect-answer-border) !important; /* Red color for text */
+}
+
+.timer.critical-time .icon-purple {
+  color: var(--incorrect-answer-border) !important; /* Red color for icon */
+}
+
 .btn {
   background: var(--primary-color);
   color: var(--text-primary);
