@@ -627,24 +627,35 @@ function isLtrText(text) {
 }
 
 function loadAndStartQuiz(quizFile) {
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  loadingOverlay.classList.add("visible"); // הצג מסך טעינה מיד
+
   const oldScript = document.getElementById("quiz-data-script");
   if (oldScript) oldScript.remove();
 
   const script = document.createElement("script");
   script.src = quizFile;
   script.id = "quiz-data-script";
-  script.onload = () => {
+
+  script.onload = async () => {
     if (typeof quizData !== "undefined" && quizData.length > 0) {
-      showScreen("mainContainer");
+      initQuiz();
+      await loadQuestion(); // המתן לטעינת השאלה
+
+      loadingOverlay.classList.remove("visible"); // הסתר את מסך הטעינה
+      showScreen("mainContainer"); // הצג את מסך החידון המוכן
+
       const quizLayoutGrid = document.getElementById("quizLayoutGrid");
       quizLayoutGrid.classList.add("initial-load");
-      setTimeout(initQuiz, 50);
+      setTimeout(() => quizLayoutGrid.classList.remove("initial-load"), 400);
     } else {
+      loadingOverlay.classList.remove("visible");
       console.error("Failed to load quiz data from:", quizFile);
       alert("שגיאה בטעינת השאלון. אנא נסה שוב.");
     }
   };
   script.onerror = () => {
+    loadingOverlay.classList.remove("visible");
     console.error("Error loading script:", quizFile);
     alert("לא ניתן היה למצוא את קובץ השאלון.");
   };
@@ -668,8 +679,6 @@ function initQuiz() {
   score = 0;
   isFirstErrorOccurred = false;
   document.getElementById("totalQ").textContent = sessionQuizData.length;
-  loadQuestion();
-  quizLayoutGrid.classList.remove("initial-load");
 }
 
 function startTimer() {
@@ -844,110 +853,109 @@ function formatText(text) {
 }
 
 function loadQuestion() {
-  if (currentQuestion >= sessionQuizData.length) {
-    showEndScreen();
-    return;
-  }
+  return new Promise((resolve) => {
+    if (currentQuestion >= sessionQuizData.length) {
+      showEndScreen();
+      resolve(); // נפתור את ההבטחה גם במסך הסיום
+      return;
+    }
 
-  const question = sessionQuizData[currentQuestion];
-  const quizLayoutGrid = document.getElementById("quizLayoutGrid");
-  quizLayoutGrid.classList.add("fade-out");
+    const quizLayoutGrid = document.getElementById("quizLayoutGrid");
+    quizLayoutGrid.classList.add("fade-out");
 
-  setTimeout(() => {
-    document.getElementById("timerOutMessage")?.classList.remove("visible");
-    hideTooltipsAndListeners();
-    document.getElementById("quizContent").scrollTop = 0;
-    const codeBlock = document.getElementById("code-block");
-    if (codeBlock) codeBlock.scrollTop = 0;
+    setTimeout(() => {
+      document.getElementById("timerOutMessage")?.classList.remove("visible");
+      hideTooltipsAndListeners();
+      document.getElementById("quizContent").scrollTop = 0;
+      const codeBlock = document.getElementById("code-block");
+      if (codeBlock) codeBlock.scrollTop = 0;
 
-    document.getElementById("currentQ").textContent = currentQuestion + 1;
+      document.getElementById("currentQ").textContent = currentQuestion + 1;
 
-    const codeDisplay = document.getElementById("codeDisplay");
-    if (question.code && question.code.trim() !== "") {
-      quizLayoutGrid.classList.remove("no-code-mode");
+      const question = sessionQuizData[currentQuestion];
+      const codeDisplay = document.getElementById("codeDisplay");
+      if (question.code && question.code.trim() !== "") {
+        quizLayoutGrid.classList.remove("no-code-mode");
+        const rawCode = question.code;
+        const placeholderMap = new Map();
+        let placeholderCounter = 0;
+        const codeWithPlaceholders = rawCode.replace(
+          /\[\[\s*(\d+)\s*\]\]/g,
+          (match, slotId) => {
+            const placeholder = `SLOT_PLACEHOLDER_${placeholderCounter++}_END`;
+            placeholderMap.set(placeholder, slotId);
+            return placeholder;
+          }
+        );
+        const highlighted = Prism.highlight(
+          codeWithPlaceholders,
+          Prism.languages.c,
+          "c"
+        );
+        let finalHTML = highlighted;
+        placeholderMap.forEach((slotId, placeholder) => {
+          const slotHTML = `<span class="code-slot" data-slot-id="${slotId}">${slotId}</span>`;
+          finalHTML = finalHTML.replace(new RegExp(placeholder, "g"), slotHTML);
+        });
+        codeDisplay.innerHTML = finalHTML;
+      } else {
+        quizLayoutGrid.classList.add("no-code-mode");
+        codeDisplay.innerHTML = "";
+      }
 
-      const rawCode = question.code;
-      const placeholderMap = new Map();
-      let placeholderCounter = 0;
+      document.getElementById("hintContainer").innerHTML = "";
+      document.getElementById("explanationContainer").innerHTML = "";
 
-      const codeWithPlaceholders = rawCode.replace(
-        /\[\[\s*(\d+)\s*\]\]/g,
-        (match, slotId) => {
-          const placeholder = `SLOT_PLACEHOLDER_${placeholderCounter++}_END`;
-          placeholderMap.set(placeholder, slotId);
-          return placeholder;
-        }
+      if (question.hint) {
+        document.getElementById("hintContainer").innerHTML = `
+          <div class="tooltip-container">
+              <button class="tooltip-btn">רמז</button>
+              <div class="tooltip-popup">${formatText(question.hint)}</div>
+          </div>`;
+        attachTooltipListener("hintContainer");
+      }
+
+      document.getElementById("questionTitle").innerHTML = formatText(
+        question.question
       );
 
-      const highlighted = Prism.highlight(
-        codeWithPlaceholders,
-        Prism.languages.c,
-        "c"
-      );
-
-      let finalHTML = highlighted;
-      placeholderMap.forEach((slotId, placeholder) => {
-        const slotHTML = `<span class="code-slot" data-slot-id="${slotId}">${slotId}</span>`;
-        finalHTML = finalHTML.replace(new RegExp(placeholder, "g"), slotHTML);
+      const answersContainer = document.getElementById("answersContainer");
+      answersContainer.innerHTML = "";
+      question.answers.forEach((answer, index) => {
+        const option = document.createElement("div");
+        option.className = "answer-option";
+        if (isLtrText(answer)) option.classList.add("ltr-answer");
+        option.setAttribute("data-answer", index);
+        option.innerHTML = `<span class="answer-text">${formatText(
+          answer
+        )}</span>`;
+        option.addEventListener("click", () => selectAnswer(index));
+        answersContainer.appendChild(option);
       });
 
-      codeDisplay.innerHTML = finalHTML;
-    } else {
-      quizLayoutGrid.classList.add("no-code-mode");
-      codeDisplay.innerHTML = "";
-    }
+      if (answersContainer.querySelector(".answer-slot")) {
+        answersContainer.classList.add("center-align-answers");
+      } else {
+        answersContainer.classList.remove("center-align-answers");
+      }
 
-    document.getElementById("hintContainer").innerHTML = "";
-    document.getElementById("explanationContainer").innerHTML = "";
+      selectedAnswer = null;
+      answered = false;
+      document.getElementById("nextBtn").textContent = "בדיקה";
+      document.getElementById("nextBtn").disabled = true;
 
-    if (question.hint) {
-      document.getElementById("hintContainer").innerHTML = `
-        <div class="tooltip-container">
-            <button class="tooltip-btn">רמז</button>
-            <div class="tooltip-popup">${formatText(question.hint)}</div>
-        </div>`;
-      attachTooltipListener("hintContainer");
-    }
-
-    document.getElementById("questionTitle").innerHTML = formatText(
-      question.question
-    );
-
-    const answersContainer = document.getElementById("answersContainer");
-    answersContainer.innerHTML = "";
-    question.answers.forEach((answer, index) => {
-      const option = document.createElement("div");
-      option.className = "answer-option";
-      if (isLtrText(answer)) option.classList.add("ltr-answer");
-      option.setAttribute("data-answer", index);
-      option.innerHTML = `<span class="answer-text">${formatText(
-        answer
-      )}</span>`;
-      option.addEventListener("click", () => selectAnswer(index));
-      answersContainer.appendChild(option);
-    });
-
-    if (answersContainer.querySelector(".answer-slot")) {
-      answersContainer.classList.add("center-align-answers");
-    } else {
-      answersContainer.classList.remove("center-align-answers");
-    }
-
-    selectedAnswer = null;
-    answered = false;
-    document.getElementById("nextBtn").textContent = "בדיקה";
-    document.getElementById("nextBtn").disabled = true;
-
-    startTimer();
-    quizLayoutGrid.classList.remove("fade-out");
-    quizLayoutGrid.classList.add("fade-in");
-    setTimeout(() => {
-      quizLayoutGrid.classList.remove("fade-in");
-      checkScrollability();
-      setupHighlightListeners();
-      isTransitioning = false;
+      startTimer();
+      quizLayoutGrid.classList.remove("fade-out");
+      quizLayoutGrid.classList.add("fade-in");
+      setTimeout(() => {
+        quizLayoutGrid.classList.remove("fade-in");
+        checkScrollability();
+        setupHighlightListeners();
+        isTransitioning = false;
+        resolve(); // נפתור את ההבטחה רק אחרי שהכל באמת הסתיים
+      }, 300);
     }, 300);
-  }, 300);
+  });
 }
 
 function checkAnswer() {
@@ -1139,22 +1147,20 @@ async function fetchQuizData(quizFile) {
 }
 
 async function loadAndStartMixedQuiz(numQuestions) {
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  loadingOverlay.classList.add("visible"); // הצג מסך טעינה מיד
+
   try {
-    // 1. איסוף כל קבצי השאלונים
     const allFiles = quizTopics.flatMap((topic) =>
       topic.difficulties ? topic.difficulties.map((d) => d.file) : topic.file
     );
 
-    // 2. טעינת כל השאלות מכל הקבצים במקביל
     const allQuestionArrays = await Promise.all(
       allFiles.map((file) => fetchQuizData(file))
     );
 
-    // 3. איחוד כל השאלות למערך אחד גדול וערבוב שלו
     let allQuestions = allQuestionArrays.flat();
     shuffleArray(allQuestions);
-
-    // 4. בחירת מספר השאלות המבוקש
     const selectedQuestions = allQuestions.slice(0, numQuestions);
 
     if (selectedQuestions.length < numQuestions) {
@@ -1164,12 +1170,21 @@ async function loadAndStartMixedQuiz(numQuestions) {
     }
     if (selectedQuestions.length === 0) {
       alert("שגיאה: לא נמצאו שאלות זמינות.");
+      loadingOverlay.classList.remove("visible");
       return;
     }
 
-    // 5. התחלת המבחן עם השאלות שנבחרו
-    startQuizWithData(selectedQuestions);
+    startQuizWithData(selectedQuestions); // הכן את הנתונים
+    await loadQuestion(); // המתן לטעינת השאלה
+
+    loadingOverlay.classList.remove("visible"); // הסתר את מסך הטעינה
+    showScreen("mainContainer"); // הצג את מסך החידון המוכן
+
+    const quizLayoutGrid = document.getElementById("quizLayoutGrid");
+    quizLayoutGrid.classList.add("initial-load");
+    setTimeout(() => quizLayoutGrid.classList.remove("initial-load"), 400);
   } catch (error) {
+    loadingOverlay.classList.remove("visible");
     console.error("נכשל בטעינת קובץ אחד או יותר:", error);
     alert("שגיאה בטעינת קבצי השאלונים. אנא נסו שוב.");
   }
@@ -1178,7 +1193,6 @@ async function loadAndStartMixedQuiz(numQuestions) {
 function startQuizWithData(questions) {
   sessionQuizData = questions;
 
-  // ערבוב התשובות הפנימיות בכל שאלה
   sessionQuizData.forEach((question) => {
     if (question.answers) {
       const correctAnswerText = question.answers[question.correct];
@@ -1191,14 +1205,6 @@ function startQuizWithData(questions) {
   score = 0;
   isFirstErrorOccurred = false;
   document.getElementById("totalQ").textContent = sessionQuizData.length;
-
-  showScreen("mainContainer");
-  const quizLayoutGrid = document.getElementById("quizLayoutGrid");
-  quizLayoutGrid.classList.add("initial-load");
-  setTimeout(() => {
-    loadQuestion();
-    quizLayoutGrid.classList.remove("initial-load");
-  }, 50);
 }
 
 function showEndScreen() {

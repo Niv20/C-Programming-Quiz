@@ -1323,3 +1323,29 @@ input:checked + .slider:before {
 .answer-text {
   white-space: pre-wrap;
 }
+
+/***********************************************************/
+/* מסך טעינה                                            */
+/***********************************************************/
+
+#loadingOverlay {
+  display: none; /* מוסתר כברירת מחדל */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 10, 10, 0.85); /* רקע שחור חצי-שקוף */
+  z-index: 99999; /* תמיד הכי למעלה */
+  justify-content: center;
+  align-items: center;
+  color: var(--primary-color-light);
+  font-size: 3rem;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#loadingOverlay.visible {
+  display: flex;
+  opacity: 1;
+}
