@@ -111,6 +111,7 @@ const timerOptions = {
 let currentSettings = {
   theme: "default",
   timerDuration: 600,
+  numQuestions: "all",
   showExplanationAlways: false, // Default to false
   showExplanationAutomatically: false, // Default to false
 };
@@ -175,6 +176,7 @@ function loadSettings() {
     currentSettings = {
       theme: parsedSettings.theme ?? "default",
       timerDuration: parsedSettings.timerDuration ?? 600,
+      numQuestions: parsedSettings.numQuestions ?? "all",
       showExplanationAlways: parsedSettings.showExplanationAlways ?? false,
       showExplanationAutomatically:
         parsedSettings.showExplanationAutomatically ?? false,
@@ -201,6 +203,15 @@ function setTimer(duration, element) {
   currentSettings.timerDuration = parseInt(duration, 10);
   document
     .querySelectorAll(".time-option")
+    .forEach((opt) => opt.classList.remove("selected"));
+  element.classList.add("selected");
+  saveSettings();
+}
+
+function setQuestionAmount(amount, element) {
+  currentSettings.numQuestions = amount;
+  document
+    .querySelectorAll(".amount-option")
     .forEach((opt) => opt.classList.remove("selected"));
   element.classList.add("selected");
   saveSettings();
@@ -246,7 +257,7 @@ function buildSettingsPanel() {
 
   // 1. Timer
   let timerHTML = `<div class="settings-section">
-        <h3 class="settings-title">זמן טיימר לשאלה</h3>
+        <h3 class="settings-title">כמות זמן לכל שאלה</h3>
         <div class="settings-options-grid">`;
   for (const [seconds, text] of Object.entries(timerOptions)) {
     const isSelected =
@@ -255,7 +266,24 @@ function buildSettingsPanel() {
   }
   timerHTML += `</div></div>`;
 
-  // 2. Palettes
+  // 2. Number of Questions
+  const questionAmountOptions = {
+    3: "3 שאלות",
+    5: "5 שאלות",
+    7: "7 שאלות",
+    all: "כל השאלות",
+  };
+  let amountHTML = `<div class="settings-section">
+        <h3 class="settings-title">כמות שאלות בכל חידון</h3>
+        <div class="settings-options-grid">`;
+  for (const [amount, text] of Object.entries(questionAmountOptions)) {
+    const isSelected =
+      String(currentSettings.numQuestions) === amount ? "selected" : "";
+    amountHTML += `<button class="amount-option ${isSelected}" data-amount="${amount}">${text}</button>`;
+  }
+  amountHTML += `</div></div>`;
+
+  // 3. Palettes
   let paletteHTML = `<div class="settings-section">
         <h3 class="settings-title">פלטת צבעים</h3>
         <div class="settings-options-grid">`;
@@ -274,7 +302,7 @@ function buildSettingsPanel() {
   });
   paletteHTML += `</div></div>`;
 
-  // 3. Explanation Settings (New)
+  // 4. Explanation Settings
   let explanationSettingsHTML = `<div class="settings-section">
         <h3 class="settings-title">הסברים לתשובה</h3>
         <div class="settings-options-list">
@@ -301,15 +329,24 @@ function buildSettingsPanel() {
         </div>
     </div>`;
 
-  panel.innerHTML = [timerHTML, paletteHTML, explanationSettingsHTML].join(
-    "<hr>"
-  );
+  panel.innerHTML = [
+    timerHTML,
+    amountHTML,
+    paletteHTML,
+    explanationSettingsHTML,
+  ].join("<hr>");
 
   container.appendChild(panel);
 
   // Add event listeners for settings
   document.querySelectorAll(".time-option").forEach((btn) => {
     btn.addEventListener("click", () => setTimer(btn.dataset.duration, btn));
+  });
+
+  document.querySelectorAll(".amount-option").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      setQuestionAmount(btn.dataset.amount, btn)
+    );
   });
 
   document.querySelectorAll(".palette-option").forEach((opt) => {
@@ -368,7 +405,7 @@ function buildInstructionsPanel() {
         באתר הזה קיבצתי בערך 70 שאלות אמריקאיות מתוך 50 המבחנים האחרונים שמצאתי בדרייב.
         </p>
         <p>
-        כשאתם בוחרים נושא, יוצגו בפניכם ברצף כל השאלות שבמאגר הקשורות אליו. אם תעדיפו תרגול קצר יותר, תוכלו לשנות את מספר השאלות דרך ההגדרות.        </p>
+        כשאתם בוחרים נושא, יוצגו בפניכם כל השאלות שבמאגר הקשורות אליו. אם תעדיפו תרגול קצר יותר, תוכלו לשנות את מספר השאלות דרך ההגדרות.        </p>
         <p>
         אם נתקעתם, תוכלו להשתמש בכפתור ה"רמז" שנמצא בפינה הימנית למטה. במקרה של טעות, יופיע כפתור נוסף עם הסבר לתשובה (שנכתב בעזרת Ai, אז קחו אותו בערבון מוגבל). </p>        <hr>
         <p>
@@ -686,6 +723,14 @@ function initQuiz() {
   sessionQuizData = JSON.parse(JSON.stringify(quizData));
 
   shuffleArray(sessionQuizData);
+
+  // Slice the array based on settings
+  if (currentSettings.numQuestions !== "all") {
+    const num = parseInt(currentSettings.numQuestions, 10);
+    if (sessionQuizData.length > num) {
+      sessionQuizData = sessionQuizData.slice(0, num);
+    }
+  }
 
   sessionQuizData.forEach((question) => {
     if (question.answers) {

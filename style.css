@@ -238,7 +238,7 @@ body {
   animation: none; /* Remove existing animation */
 }
 
-p {
+.instructions-panel p {
   margin-bottom: 1em;
 }
 
@@ -316,7 +316,8 @@ p {
   flex-wrap: wrap;
   gap: 10px;
 }
-.time-option {
+.time-option,
+.amount-option {
   font-family: "Assistant", sans-serif;
   background-color: var(--background-secondary);
   color: var(--text-muted);
@@ -328,13 +329,15 @@ p {
   font-size: 0.9rem;
 }
 
-.time-option:not(.selected):hover {
+.time-option:not(.selected):hover,
+.amount-option:not(.selected):hover {
   background-color: var(--border-secondary);
   border-color: var(--border -tertiary);
   color: var(--text-muted);
 }
 
-.time-option.selected {
+.time-option.selected,
+.amount-option.selected {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: var(--text-primary);
