@@ -399,13 +399,11 @@ function buildTestPanel() {
   `;
   container.appendChild(panel);
 
-  // Add event listeners for test options (example, full logic not implemented yet)
   document.querySelectorAll("#testPanel .test-option-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      alert(
-        `בחרת במבחן של ${btn.dataset.numQuestions} שאלות. (לא מיושם עדיין)`
-      );
-      togglePanel("testPanel"); // Close panel after selection
+      const numQuestions = parseInt(btn.dataset.numQuestions, 10);
+      togglePanel("testPanel"); // סגור את הפאנל
+      loadAndStartMixedQuiz(numQuestions); // הפעל את לוגיקת הערבוב
     });
   });
 }
@@ -1115,6 +1113,94 @@ function handleNextAction() {
 }
 document.getElementById("nextBtn").onclick = handleNextAction;
 
+async function fetchQuizData(quizFile) {
+  try {
+    const response = await fetch(quizFile);
+    if (!response.ok) {
+      throw new Error(`שגיאת HTTP! סטטוס: ${response.status}`);
+    }
+    const scriptText = await response.text();
+
+    // ניצור פונקציה שמריצה את קוד השאלון באופן מבודד
+    // ומחזירה את המשתנה quizData מתוכו
+    const getData = new Function(`${scriptText}; return quizData;`);
+    const data = getData();
+
+    if (Array.isArray(data)) {
+      return data; // אין צורך בעותק עמוק כי אין משתנה גלובלי משותף
+    } else {
+      console.error("שגיאת פורמט נתונים בקובץ:", quizFile);
+      return [];
+    }
+  } catch (error) {
+    console.error(`נכשל בטעינה או ניתוח של קובץ ${quizFile}:`, error);
+    return []; // החזר מערך ריק כדי למנוע קריסה של כל התהליך
+  }
+}
+
+async function loadAndStartMixedQuiz(numQuestions) {
+  try {
+    // 1. איסוף כל קבצי השאלונים
+    const allFiles = quizTopics.flatMap((topic) =>
+      topic.difficulties ? topic.difficulties.map((d) => d.file) : topic.file
+    );
+
+    // 2. טעינת כל השאלות מכל הקבצים במקביל
+    const allQuestionArrays = await Promise.all(
+      allFiles.map((file) => fetchQuizData(file))
+    );
+
+    // 3. איחוד כל השאלות למערך אחד גדול וערבוב שלו
+    let allQuestions = allQuestionArrays.flat();
+    shuffleArray(allQuestions);
+
+    // 4. בחירת מספר השאלות המבוקש
+    const selectedQuestions = allQuestions.slice(0, numQuestions);
+
+    if (selectedQuestions.length < numQuestions) {
+      alert(
+        `שימו לב: נמצאו רק ${selectedQuestions.length} שאלות מתוך ה-${numQuestions} שביקשתם.`
+      );
+    }
+    if (selectedQuestions.length === 0) {
+      alert("שגיאה: לא נמצאו שאלות זמינות.");
+      return;
+    }
+
+    // 5. התחלת המבחן עם השאלות שנבחרו
+    startQuizWithData(selectedQuestions);
+  } catch (error) {
+    console.error("נכשל בטעינת קובץ אחד או יותר:", error);
+    alert("שגיאה בטעינת קבצי השאלונים. אנא נסו שוב.");
+  }
+}
+
+function startQuizWithData(questions) {
+  sessionQuizData = questions;
+
+  // ערבוב התשובות הפנימיות בכל שאלה
+  sessionQuizData.forEach((question) => {
+    if (question.answers) {
+      const correctAnswerText = question.answers[question.correct];
+      shuffleArray(question.answers);
+      question.correct = question.answers.indexOf(correctAnswerText);
+    }
+  });
+
+  currentQuestion = 0;
+  score = 0;
+  isFirstErrorOccurred = false;
+  document.getElementById("totalQ").textContent = sessionQuizData.length;
+
+  showScreen("mainContainer");
+  const quizLayoutGrid = document.getElementById("quizLayoutGrid");
+  quizLayoutGrid.classList.add("initial-load");
+  setTimeout(() => {
+    loadQuestion();
+    quizLayoutGrid.classList.remove("initial-load");
+  }, 50);
+}
+
 function showEndScreen() {
   const endIconContainer = document.getElementById("endIconContainer");
   const endMessage = document.getElementById("endMessage");
@@ -1134,7 +1220,7 @@ function showEndScreen() {
     endIconContainer.innerHTML = '<i class="fas fa-check-circle"></i>';
     endMessage.textContent = "כל הכבוד!";
     endScoreDetails.textContent = `צדקת ב־${score} מתוך ${totalQuestions} שאלות`;
-  } else if (percentage >= 25) {
+  } else if (percentage >= 30) {
     endIconContainer.innerHTML = '<i class="fas fa-thumbs-up"></i>';
     endMessage.textContent = "עבודה טובה";
     endScoreDetails.textContent = `צדקת ב־${score} מתוך ${totalQuestions} שאלות`;
