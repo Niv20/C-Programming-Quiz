@@ -45,9 +45,24 @@
         <div class="topic-container" id="topicContainer"></div>
       </div>
 
-      <button id="settingsBtn" class="settings-toggle-btn">
-        <i class="fas fa-cog"></i> הגדרות והוראות
-      </button>
+      <div class="welcome-footer-buttons">
+        <button id="settingsBtn" class="footer-btn" data-panel="settingsPanel">
+          <i class="fas fa-cog"></i>
+          <span>הגדרות</span>
+        </button>
+        <button
+          id="instructionsBtn"
+          class="footer-btn"
+          data-panel="instructionsPanel"
+        >
+          <i class="fas fa-info-circle"></i>
+          <span>הוראות</span>
+        </button>
+        <button id="testBtn" class="footer-btn" data-panel="testPanel">
+          <i class="fas fa-shuffle"></i>
+          <span>ערבוב</span>
+        </button>
+      </div>
     </div>
 
     <div class="container" id="mainContainer">
@@ -117,7 +132,10 @@
     </div>
 
     <div id="settingsOverlay" class="settings-overlay"></div>
-    <div id="settingsPanelContainer"></div>
+
+    <div id="settingsPanelContainer" class="panel-container"></div>
+    <div id="instructionsPanelContainer" class="panel-container"></div>
+    <div id="testPanelContainer" class="panel-container"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>

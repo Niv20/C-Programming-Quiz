@@ -7,6 +7,7 @@ let timerInterval = null;
 let isDeviceMobile = false;
 let isFirstErrorOccurred = false;
 let isTransitioning = false;
+let activePanel = null; // To keep track of the currently open panel
 
 const palettes = {
   default: {
@@ -110,6 +111,8 @@ const timerOptions = {
 let currentSettings = {
   theme: "default",
   timerDuration: 600,
+  showExplanationAlways: false, // Default to false
+  showExplanationAutomatically: false, // Default to false
 };
 
 const quizTopics = [
@@ -156,7 +159,7 @@ function initializeApp() {
   document.addEventListener("click", handleGlobalClick);
 
   loadSettings();
-  buildSettingsPanel();
+  buildPanels(); // Renamed and refactored
   initializeWelcomeScreen();
   setupScrollListeners();
 }
@@ -172,6 +175,9 @@ function loadSettings() {
     currentSettings = {
       theme: parsedSettings.theme ?? "default",
       timerDuration: parsedSettings.timerDuration ?? 600,
+      showExplanationAlways: parsedSettings.showExplanationAlways ?? false,
+      showExplanationAutomatically:
+        parsedSettings.showExplanationAutomatically ?? false,
     };
   }
   applyTheme(currentSettings.theme);
@@ -198,6 +204,36 @@ function setTimer(duration, element) {
     .forEach((opt) => opt.classList.remove("selected"));
   element.classList.add("selected");
   saveSettings();
+}
+
+// Function to toggle explanation settings
+function toggleSetting(settingName) {
+  // Toggle the internal setting value
+  currentSettings[settingName] = !currentSettings[settingName];
+  saveSettings();
+
+  // Explicitly update the visual state of the checkbox input
+  const toggleInput = document.getElementById(settingName);
+  if (toggleInput) {
+    toggleInput.checked = currentSettings[settingName];
+  }
+}
+
+function buildPanels() {
+  buildSettingsPanel();
+  buildInstructionsPanel();
+  buildTestPanel(); // New: Build test panel
+
+  // Attach event listeners to footer buttons
+  document
+    .querySelectorAll(".welcome-footer-buttons .footer-btn")
+    .forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const panelId = btn.dataset.panel;
+        togglePanel(panelId);
+      });
+    });
 }
 
 function buildSettingsPanel() {
@@ -238,42 +274,40 @@ function buildSettingsPanel() {
   });
   paletteHTML += `</div></div>`;
 
-  // 3. Shortcuts
-  let shortcutsHTML = `<div class="settings-section">
-        <div class="how-to-play">
-            <h3 class="settings-title">קיצורי מקשים למגניבים</h3>
-            <ul class="instructions-list">
-                <li><span class="key-display">1</span> - <span class="key-display">6</span> לבחירת תשובה</li>
-                <li><span class="key-display">Enter</span> לבדיקה ולמעבר שאלה</li>
-                <li><span class="key-display">H</span> לקבלת רמז</li>
-            </ul>
+  // 3. Explanation Settings (New)
+  let explanationSettingsHTML = `<div class="settings-section">
+        <h3 class="settings-title">הסברים לתשובה</h3>
+        <div class="settings-options-list">
+            <div class="settings-option-toggle" id="toggleAlwaysShowExplanation">
+                <span>הצגת האפשרות "הסבר פתרון", גם כאשר צודקים</span>
+                <label class="switch">
+                    <input type="checkbox" id="showExplanationAlways" ${
+                      currentSettings.showExplanationAlways ? "checked" : ""
+                    }>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="settings-option-toggle" id="toggleAutoShowExplanation">
+                <span>הצגת ההסבר באופן אוטומטי כאשר טועים</span>
+                <label class="switch">
+                    <input type="checkbox" id="showExplanationAutomatically" ${
+                      currentSettings.showExplanationAutomatically
+                        ? "checked"
+                        : ""
+                    }>
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
     </div>`;
 
-  // 4. Final Message
-  let messageHTML = `<div class="settings-section">
-        <p class="final-message">שיהיה המון בהצלחה במבחן, תנו בראש!<br>מקווה שהאתר עזר לכם להבין את החומר קצת יותר טוב.</p>
-    </div>`;
-
-  panel.innerHTML = [timerHTML, paletteHTML, shortcutsHTML, messageHTML].join(
+  panel.innerHTML = [timerHTML, paletteHTML, explanationSettingsHTML].join(
     "<hr>"
   );
+
   container.appendChild(panel);
 
-  // Add event listeners
-  const settingsBtn = document.getElementById("settingsBtn");
-  const overlay = document.getElementById("settingsOverlay");
-  const icon = settingsBtn.querySelector("i");
-  settingsBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isVisible = panel.classList.toggle("visible");
-    overlay.classList.toggle("visible", isVisible);
-    // Toggle the 'paused' class based on visibility
-    icon.classList.toggle("paused", isVisible);
-  });
-
-  panel.addEventListener("click", (e) => e.stopPropagation());
-
+  // Add event listeners for settings
   document.querySelectorAll(".time-option").forEach((btn) => {
     btn.addEventListener("click", () => setTimer(btn.dataset.duration, btn));
   });
@@ -284,6 +318,114 @@ function buildSettingsPanel() {
       saveSettings();
     });
   });
+
+  document
+    .getElementById("toggleAlwaysShowExplanation")
+    .addEventListener("click", (e) => {
+      const input = document.getElementById("showExplanationAlways");
+      const switchLabel = input.closest(".switch");
+
+      // Toggle manually ONLY if the click was NOT on the switch itself
+      if (!switchLabel.contains(e.target)) {
+        input.checked = !input.checked;
+      }
+
+      // Now, sync the setting with the final state of the checkbox
+      currentSettings.showExplanationAlways = input.checked;
+      saveSettings();
+    });
+
+  // Event listener for the "Auto Show Explanation" toggle
+  document
+    .getElementById("toggleAutoShowExplanation")
+    .addEventListener("click", (e) => {
+      const input = document.getElementById("showExplanationAutomatically");
+      const switchLabel = input.closest(".switch");
+
+      // Toggle manually ONLY if the click was NOT on the switch itself
+      if (!switchLabel.contains(e.target)) {
+        input.checked = !input.checked;
+      }
+
+      // Now, sync the setting with the final state of the checkbox
+      currentSettings.showExplanationAutomatically = input.checked;
+      saveSettings();
+    });
+}
+
+function buildInstructionsPanel() {
+  const container = document.getElementById("instructionsPanelContainer");
+  if (!container) return;
+
+  const panel = document.createElement("div");
+  panel.id = "instructionsPanel";
+  panel.className = "instructions-panel";
+
+  panel.innerHTML = `
+    <div class="panel-content">
+        <h3 class="settings-title">ברוכים הבאים!</h3>
+        <p>לורם איפסום</p>
+        <hr>
+        <div class="how-to-play">
+            <h3 class="settings-title">קיצורי מקשים למגניבים</h3>
+            <ul class="instructions-list">
+                <li><span class="key-display">1</span> - <span class="key-display">6</span> לבחירת תשובה</li>
+                <li><span class="key-display">Enter</span> לבדיקה ולמעבר שאלה</li>
+                <li><span class="key-display">H</span> לקבלת רמז</li>
+            </ul>
+        </div>
+    </div>
+  `;
+  container.appendChild(panel);
+}
+
+function buildTestPanel() {
+  const container = document.getElementById("testPanelContainer");
+  if (!container) return;
+
+  const panel = document.createElement("div");
+  panel.id = "testPanel";
+  panel.className = "test-panel";
+
+  panel.innerHTML = `
+    <div class="test-panel-content">
+        <h3 class="settings-title">כמה שאלות תרצה במבחן?</h3>
+        <div class="test-options-grid">
+            <button class="test-option-btn" data-num-questions="3">3 שאלות</button>
+            <button class="test-option-btn" data-num-questions="5">5 שאלות</button>
+            <button class="test-option-btn" data-num-questions="7">7 שאלות</button>
+        </div>
+    </div>
+  `;
+  container.appendChild(panel);
+
+  // Add event listeners for test options (example, full logic not implemented yet)
+  document.querySelectorAll("#testPanel .test-option-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      alert(
+        `בחרת במבחן של ${btn.dataset.numQuestions} שאלות. (לא מיושם עדיין)`
+      );
+      togglePanel("testPanel"); // Close panel after selection
+    });
+  });
+}
+
+function togglePanel(panelId) {
+  const panel = document.getElementById(panelId);
+  const overlay = document.getElementById("settingsOverlay"); // Reusing the overlay
+
+  if (!panel) return;
+
+  const isVisible = panel.classList.contains("visible");
+
+  // Close any currently active panel first
+  if (activePanel && activePanel !== panel) {
+    activePanel.classList.remove("visible");
+  }
+
+  panel.classList.toggle("visible", !isVisible);
+  overlay.classList.toggle("visible", !isVisible);
+  activePanel = isVisible ? null : panel; // Update active panel reference
 }
 
 function initializeWelcomeScreen() {
@@ -410,18 +552,14 @@ function handleGlobalClick(e) {
     hideTooltipsAndListeners();
   }
 
-  const settingsPanel = document.getElementById("settingsPanel");
   const overlay = document.getElementById("settingsOverlay");
-  const icon = document.querySelector("#settingsBtn i");
-
+  // Check if an active panel is open and the click is outside it
   if (
-    settingsPanel?.classList.contains("visible") &&
-    !e.target.closest("#settingsPanel") &&
-    !e.target.closest("#settingsBtn")
+    activePanel &&
+    !e.target.closest(`#${activePanel.id}`) &&
+    !e.target.closest(".footer-btn")
   ) {
-    settingsPanel.classList.remove("visible");
-    overlay.classList.remove("visible");
-    icon.classList.remove("paused");
+    togglePanel(activePanel.id); // Close the active panel
   }
 }
 
@@ -431,6 +569,14 @@ function handleKeyPress(e) {
   }
 
   const key = e.key.toLowerCase();
+
+  // Close active panel on Enter if a panel is open and Enter is not for quiz navigation
+  if (key === "enter" && activePanel) {
+    e.preventDefault();
+    togglePanel(activePanel.id);
+    return;
+  }
+
   if (key === "enter") {
     e.preventDefault();
     document.getElementById("nextBtn")?.click();
@@ -552,7 +698,7 @@ function startTimer() {
 
       const msgElement = document.getElementById("timerOutMessage");
       if (msgElement) {
-        msgElement.textContent = "חחחח סתם רציתי להלחיץ, אין משמעות לטיימר";
+        msgElement.textContent = "חחחח סתם רציתי להלחיץ, אין משמעות לשעון";
         msgElement.classList.add("visible");
         setTimeout(() => msgElement.classList.remove("visible"), 4000);
       }
@@ -571,13 +717,13 @@ function startTimer() {
     // Timer flashing logic
     if (timeLeft <= 30 && timeLeft > 10) {
       timerContainer.style.animation =
-        "timerFlashWarning 1s infinite steps(2, start)"; // Constant 1-second flash
+        "timerFlashWarning 1s infinite steps(2, start)";
       timerContainer.classList.remove("critical-time");
       timerIcon.classList.remove("fa-bomb");
       timerIcon.classList.add("fa-clock");
     } else if (timeLeft <= 10) {
       timerContainer.style.animation =
-        "timerFlashCritical 0.5s infinite steps(2, start)"; // Faster 0.5-second flash
+        "timerFlashCritical 0.5s infinite steps(2, start)";
       timerContainer.classList.add("critical-time"); // Red text
       timerIcon.classList.remove("fa-clock");
       timerIcon.classList.add("fa-bomb"); // Bomb icon
@@ -824,19 +970,31 @@ function checkAnswer() {
 
   if (selectedAnswer === question.correct) {
     score++;
+    // Show explanation if showExplanationAlways is true
+    if (currentSettings.showExplanationAlways && question.explanation) {
+      document.getElementById("explanationContainer").innerHTML = `
+        <div class="tooltip-container visible">
+          <button class="tooltip-btn">הסבר תשובה</button>
+          <div class="tooltip-popup">${formatText(question.explanation)}</div>
+        </div>`;
+      attachTooltipListener("explanationContainer");
+    }
   } else {
     options[selectedAnswer].classList.add("incorrect");
 
     if (question.explanation) {
       document.getElementById("explanationContainer").innerHTML = `
-        <div class="tooltip-container">
+        <div class="tooltip-container ${
+          currentSettings.showExplanationAutomatically ? "visible" : ""
+        }">
           <button class="tooltip-btn">הסבר תשובה</button>
           <div class="tooltip-popup">${formatText(question.explanation)}</div>
         </div>`;
       attachTooltipListener("explanationContainer");
     }
 
-    if (!isFirstErrorOccurred) {
+    if (!isFirstErrorOccurred && currentSettings.showExplanationAutomatically) {
+      // Trigger banner only if auto-show is on
       isFirstErrorOccurred = true;
 
       const overlay = document.createElement("div");
