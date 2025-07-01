@@ -364,8 +364,19 @@ function buildInstructionsPanel() {
   panel.innerHTML = `
     <div class="panel-content">
         <h3 class="settings-title">ברוכים הבאים!</h3>
-        <p>לורם איפסום</p>
+        <p>
+        באתר הזה קיבצתי בערך 70 שאלות אמריקאיות מתוך 50 המבחנים האחרונים שמצאתי בדרייב.
+        </p>
+        <p>
+        כשאתם בוחרים נושא, יוצגו בפניכם ברצף כל השאלות שבמאגר הקשורות אליו. אם תעדיפו תרגול קצר יותר, תוכלו לשנות את מספר השאלות דרך ההגדרות.        </p>
+        <p>
+        אם נתקעתם, תוכלו להשתמש בכפתור ה"רמז" שנמצא בפינה הימנית למטה. במקרה של טעות, יופיע כפתור נוסף עם הסבר לתשובה (שנכתב בעזרת Ai, אז קחו אותו בערבון מוגבל). </p>        <hr>
+        <p>
+        הניחו שכל קבצי ה־include הנדרשים קיימים וכל ההקצאות הדינמיות מצליחות. 
+        </p>
         <hr>
+        <p>
+        אמיצים? לחצו על כפתור ה"ערבוב" במסך הבית (שמאל למטה) כדי לקבל חידון עם מספר שאלות לבחירתכם, מכל הנושאים יחד. </p>        <hr>
         <div class="how-to-play">
             <h3 class="settings-title">קיצורי מקשים למגניבים</h3>
             <ul class="instructions-list">
@@ -714,7 +725,7 @@ function startTimer() {
 
       const msgElement = document.getElementById("timerOutMessage");
       if (msgElement) {
-        msgElement.textContent = "חחחח סתם רציתי להלחיץ, אין משמעות לשעון";
+        msgElement.textContent = "חחחח סתם רציתי להלחיץ, אין משמעות לטיימר";
         msgElement.classList.add("visible");
         setTimeout(() => msgElement.classList.remove("visible"), 4000);
       }
