@@ -402,10 +402,8 @@ int cmp(void *a, void *b) {
 }
 
 void main() {
-    
     // נתון המערך שבשאלה
     int **arr;
-
     // ... המערך הוקצה, הנתונים הוכנסו ...
 
     void *min = FindMin(arr, size, sizeof(int*), cmp);

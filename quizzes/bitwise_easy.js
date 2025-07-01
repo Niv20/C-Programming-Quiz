@@ -98,7 +98,7 @@ void f() {
 
 void main() {
     unsigned short x = 0x1357;
-    printf("%x", func(x, 3) );
+    printf("%x", func((x, 3) );
 }`,
     question:
       "בהנחה ש־unsigned short הוא בגודל של שני בתים (16 ביטים), מהו הפלט של התכנית הבאה?",
