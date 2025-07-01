@@ -654,9 +654,29 @@ input:checked + .slider:before {
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.95rem;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease; /* הסרנו את האופסיטי מכאן */
   font-family: "Assistant", sans-serif;
   font-weight: 700;
+}
+@keyframes expandWidth {
+  0% {
+    padding-left: 24px;
+    padding-right: 24px;
+    letter-spacing: normal;
+  }
+  50% {
+    padding-left: 26px;
+    padding-right: 26px;
+    letter-spacing: 0.5px;
+  }
+  100% {
+    padding-left: 24px;
+    padding-right: 24px;
+    letter-spacing: normal;
+  }
+}
+.button-pop {
+  animation: expandWidth 0.5s ease-in-out;
 }
 .btn:hover:not(:disabled) {
   background: var(--primary-color-light);
@@ -902,6 +922,11 @@ input:checked + .slider:before {
   pointer-events: none;
 }
 
+.tooltip-btn.active {
+  background-color: var(--secondary-color-dark); /* או כל צבע פעיל אחר שתרצה */
+  color: var(--text-color-light);
+}
+
 .tooltip-popup {
   position: absolute;
   bottom: 125%;
@@ -942,6 +967,12 @@ input:checked + .slider:before {
   margin-bottom: 0;
 }
 
+/* style.css */
+
+.tooltip-container:not(.disabled):hover .tooltip-btn,
+.tooltip-btn.active {
+  color: var(--primary-color-light);
+}
 /***********************************************************/
 /* END SCREEN                                            */
 /***********************************************************/

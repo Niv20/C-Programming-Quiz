@@ -536,15 +536,24 @@ function hideTooltipsAndListeners() {
     .querySelectorAll(".tooltip-container.visible")
     .forEach((container) => {
       container.classList.remove("visible");
+      // הסר את הקלאס הפעיל מהכפתור שבתוך התיבה שנסגרת
+      container.querySelector(".tooltip-btn")?.classList.remove("active");
     });
 }
 
 function toggleTooltip(container) {
-  const isVisible = container.classList.contains("visible");
-  hideTooltipsAndListeners();
-  container.classList.toggle("visible", !isVisible);
-}
+  // שמור את המצב הנוכחי של התיבה שעליה לחצו
+  const isCurrentlyVisible = container.classList.contains("visible");
 
+  // ראשית, סגור את כל שאר התיבות הפתוחות ובטל את הכפתורים שלהן
+  hideTooltipsAndListeners();
+
+  // כעת, הפוך את המצב של התיבה הנוכחית
+  if (!isCurrentlyVisible) {
+    container.classList.add("visible");
+    container.querySelector(".tooltip-btn")?.classList.add("active");
+  }
+}
 function handleGlobalClick(e) {
   if (!e.target.closest(".tooltip-container")) {
     hideTooltipsAndListeners();
@@ -1014,11 +1023,15 @@ function checkAnswer() {
       if (currentSettings.showExplanationAutomatically) {
         // If ON, simply open the explanation after a 1-second delay. No banner needed.
         setTimeout(() => {
-          const explanationContainer = document.querySelector(
+          const tooltipContainer = document.querySelector(
             "#explanationContainer .tooltip-container"
           );
-          if (explanationContainer) {
-            explanationContainer.classList.add("visible");
+          if (tooltipContainer) {
+            tooltipContainer.classList.add("visible");
+            const tooltipBtn = tooltipContainer.querySelector(".tooltip-btn");
+            if (tooltipBtn) {
+              tooltipBtn.classList.add("active");
+            }
           }
         }, 1000);
 
@@ -1092,9 +1105,22 @@ function checkAnswer() {
     }
   }
 
-  document.getElementById("nextBtn").textContent =
+  const nextBtn = document.getElementById("nextBtn");
+  const newText =
     currentQuestion === sessionQuizData.length - 1 ? "סיום" : "השאלה הבאה";
-  document.getElementById("nextBtn").disabled = false;
+  nextBtn.textContent = newText; // 1. שנה את הטקסט באופן מיידי
+
+  // 2. הפעל את אנימציית הגדילה
+  nextBtn.classList.add("button-pop");
+
+  // 3. הסר את קלאס האנימציה בסופה כדי שנוכל להפעילה שוב
+  nextBtn.addEventListener(
+    "animationend",
+    () => {
+      nextBtn.classList.remove("button-pop");
+    },
+    { once: true }
+  );
 }
 
 function selectAnswer(index) {
