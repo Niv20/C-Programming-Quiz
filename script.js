@@ -702,7 +702,7 @@ function startTimer() {
         msgElement.classList.add("visible");
         setTimeout(() => msgElement.classList.remove("visible"), 4000);
       }
-      handleNextAction();
+
       return;
     }
 
