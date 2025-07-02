@@ -5,7 +5,6 @@ let selectedAnswer = null;
 let answered = false;
 let timerInterval = null;
 let isDeviceMobile = false;
-let isFirstErrorOccurred = false;
 let isTransitioning = false;
 let activePanel = null;
 const backgroundMusic = document.getElementById("backgroundMusic");
@@ -1087,14 +1086,14 @@ function checkAnswer() {
   options[question.correct].classList.add("correct");
 
   if (selectedAnswer === question.correct) {
-    // 2. הפעלת סאונד של תשובה נכונה - רק אם ההגדרה פעילה
+    // 2. הפעלת סאונד של תשובה נכונה
     if (correctSound && currentSettings.playMusic) {
       correctSound.currentTime = 0;
       correctSound.play();
     }
 
     score++;
-    // Show explanation if showExplanationAlways is true
+    // הצגת הסבר אם ההגדרה הרלוונטית פעילה
     if (currentSettings.showExplanationAlways && question.explanation) {
       document.getElementById("explanationContainer").innerHTML = `
         <div class="tooltip-container visible">
@@ -1104,7 +1103,7 @@ function checkAnswer() {
       attachTooltipListener("explanationContainer");
     }
   } else {
-    // 3. הפעלת סאונד של תשובה שגויה - רק אם ההגדרה פעילה
+    // 3. הפעלת סאונד של תשובה שגויה
     if (incorrectSound && currentSettings.playMusic) {
       incorrectSound.currentTime = 0;
       incorrectSound.play();
@@ -1113,19 +1112,15 @@ function checkAnswer() {
     options[selectedAnswer].classList.add("incorrect");
 
     if (question.explanation) {
-      // First, create the explanation button and tooltip (it starts hidden).
       document.getElementById("explanationContainer").innerHTML = `
-        <div class="tooltip-container">
-            <button class="tooltip-btn">הסבר תשובה</button>
-            <div class="tooltip-popup">${formatText(question.explanation)}</div>
+      <div class="tooltip-container">
+          <button class="tooltip-btn">הסבר תשובה</button>
+          <div class="tooltip-popup">${formatText(question.explanation)}</div>
         </div>`;
       attachTooltipListener("explanationContainer");
 
-      // NOW, DECIDE HOW TO SHOW IT:
-
-      // SCENARIO 1: Auto-show setting is ON
+      // אם ההסבר צריך להיפתח אוטומטית, פתח אותו
       if (currentSettings.showExplanationAutomatically) {
-        // If ON, simply open the explanation after a 1-second delay. No banner needed.
         setTimeout(() => {
           const tooltipContainer = document.querySelector(
             "#explanationContainer .tooltip-container"
@@ -1138,73 +1133,6 @@ function checkAnswer() {
             }
           }
         }, 1000);
-
-        // SCENARIO 2: Auto-show setting is OFF, and it's the first mistake
-      } else if (!isFirstErrorOccurred) {
-        // If OFF, show the special banner to teach the user about the explanation button.
-        isFirstErrorOccurred = true;
-
-        const overlay = document.createElement("div");
-        overlay.id = "darkOverlay";
-        document.body.appendChild(overlay);
-
-        const banner = document.createElement("div");
-        banner.id = "firstErrorBanner";
-        banner.style.whiteSpace = "pre-line";
-        banner.style.textAlign = "center";
-        banner.textContent =
-          "אופסי, נראה שבחרת את התשובה השגויה.\nלחץ על 'הסבר תשובה' כדי לעבור על הפתרון.";
-        document.body.appendChild(banner);
-
-        const originalExplanationContainer = document.querySelector(
-          "#explanationContainer .tooltip-container"
-        );
-        let clonedExplanationContainer = null;
-
-        if (originalExplanationContainer) {
-          originalExplanationContainer.style.visibility = "hidden";
-          clonedExplanationContainer =
-            originalExplanationContainer.cloneNode(true);
-          clonedExplanationContainer.classList.add("explanation-clone");
-          clonedExplanationContainer.style.visibility = "visible";
-          const originalRect =
-            originalExplanationContainer.getBoundingClientRect();
-          clonedExplanationContainer.style.left = originalRect.left + "px";
-          clonedExplanationContainer.style.top = originalRect.top + "px";
-          document.body.appendChild(clonedExplanationContainer);
-          clonedExplanationContainer.addEventListener("click", (e) => {
-            e.stopPropagation();
-            toggleTooltip(clonedExplanationContainer);
-          });
-        }
-
-        const hideErrorExperience = () => {
-          if (document.body.contains(overlay))
-            overlay.classList.remove("visible");
-          if (document.body.contains(banner))
-            banner.classList.remove("visible");
-
-          setTimeout(() => {
-            if (document.body.contains(overlay)) overlay.remove();
-            if (document.body.contains(banner)) banner.remove();
-            if (clonedExplanationContainer) clonedExplanationContainer.remove();
-          }, 300);
-          if (originalExplanationContainer) {
-            originalExplanationContainer.style.visibility = "visible";
-          }
-          document.removeEventListener("click", hideErrorExperience);
-          clearTimeout(timeoutId);
-        };
-
-        const timeoutId = setTimeout(hideErrorExperience, 4000);
-        setTimeout(() => {
-          document.addEventListener("click", hideErrorExperience);
-        }, 100);
-
-        setTimeout(() => {
-          overlay.classList.add("visible");
-          banner.classList.add("visible");
-        }, 10);
       }
     }
   }
@@ -1224,7 +1152,6 @@ function checkAnswer() {
     { once: true }
   );
 }
-
 function selectAnswer(index) {
   if (answered) return;
   hideTooltipsAndListeners();
