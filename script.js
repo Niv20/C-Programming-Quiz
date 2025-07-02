@@ -307,7 +307,7 @@ function buildSettingsPanel() {
         <h3 class="settings-title">הסברים לתשובה</h3>
         <div class="settings-options-list">
             <div class="settings-option-toggle" id="toggleAlwaysShowExplanation">
-                <span>הצגת האפשרות "הסבר פתרון", גם כאשר צודקים</span>
+                <span>הצגת האפשרות "הסבר תשובה", גם כאשר צודקים</span>
                 <label class="switch">
                     <input type="checkbox" id="showExplanationAlways" ${
                       currentSettings.showExplanationAlways ? "checked" : ""
