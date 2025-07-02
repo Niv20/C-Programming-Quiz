@@ -200,8 +200,8 @@ body {
 .welcome-footer-buttons {
   display: flex;
   gap: 20px;
-  margin-top: 40px; /* Space from topic container */
-  padding-bottom: 40px; /* Padding for the very bottom */
+  margin-top: 20px; /* Space from topic container */
+  padding-bottom: 20px; /* Padding for the very bottom */
 }
 
 .welcome-main-content,

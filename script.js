@@ -67,11 +67,9 @@ const timerOptions = {
 
 // Default settings
 let currentSettings = {
-  theme: "default",
+  theme: "blue",
   timerDuration: 600,
   numQuestions: "all",
-  showExplanationAlways: false,
-  showExplanationAutomatically: false,
   playMusic: false,
 };
 
@@ -136,9 +134,6 @@ function loadSettings() {
       theme: parsedSettings.theme ?? "default",
       timerDuration: parsedSettings.timerDuration ?? 600,
       numQuestions: parsedSettings.numQuestions ?? "all",
-      showExplanationAlways: parsedSettings.showExplanationAlways ?? false,
-      showExplanationAutomatically:
-        parsedSettings.showExplanationAutomatically ?? false,
       playMusic: parsedSettings.playMusic ?? false,
     };
   }
@@ -175,19 +170,6 @@ function setQuestionAmount(amount, element) {
     .forEach((opt) => opt.classList.remove("selected"));
   element.classList.add("selected");
   saveSettings();
-}
-
-// Function to toggle explanation settings
-function toggleSetting(settingName) {
-  // Toggle the internal setting value
-  currentSettings[settingName] = !currentSettings[settingName];
-  saveSettings();
-
-  // Explicitly update the visual state of the checkbox input
-  const toggleInput = document.getElementById(settingName);
-  if (toggleInput) {
-    toggleInput.checked = currentSettings[settingName];
-  }
 }
 
 /**
@@ -290,7 +272,7 @@ function buildSettingsPanel() {
     3: "3 שאלות",
     5: "5 שאלות",
     7: "7 שאלות",
-    all: "כל השאלות",
+    all: "כל השאלות שבמאגר",
   };
   let amountHTML = `<div class="settings-section">
         <h3 class="settings-title">כמות שאלות בכל חידון</h3>
@@ -304,7 +286,7 @@ function buildSettingsPanel() {
 
   // 3. Palettes
   let paletteHTML = `<div class="settings-section">
-        <h3 class="settings-title">פלטת צבעים</h3>
+        <h3 class="settings-title">בחירת צבע האתר</h3>
         <div class="settings-options-grid">`;
   Object.entries(palettes).forEach(([key, palette], index) => {
     const isSelected = key === currentSettings.theme ? "selected" : "";
@@ -321,34 +303,7 @@ function buildSettingsPanel() {
   });
   paletteHTML += `</div></div>`;
 
-  // 4. Explanation Settings
-  let explanationSettingsHTML = `<div class="settings-section">
-        <h3 class="settings-title">הסברים לתשובה</h3>
-        <div class="settings-options-list">
-            <div class="settings-option-toggle" id="toggleAlwaysShowExplanation">
-                <span>הצגת האפשרות "הסבר תשובה" כאשר צודקים</span>
-                <label class="switch">
-                    <input type="checkbox" id="showExplanationAlways" ${
-                      currentSettings.showExplanationAlways ? "checked" : ""
-                    }>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="settings-option-toggle" id="toggleAutoShowExplanation">
-                <span>הצגת ההסבר באופן אוטומטי כאשר טועים</span>
-                <label class="switch">
-                    <input type="checkbox" id="showExplanationAutomatically" ${
-                      currentSettings.showExplanationAutomatically
-                        ? "checked"
-                        : ""
-                    }>
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </div>
-    </div>`;
-
-  // 5. Music Setting
+  // 4. Music Setting
   let musicSettingHTML = `<div class="settings-section">
         <h3 class="settings-title">מוזיקה</h3>
         <div class="settings-options-list">
@@ -364,13 +319,9 @@ function buildSettingsPanel() {
         </div>
     </div>`;
 
-  panel.innerHTML = [
-    timerHTML,
-    amountHTML,
-    paletteHTML,
-    musicSettingHTML,
-    explanationSettingsHTML,
-  ].join("<hr>");
+  panel.innerHTML = [paletteHTML, timerHTML, amountHTML, musicSettingHTML].join(
+    "<hr>"
+  );
 
   container.appendChild(panel);
 
@@ -391,38 +342,6 @@ function buildSettingsPanel() {
       saveSettings();
     });
   });
-
-  document
-    .getElementById("toggleAlwaysShowExplanation")
-    .addEventListener("click", (e) => {
-      const input = document.getElementById("showExplanationAlways");
-      const switchLabel = input.closest(".switch");
-
-      // Toggle manually ONLY if the click was NOT on the switch itself
-      if (!switchLabel.contains(e.target)) {
-        input.checked = !input.checked;
-      }
-
-      // Now, sync the setting with the final state of the checkbox
-      currentSettings.showExplanationAlways = input.checked;
-      saveSettings();
-    });
-
-  document
-    .getElementById("toggleAutoShowExplanation")
-    .addEventListener("click", (e) => {
-      const input = document.getElementById("showExplanationAutomatically");
-      const switchLabel = input.closest(".switch");
-
-      // Toggle manually ONLY if the click was NOT on the switch itself
-      if (!switchLabel.contains(e.target)) {
-        input.checked = !input.checked;
-      }
-
-      // Now, sync the setting with the final state of the checkbox
-      currentSettings.showExplanationAutomatically = input.checked;
-      saveSettings();
-    });
 
   // --- New Easter Egg Logic ---
   const musicToggle = document.getElementById("togglePlayMusic");
@@ -1152,10 +1071,10 @@ function checkAnswer() {
     }
 
     score++;
-    // הצגת הסבר אם ההגדרה הרלוונטית פעילה
-    if (currentSettings.showExplanationAlways && question.explanation) {
+    // הצגת הסבר אם קיים
+    if (question.explanation) {
       document.getElementById("explanationContainer").innerHTML = `
-        <div class="tooltip-container visible">
+        <div class="tooltip-container">
           <button class="tooltip-btn">הסבר תשובה</button>
           <div class="tooltip-popup">${formatText(question.explanation)}</div>
         </div>`;
@@ -1177,22 +1096,6 @@ function checkAnswer() {
           <div class="tooltip-popup">${formatText(question.explanation)}</div>
         </div>`;
       attachTooltipListener("explanationContainer");
-
-      // אם ההסבר צריך להיפתח אוטומטית, פתח אותו
-      if (currentSettings.showExplanationAutomatically) {
-        setTimeout(() => {
-          const tooltipContainer = document.querySelector(
-            "#explanationContainer .tooltip-container"
-          );
-          if (tooltipContainer) {
-            tooltipContainer.classList.add("visible");
-            const tooltipBtn = tooltipContainer.querySelector(".tooltip-btn");
-            if (tooltipBtn) {
-              tooltipBtn.classList.add("active");
-            }
-          }
-        }, 1000);
-      }
     }
   }
 
