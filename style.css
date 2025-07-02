@@ -37,7 +37,6 @@
   --correct-answer-bg: rgba(16, 185, 129, 0.1);
   --incorrect-answer-border: #ef4444;
   --incorrect-answer-bg: rgba(239, 68, 68, 0.1);
-  --trophy-color: #f59e0b;
 
   /* --- Inline Code Snippets --- */
   --code-snippet-bg: #0d1117;
@@ -193,7 +192,7 @@ body {
 .topic-btn:hover {
   border-color: var(--primary-color);
   background: var(--background-hover);
-  transform: translateY(-5px);
+  transform: translateY(-3px);
   color: var(--text-primary);
 }
 
@@ -205,6 +204,11 @@ body {
   padding-bottom: 40px; /* Padding for the very bottom */
 }
 
+.welcome-main-content,
+.welcome-footer-buttons {
+  position: relative;
+  z-index: 1;
+}
 .footer-btn {
   background: none;
   border: none;
@@ -1294,6 +1298,118 @@ input:checked + .slider:before {
 .question-title,
 .answer-text {
   white-space: pre-wrap;
+}
+
+/***********************************************************/
+/* EASTER EGG STYLES                                       */
+/***********************************************************/
+
+/* Style for the Python confetti icons that will be created on click */
+.python-confetti {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+  font-size: 28px; /* הגדלת אייקוני הקונפטי */
+}
+
+/* The custom mouse follower element */
+#python-follower {
+  position: fixed;
+  pointer-events: none;
+  z-index: 100000;
+  font-size: 40px; /* אייקון עכבר גדול יותר */
+  opacity: 1;
+  /* ✅ שינוי: הוספנו אנימציה לתכונת הגודל (transform) */
+  transform: translate(-50%, -50%) scale(1);
+  transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28),
+    opacity 0.2s ease-out;
+}
+
+#python-follower.hidden {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+/* The moving gradient effect on the icon */
+#python-follower i {
+  background: linear-gradient(
+    var(--key-display-border),
+    var(--text-key-display)
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bg-icon {
+  position: fixed;
+  z-index: 1002;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0);
+  transform-origin: center center;
+  transition: transform 0.4s cubic-bezier(0.5, 0, 0.5, 1), opacity 0.4s ease;
+}
+
+#bg-icon-left {
+  left: 5%;
+}
+
+#bg-icon-right {
+  right: 5%;
+}
+
+/* כשמרחפים - ה-div החיצוני גדל ונעשה גלוי */
+.bg-icon:not(.hidden) {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ה-div הפנימי: אחראי על התנועה המתמדת */
+.bg-icon-inner {
+  font-size: 350px;
+  color: var(--key-display-bg);
+}
+
+/* הפעלת האנימציות רק על ה-div הפנימי */
+#bg-icon-left .bg-icon-inner {
+  animation: gentle-bob-left 8s ease-in-out infinite;
+}
+
+#bg-icon-right .bg-icon-inner {
+  animation: gentle-bob-right 8s ease-in-out infinite;
+}
+
+/* האנימציות עצמן - עכשיו הן רק מזיזות ומסובבות */
+@keyframes gentle-bob-left {
+  0%,
+  100% {
+    transform: rotate(-25deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-20deg) translateY(20px);
+  }
+}
+
+@keyframes gentle-bob-right {
+  0%,
+  100% {
+    transform: rotate(15deg) translateY(0);
+  }
+  50% {
+    transform: rotate(20deg) translateY(-20px);
+  }
 }
 
 /***********************************************************/

@@ -12,92 +12,48 @@ const correctSound = document.getElementById("correctSound");
 const incorrectSound = document.getElementById("incorrectSound");
 
 const palettes = {
-  default: {
-    name: "סגול ברירת מחדל",
-    colors: {
-      "--primary-color": "#8b5cf6",
-      "--primary-color-light": "#a78bfa",
-      "--text-key-display": "#c4b5fd",
-      "--key-display-bg": "#a78bfa26",
-      "--key-display-border": "#8b5cf666",
-      "--selected-answer-bg": "#2a203f",
-    },
-  },
-  ocean: {
-    name: "כחול אוקיינוס",
+  blue: {
+    name: "כחול קלאסי",
     colors: {
       "--primary-color": "#3b82f6",
       "--primary-color-light": "#60a5fa",
       "--text-key-display": "#bfdbfe",
       "--key-display-bg": "#60a5fa26",
       "--key-display-border": "#3b82f666",
-      "--selected-answer-bg": "#1e293b",
+      "--selected-answer-bg": "#22334f",
     },
   },
-  forest: {
-    name: "ירוק יער",
+  Purple: {
+    name: "סגול",
     colors: {
-      "--primary-color": "#2dd4bf",
-      "--primary-color-light": "#5eead4",
-      "--text-key-display": "#a7f3d0",
-      "--key-display-bg": "#5eead426",
-      "--key-display-border": "#2dd4bf66",
-      "--selected-answer-bg": "#11302d",
+      "--primary-color": "#8b5cf6",
+      "--primary-color-light": "#a78bfa",
+      "--text-key-display": "#c4b5fd",
+      "--key-display-bg": "#a78bfa26",
+      "--key-display-border": "#8b5cf666",
+      "--selected-answer-bg": "#30254d",
     },
   },
-  sunset: {
-    name: "כתום שקיעה",
+  bubblegum: {
+    name: "ורוד מסטיק",
+    colors: {
+      "--primary-color": "#fb6f92",
+      "--primary-color-light": "#ffb3c6",
+      "--text-key-display": "#ffe0ec",
+      "--key-display-bg": "#ffb3c626",
+      "--key-display-border": "#fb6f9266",
+      "--selected-answer-bg": "#412630",
+    },
+  },
+  orange: {
+    name: "כתום נועז",
     colors: {
       "--primary-color": "#f97316",
       "--primary-color-light": "#fb923c",
       "--text-key-display": "#fed7aa",
       "--key-display-bg": "#fb923c26",
       "--key-display-border": "#f9731666",
-      "--selected-answer-bg": "#431407",
-    },
-  },
-  indigo: {
-    name: "כחול אינדיגו",
-    colors: {
-      "--primary-color": "#6366f1",
-      "--primary-color-light": "#818cf8",
-      "--text-key-display": "#c7d2fe",
-      "--key-display-bg": "#818cf826",
-      "--key-display-border": "#6366f166",
-      "--selected-answer-bg": "#222349",
-    },
-  },
-  fuchsia: {
-    name: "ורוד פוקסיה",
-    colors: {
-      "--primary-color": "#d946ef",
-      "--primary-color-light": "#e879f9",
-      "--text-key-display": "#f5d0fe",
-      "--key-display-bg": "#e879f926",
-      "--key-display-border": "#d946ef66",
-      "--selected-answer-bg": "#3e1342",
-    },
-  },
-  amber: {
-    name: "צהוב ענבר",
-    colors: {
-      "--primary-color": "#f59e0b",
-      "--primary-color-light": "#fbbf24",
-      "--text-key-display": "#fde68a",
-      "--key-display-bg": "#fbbf2426",
-      "--key-display-border": "#f59e0b66",
-      "--selected-answer-bg": "#422006",
-    },
-  },
-  slate: {
-    name: "אפור צפחה",
-    colors: {
-      "--primary-color": "#64748b",
-      "--primary-color-light": "#94a3b8",
-      "--text-key-display": "#e2e8f0",
-      "--key-display-bg": "#94a3b826",
-      "--key-display-border": "#64748b66",
-      "--selected-answer-bg": "#1e293b",
+      "--selected-answer-bg": "#402c20",
     },
   },
 };
@@ -234,6 +190,65 @@ function toggleSetting(settingName) {
   }
 }
 
+/**
+ * Creates a confetti-like explosion of Python icons from the cursor's position.
+ * @param {MouseEvent} e - The mouse event from the click.
+ */
+function createPythonConfetti(e) {
+  const confettiCount = 15; // יותר אייקונים
+  const style = getComputedStyle(document.documentElement);
+  const colors = [
+    style.getPropertyValue("--primary-color").trim(),
+    style.getPropertyValue("--primary-color-light").trim(),
+    style.getPropertyValue("--selected-answer-bg").trim(),
+  ];
+
+  for (let i = 0; i < confettiCount; i++) {
+    // Stagger the creation of each icon for a more dynamic effect
+    setTimeout(() => {
+      const confetti = document.createElement("i");
+      // שימוש באייקון הפייתון הנכון
+      confetti.className = "fa-brands fa-python python-confetti";
+
+      // Position the icon at the cursor's click location
+      confetti.style.left = e.clientX + "px";
+      confetti.style.top = e.clientY + "px";
+
+      // Assign a random color from the current theme's palette
+      confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+      document.body.appendChild(confetti);
+
+      // Define random animation parameters
+      const endX = (Math.random() - 0.5) * 400; // Horizontal travel
+      const endY = (Math.random() - 0.8) * 400; // Vertical travel (more upwards)
+      const rotation = Math.random() * 540;
+      const duration = 2500 + Math.random() * 1500; // תנועה איטית יותר
+
+      // Animate using the Web Animations API
+      const animation = confetti.animate(
+        [
+          { transform: "translate(0, 0) rotate(0deg)", opacity: 1 },
+          {
+            transform: `translate(${endX}px, ${endY}px) rotate(${rotation}deg)`,
+            opacity: 0,
+          },
+        ],
+        {
+          duration: duration,
+          easing: "cubic-bezier(0.1, 0.9, 0.2, 1)",
+          fill: "forwards",
+        }
+      );
+
+      // Remove the icon from the DOM after the animation completes
+      animation.onfinish = () => {
+        confetti.remove();
+      };
+    }, i * 60); // Stagger delay
+  }
+}
+
 function buildPanels() {
   buildSettingsPanel();
   buildInstructionsPanel();
@@ -338,7 +353,7 @@ function buildSettingsPanel() {
         <h3 class="settings-title">מוזיקה</h3>
         <div class="settings-options-list">
             <div class="settings-option-toggle" id="togglePlayMusic">
-                <span>נגן מוזיקת רקע במהלך שאלה (המלצה שלי להשאיר את זה סגור)</span>
+                <span>הפעלת מוזיקת רקע שתעשה לכם סיוטים בלילות</span>
                 <label class="switch">
                     <input type="checkbox" id="playMusic" ${
                       currentSettings.playMusic ? "checked" : ""
@@ -409,17 +424,61 @@ function buildSettingsPanel() {
       saveSettings();
     });
 
-  document.getElementById("togglePlayMusic").addEventListener("click", (e) => {
-    const input = document.getElementById("playMusic");
-    const switchLabel = input.closest(".switch");
+  // --- New Easter Egg Logic ---
+  const musicToggle = document.getElementById("togglePlayMusic");
+  const pythonFollower = document.getElementById("python-follower");
+  // ✅ תפיסת האלמנטים החדשים
+  const bgIconLeft = document.getElementById("bg-icon-left");
+  const bgIconRight = document.getElementById("bg-icon-right");
 
-    if (!switchLabel.contains(e.target)) {
-      input.checked = !input.checked;
-    }
+  if (musicToggle && pythonFollower) {
+    musicToggle.addEventListener("mouseenter", () => {
+      // --- ✅ לוגיקה חדשה לקביעת גובה רנדומלי ---
+      const randomBottom = Math.floor(Math.random() * 35) + 5; // יוצר מספר בין 5 ל-40
+      const randomTop = Math.floor(Math.random() * 35) + 5; // יוצר מספר בין 5 ל-40
 
-    currentSettings.playMusic = input.checked;
-    saveSettings();
-  });
+      // קביעת הגובה החדש לפני שהאייקונים מופיעים
+      bgIconLeft.style.bottom = `${randomBottom}%`;
+      bgIconLeft.style.top = `auto`; // איפוס הגדרת top למניעת התנגשות
+
+      bgIconRight.style.top = `${randomTop}%`;
+      bgIconRight.style.bottom = `auto`; // איפוס הגדרת bottom למניעת התנגשות
+
+      pythonFollower.classList.remove("hidden");
+      // ✅ הצגת אייקוני הרקע
+      bgIconLeft.classList.remove("hidden");
+      bgIconRight.classList.remove("hidden");
+      musicToggle.style.cursor = "none";
+    });
+
+    musicToggle.addEventListener("mouseleave", () => {
+      pythonFollower.classList.add("hidden");
+      // ✅ הסתרת אייקוני הרקע
+      bgIconLeft.classList.add("hidden");
+      bgIconRight.classList.add("hidden");
+      musicToggle.style.cursor = "auto";
+    });
+
+    musicToggle.addEventListener("mousemove", (e) => {
+      pythonFollower.style.left = `${e.clientX}px`;
+      pythonFollower.style.top = `${e.clientY}px`;
+    });
+
+    musicToggle.addEventListener("click", (e) => {
+      createPythonConfetti(e);
+
+      // Original logic for toggling the setting
+      const input = document.getElementById("playMusic");
+      const switchLabel = input.closest(".switch");
+
+      if (!switchLabel.contains(e.target)) {
+        input.checked = !input.checked;
+      }
+
+      currentSettings.playMusic = input.checked;
+      saveSettings();
+    });
+  }
 }
 
 function buildInstructionsPanel() {
