@@ -7,7 +7,10 @@ let timerInterval = null;
 let isDeviceMobile = false;
 let isFirstErrorOccurred = false;
 let isTransitioning = false;
-let activePanel = null; // To keep track of the currently open panel
+let activePanel = null;
+const backgroundMusic = document.getElementById("backgroundMusic");
+const correctSound = document.getElementById("correctSound");
+const incorrectSound = document.getElementById("incorrectSound");
 
 const palettes = {
   default: {
@@ -112,8 +115,9 @@ let currentSettings = {
   theme: "default",
   timerDuration: 600,
   numQuestions: "all",
-  showExplanationAlways: false, // Default to false
-  showExplanationAutomatically: false, // Default to false
+  showExplanationAlways: false,
+  showExplanationAutomatically: false,
+  playMusic: true,
 };
 
 const quizTopics = [
@@ -180,6 +184,7 @@ function loadSettings() {
       showExplanationAlways: parsedSettings.showExplanationAlways ?? false,
       showExplanationAutomatically:
         parsedSettings.showExplanationAutomatically ?? false,
+      playMusic: parsedSettings.playMusic ?? false,
     };
   }
   applyTheme(currentSettings.theme);
@@ -307,7 +312,7 @@ function buildSettingsPanel() {
         <h3 class="settings-title">הסברים לתשובה</h3>
         <div class="settings-options-list">
             <div class="settings-option-toggle" id="toggleAlwaysShowExplanation">
-                <span>הצגת האפשרות "הסבר תשובה", גם כאשר צודקים</span>
+                <span>הצגת האפשרות "הסבר תשובה" כאשר צודקים</span>
                 <label class="switch">
                     <input type="checkbox" id="showExplanationAlways" ${
                       currentSettings.showExplanationAlways ? "checked" : ""
@@ -329,10 +334,27 @@ function buildSettingsPanel() {
         </div>
     </div>`;
 
+  // 5. Music Setting
+  let musicSettingHTML = `<div class="settings-section">
+        <h3 class="settings-title">מוזיקה</h3>
+        <div class="settings-options-list">
+            <div class="settings-option-toggle" id="togglePlayMusic">
+                <span>נגן מוזיקת רקע במהלך שאלה (המלצה שלי להשאיר את זה סגור)</span>
+                <label class="switch">
+                    <input type="checkbox" id="playMusic" ${
+                      currentSettings.playMusic ? "checked" : ""
+                    }>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>`;
+
   panel.innerHTML = [
     timerHTML,
     amountHTML,
     paletteHTML,
+    musicSettingHTML,
     explanationSettingsHTML,
   ].join("<hr>");
 
@@ -372,7 +394,6 @@ function buildSettingsPanel() {
       saveSettings();
     });
 
-  // Event listener for the "Auto Show Explanation" toggle
   document
     .getElementById("toggleAutoShowExplanation")
     .addEventListener("click", (e) => {
@@ -388,6 +409,18 @@ function buildSettingsPanel() {
       currentSettings.showExplanationAutomatically = input.checked;
       saveSettings();
     });
+
+  document.getElementById("togglePlayMusic").addEventListener("click", (e) => {
+    const input = document.getElementById("playMusic");
+    const switchLabel = input.closest(".switch");
+
+    if (!switchLabel.contains(e.target)) {
+      input.checked = !input.checked;
+    }
+
+    currentSettings.playMusic = input.checked;
+    saveSettings();
+  });
 }
 
 function buildInstructionsPanel() {
@@ -1009,6 +1042,14 @@ function loadQuestion() {
       document.getElementById("nextBtn").textContent = "בדיקה";
       document.getElementById("nextBtn").disabled = true;
 
+      // הפעלת המוזיקה אם האפשרות פעילה
+      if (currentSettings.playMusic && backgroundMusic) {
+        // המשתמש ביצע אינטראקציה, לכן הניגון אמור לעבוד
+        backgroundMusic
+          .play()
+          .catch((e) => console.error("Audio play failed:", e));
+      }
+
       startTimer();
       quizLayoutGrid.classList.remove("fade-out");
       quizLayoutGrid.classList.add("fade-in");
@@ -1024,6 +1065,12 @@ function loadQuestion() {
 }
 
 function checkAnswer() {
+  // 1. עצירת מוזיקת הרקע
+  if (backgroundMusic) {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+  }
+
   if (selectedAnswer === null) return;
   clearInterval(timerInterval);
   answered = true;
@@ -1040,6 +1087,12 @@ function checkAnswer() {
   options[question.correct].classList.add("correct");
 
   if (selectedAnswer === question.correct) {
+    // 2. הפעלת סאונד של תשובה נכונה - רק אם ההגדרה פעילה
+    if (correctSound && currentSettings.playMusic) {
+      correctSound.currentTime = 0;
+      correctSound.play();
+    }
+
     score++;
     // Show explanation if showExplanationAlways is true
     if (currentSettings.showExplanationAlways && question.explanation) {
@@ -1051,19 +1104,14 @@ function checkAnswer() {
       attachTooltipListener("explanationContainer");
     }
   } else {
+    // 3. הפעלת סאונד של תשובה שגויה - רק אם ההגדרה פעילה
+    if (incorrectSound && currentSettings.playMusic) {
+      incorrectSound.currentTime = 0;
+      incorrectSound.play();
+    }
+
     options[selectedAnswer].classList.add("incorrect");
 
-    if (question.explanation) {
-      document.getElementById("explanationContainer").innerHTML = `
-      <div class="tooltip-container">
-          <button class="tooltip-btn">הסבר תשובה</button>
-          <div class="tooltip-popup">${formatText(question.explanation)}</div>
-        </div>`;
-      attachTooltipListener("explanationContainer");
-    }
-    // --- הדבק את הקוד החדש כאן ---
-
-    // If an explanation exists, handle the logic for showing it.
     if (question.explanation) {
       // First, create the explanation button and tooltip (it starts hidden).
       document.getElementById("explanationContainer").innerHTML = `
@@ -1164,12 +1212,10 @@ function checkAnswer() {
   const nextBtn = document.getElementById("nextBtn");
   const newText =
     currentQuestion === sessionQuizData.length - 1 ? "סיום" : "השאלה הבאה";
-  nextBtn.textContent = newText; // 1. שנה את הטקסט באופן מיידי
+  nextBtn.textContent = newText;
 
-  // 2. הפעל את אנימציית הגדילה
   nextBtn.classList.add("button-pop");
 
-  // 3. הסר את קלאס האנימציה בסופה כדי שנוכל להפעילה שוב
   nextBtn.addEventListener(
     "animationend",
     () => {
@@ -1290,6 +1336,12 @@ function startQuizWithData(questions) {
 }
 
 function showEndScreen() {
+  // הוספה חדשה: עצירת המוזיקה
+  if (backgroundMusic) {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+  }
+
   const endIconContainer = document.getElementById("endIconContainer");
   const endMessage = document.getElementById("endMessage");
   const endScoreDetails = document.getElementById("endScoreDetails");
