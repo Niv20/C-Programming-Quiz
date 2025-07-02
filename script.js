@@ -72,7 +72,7 @@ let currentSettings = {
   numQuestions: "all",
   showExplanationAlways: false,
   showExplanationAutomatically: false,
-  playMusic: true,
+  playMusic: false,
 };
 
 const quizTopics = [
