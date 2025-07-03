@@ -1326,7 +1326,7 @@ input:checked + .slider:before {
   /* ✅ שינוי: הוספנו אנימציה לתכונת הגודל (transform) */
   transform: translate(-50%, -50%) scale(1);
   transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28),
-    opacity 0.2s ease-out;
+    opacity 0.2s ease-out, top 0.05s ease-out, left 0.05s ease-out;
 }
 
 #python-follower.hidden {

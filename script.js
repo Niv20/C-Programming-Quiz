@@ -286,7 +286,7 @@ function buildSettingsPanel() {
 
   // 3. Palettes
   let paletteHTML = `<div class="settings-section">
-        <h3 class="settings-title">בחירת צבע האתר</h3>
+        <h3 class="settings-title">בחירת צבע לאתר</h3>
         <div class="settings-options-grid">`;
   Object.entries(palettes).forEach(([key, palette], index) => {
     const isSelected = key === currentSettings.theme ? "selected" : "";
@@ -294,7 +294,7 @@ function buildSettingsPanel() {
             <div class="palette-colors">
                 <span class="palette-color" style="background-color: ${palette.colors["--primary-color"]};"></span>
                 <span class="palette-color" style="background-color: ${palette.colors["--primary-color-light"]};"></span>
-                <span class="palette-color" style="background-color: ${palette.colors["--selected-answer-bg"]};"></span>
+                <span class="palette-color" style="background-color: ${palette.colors["--text-key-display"]};"></span>
             </div>
         </div>`;
     if ((index + 1) % 4 === 0 && index + 1 < Object.keys(palettes).length) {
