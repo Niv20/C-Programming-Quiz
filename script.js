@@ -713,7 +713,10 @@ function loadAndStartQuiz(quizFile) {
 
       const quizLayoutGrid = document.getElementById("quizLayoutGrid");
       quizLayoutGrid.classList.add("initial-load");
-      setTimeout(() => quizLayoutGrid.classList.remove("initial-load"), 400);
+      setTimeout(() => {
+        quizLayoutGrid.classList.remove("initial-load");
+        checkScrollability();
+      }, 400);
     } else {
       loadingOverlay.classList.remove("visible");
       console.error("Failed to load quiz data from:", quizFile);
@@ -927,6 +930,21 @@ function formatText(text) {
 }
 
 function loadQuestion() {
+  const quizCard = document.getElementById("quizCard");
+  const codeCard = document.getElementById("codeCard");
+  if (quizCard)
+    quizCard.classList.remove(
+      "is-scrollable",
+      "has-scrolled",
+      "scrolled-to-end"
+    );
+  if (codeCard)
+    codeCard.classList.remove(
+      "is-scrollable",
+      "has-scrolled",
+      "scrolled-to-end"
+    );
+
   return new Promise((resolve) => {
     if (currentQuestion >= sessionQuizData.length) {
       showEndScreen();

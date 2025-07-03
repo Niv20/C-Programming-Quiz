@@ -793,7 +793,6 @@ input:checked + .slider:before {
   flex-grow: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  position: relative;
   min-height: 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -842,7 +841,7 @@ input:checked + .slider:before {
   top: 69px;
   background: linear-gradient(
     to bottom,
-    var(--card-background) 40%,
+    var(--card-background) 20%,
     transparent 100%
   );
 }
