@@ -272,7 +272,7 @@ function buildSettingsPanel() {
     3: "3 שאלות",
     5: "5 שאלות",
     7: "7 שאלות",
-    all: "כל השאלות שבמאגר",
+    all: "כל השאלות בנושא",
   };
   let amountHTML = `<div class="settings-section">
         <h3 class="settings-title">כמות שאלות בכל חידון</h3>
