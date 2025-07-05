@@ -345,48 +345,42 @@ function buildSettingsPanel() {
 
   // --- New Easter Egg Logic ---
   const musicToggle = document.getElementById("togglePlayMusic");
-  const pythonFollower = document.getElementById("python-follower");
-  // ✅ תפיסת האלמנטים החדשים
+  const fingerFollower = document.getElementById("finger-follower");
   const bgIconLeft = document.getElementById("bg-icon-left");
   const bgIconRight = document.getElementById("bg-icon-right");
 
-  if (musicToggle && pythonFollower) {
+  if (musicToggle && fingerFollower) {
     musicToggle.addEventListener("mouseenter", () => {
-      // --- ✅ לוגיקה חדשה לקביעת גובה רנדומלי ---
-      const randomBottom = Math.floor(Math.random() * 35) + 5; // יוצר מספר בין 5 ל-40
-      const randomTop = Math.floor(Math.random() * 35) + 5; // יוצר מספר בין 5 ל-40
+      const randomBottom = Math.floor(Math.random() * 35) + 5;
+      const randomTop = Math.floor(Math.random() * 35) + 5;
 
-      // קביעת הגובה החדש לפני שהאייקונים מופיעים
       bgIconLeft.style.bottom = `${randomBottom}%`;
-      bgIconLeft.style.top = `auto`; // איפוס הגדרת top למניעת התנגשות
+      bgIconLeft.style.top = `auto`;
 
       bgIconRight.style.top = `${randomTop}%`;
-      bgIconRight.style.bottom = `auto`; // איפוס הגדרת bottom למניעת התנגשות
+      bgIconRight.style.bottom = `auto`;
 
-      pythonFollower.classList.remove("hidden");
-      // ✅ הצגת אייקוני הרקע
+      fingerFollower.classList.remove("hidden");
       bgIconLeft.classList.remove("hidden");
       bgIconRight.classList.remove("hidden");
       musicToggle.style.cursor = "none";
     });
 
     musicToggle.addEventListener("mouseleave", () => {
-      pythonFollower.classList.add("hidden");
-      // ✅ הסתרת אייקוני הרקע
+      fingerFollower.classList.add("hidden");
       bgIconLeft.classList.add("hidden");
       bgIconRight.classList.add("hidden");
       musicToggle.style.cursor = "auto";
     });
 
     musicToggle.addEventListener("mousemove", (e) => {
-      pythonFollower.style.left = `${e.clientX}px`;
-      pythonFollower.style.top = `${e.clientY}px`;
+      fingerFollower.style.left = `${e.clientX}px`;
+      fingerFollower.style.top = `${e.clientY}px`;
     });
 
     musicToggle.addEventListener("click", (e) => {
       createPythonConfetti(e);
 
-      // Original logic for toggling the setting
       const input = document.getElementById("playMusic");
       const switchLabel = input.closest(".switch");
 

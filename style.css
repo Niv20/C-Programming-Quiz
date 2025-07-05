@@ -1312,47 +1312,25 @@ input:checked + .slider:before {
   position: fixed;
   z-index: 99999;
   pointer-events: none;
-  font-size: 28px; /* הגדלת אייקוני הקונפטי */
+  font-size: 28px;
 }
 
 /* The custom mouse follower element */
-#python-follower {
+#finger-follower {
   position: fixed;
   pointer-events: none;
   z-index: 100000;
-  font-size: 40px; /* אייקון עכבר גדול יותר */
+  width: 50px;
+  height: auto;
   opacity: 1;
-  /* ✅ שינוי: הוספנו אנימציה לתכונת הגודל (transform) */
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-20%, -10%) scale(1);
   transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28),
     opacity 0.2s ease-out, top 0.05s ease-out, left 0.05s ease-out;
 }
 
-#python-follower.hidden {
+#finger-follower.hidden {
   opacity: 0;
-  transform: translate(-50%, -50%) scale(0);
-}
-
-/* The moving gradient effect on the icon */
-#python-follower i {
-  background: linear-gradient(
-    var(--key-display-border),
-    var(--text-key-display)
-  );
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: spin 4s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  transform: translate(-20%, -10%) scale(0);
 }
 
 .bg-icon {
