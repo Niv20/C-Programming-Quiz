@@ -1323,14 +1323,15 @@ input:checked + .slider:before {
   width: 50px;
   height: auto;
   opacity: 1;
-  transform: translate(-20%, -10%) scale(1);
+  filter: drop-shadow(0 5px 15px var(--border-tertiary));
+  transform: translate(-40%, -40%) scale(1);
   transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28),
-    opacity 0.2s ease-out, top 0.05s ease-out, left 0.05s ease-out;
+    opacity 0.2s ease-out;
 }
 
 #finger-follower.hidden {
   opacity: 0;
-  transform: translate(-20%, -10%) scale(0);
+  transform: translate(-40%, -40%) scale(0);
 }
 
 .bg-icon {
