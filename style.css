@@ -784,6 +784,7 @@ input:checked + .slider:before {
   border: 1px solid var(--code-snippet-border);
   direction: ltr;
   display: inline-block;
+  vertical-align: middle;
 }
 
 .answer-text {
