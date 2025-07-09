@@ -969,7 +969,7 @@ input:checked + .slider:before {
   text-align: right;
   transform: translateY(10px);
   width: max-content;
-  max-width: 750px;
+  max-width: 600px;
 }
 .tooltip-container:not(.disabled):hover .tooltip-btn {
   color: var(--primary-color-light);
