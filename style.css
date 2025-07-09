@@ -1307,6 +1307,14 @@ input:checked + .slider:before {
   white-space: pre-wrap;
 }
 
+.overline {
+  text-decoration: none; /* Remove any default underline/overline */
+  border-top: 2px solid currentColor; /* Use the current text color for the line */
+  padding-top: 1px; /* Adjust spacing between the letter and the line */
+  display: inline-block; /* Ensures the border applies correctly */
+  line-height: 1; /* Prevents extra vertical space */
+}
+
 /***********************************************************/
 /* EASTER EGG STYLES                                       */
 /***********************************************************/
