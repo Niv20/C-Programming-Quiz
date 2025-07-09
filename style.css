@@ -841,6 +841,7 @@ input:checked + .slider:before {
   transition: opacity 0.3s ease;
   opacity: 0;
   z-index: 5;
+  border-radius: inherit;
 }
 .quiz-card::before {
   top: 69px;
@@ -857,6 +858,7 @@ input:checked + .slider:before {
     var(--card-background) 20%,
     transparent 100%
   );
+  border-radius: inherit;
 }
 .quiz-card::after {
   bottom: 77px;
