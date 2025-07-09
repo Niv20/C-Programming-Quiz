@@ -602,7 +602,6 @@ input:checked + .slider:before {
   flex-direction: column;
   position: relative;
   transition: height 0.4s ease, max-height 0.4s ease;
-  overflow: hidden;
 }
 .quiz-card {
   width: 100%;
