@@ -600,7 +600,6 @@ input:checked + .slider:before {
   max-height: inherit;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   position: relative;
   transition: height 0.4s ease, max-height 0.4s ease;
 }
@@ -629,13 +628,18 @@ input:checked + .slider:before {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 .controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid var(--border-color);
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
 }
+
 .question-counter,
 .timer {
   background: var(--background-secondary);
@@ -962,7 +966,7 @@ input:checked + .slider:before {
   text-align: right;
   transform: translateY(10px);
   width: max-content;
-  max-width: 450px;
+  max-width: 750px;
 }
 .tooltip-container:not(.disabled):hover .tooltip-btn {
   color: var(--primary-color-light);
