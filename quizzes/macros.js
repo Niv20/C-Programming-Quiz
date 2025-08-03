@@ -43,7 +43,7 @@ int main() {
     (*c)++;
     b = c + 1;
 
-    printf("%d\\n", mac(a[0], b));
+    printf("%d\\n", mac((a[0], b));
     return 0;
 }`,
     question: "מהו הפלט של התכנית הבאה?",
