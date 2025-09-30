@@ -3,7 +3,7 @@ const quizData = [
   {
     code: `void main() {
     int a[4][2] = {{1,2},{3,4},{5,6},{7,8}};
-    printf("%d %d \\n", *(a[2]+1), ,,DELETE_ME,, ,a[2][-2]);
+    printf("%d %d \\n", *(a[2]+1),,a[2][-2]);
 }`,
     question: "מהו הפלט של התכנית הבאה?",
     answers: [
