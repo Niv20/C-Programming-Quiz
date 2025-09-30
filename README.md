@@ -6,5 +6,5 @@
 
 בקיצור, בהצלחה מבחן!
 
-ואם כבר הגעת לכאן, אז כאן נמצאים כל הסודות הכמוסים שלי:
-https://www.youtube.com/watch?v=xvFZjo5PgG0&autoplay=1
+ואם כבר הגעת, אז [כאן נמצאים כל הסודות הכמוסים שלי](https://www.youtube.com/watch?v=xvFZjo5PgG0&autoplay=1
+)
