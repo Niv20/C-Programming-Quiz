@@ -7,4 +7,4 @@
 בקיצור, בהצלחה מבחן!
 
 ואם כבר הגעת לכאן, אז כאן נמצאים כל הסודות הכמוסים שלי:
-https://youtu.be/xvFZjo5PgG0?si=PdBIJqsP02JuKpO2
+https://www.youtube.com/watch?v=xvFZjo5PgG0&autoplay=1
