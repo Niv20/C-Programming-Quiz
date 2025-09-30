@@ -728,7 +728,7 @@ function loadAndStartQuiz(quizFile) {
 function initQuiz() {
   sessionQuizData = JSON.parse(JSON.stringify(quizData));
 
-  shuffleArray(sessionQuizData);
+  shuffleArray(sessionQuizData); //ניבניב!!! זאת השורה שאחראית על ערבוב סדר השאלות
 
   // Slice the array based on settings
   if (currentSettings.numQuestions !== "all") {
@@ -1188,7 +1188,7 @@ async function loadAndStartMixedQuiz(numQuestions) {
     );
 
     let allQuestions = allQuestionArrays.flat();
-    shuffleArray(allQuestions);
+    shuffleArray(allQuestions); //ניבניב!!! זאת השורה שאחראית על ערבוב סדר השאלות
     const selectedQuestions = allQuestions.slice(0, numQuestions);
 
     if (selectedQuestions.length < numQuestions) {
