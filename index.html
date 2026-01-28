@@ -5,7 +5,7 @@
 אם כבר הגעת לכאן, אז כאן נמצאים כל הסודות הכמוסים שלי:
 https://youtu.be/xvFZjo5PgG0?si=PdBIJqsP02JuKpO2
 -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="he" dir="rtl">
   <head>
     <meta charset="UTF-8" />
@@ -72,9 +72,30 @@ https://youtu.be/xvFZjo5PgG0?si=PdBIJqsP02JuKpO2
       <p>אתה לא באמת מצפה לראות משהו כשהמסך כל כך קטן, נכון?</p>
     </div>
 
+    <div id="welcomePopupOverlay" class="welcome-popup-overlay">
+      <div class="welcome-popup">
+        <h2 class="welcome-popup-title">שימו לב!</h2>
+        <p class="welcome-popup-text">
+          בעבר, שפת C נלמדה גם בקורס המבוא וגם בתכנות מתקדם, ולכן השאלות
+          האמריקאיות היו ברמה גבוהה יותר.
+        </p>
+        <p class="welcome-popup-text">
+          מכיוון שהיום קורס המבוא נלמד בפייתון וזה הקורס הראשון שלכם ב־C, סביר
+          להניח שהשאלות במבחן שלכם יהיו בדרגת קושי נמוכה יותר.
+        </p>
+        <p class="welcome-popup-text">
+          בקיצור, אל תכנסו לפאניקה אם אתם נתקלים בשאלות קצת מאתגרות. קשה
+          באימונים - קל בקרב!
+        </p>
+        <button id="welcomePopupBtn" class="welcome-popup-btn">
+          סבבה, אני מבין
+        </button>
+      </div>
+    </div>
+
     <div class="welcome-screen" id="welcomeScreen">
       <div class="welcome-main-content">
-        <h1 class="welcome-title">מאגר שאלות אמריקאיות</h1>
+        <h1 class="welcome-title">שאלות אמריקאיות ממבחני עבר</h1>
         <p class="welcome-subtitle">בחר את הנושא שעליו תרצה להיבחן</p>
         <div class="topic-container" id="topicContainer"></div>
       </div>

@@ -88,6 +88,68 @@ body {
   text-align: center;
   padding: 20px;
 }
+
+/* Welcome Popup */
+.welcome-popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 100000;
+  justify-content: center;
+  align-items: center;
+}
+
+.welcome-popup-overlay.show {
+  display: flex;
+}
+
+.welcome-popup {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 40px 50px;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.welcome-popup-title {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+.welcome-popup-text {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.welcome-popup-text:last-of-type {
+  margin-bottom: 30px;
+}
+
+.welcome-popup-btn {
+  background: var(--primary-color);
+  color: var(--text-primary);
+  border: none;
+  padding: 14px 40px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.welcome-popup-btn:hover {
+  background: var(--primary-color-light);
+  transform: translateY(-2px);
+}
 #pleaseEnlargeScreen i,
 #mobileBlocker i {
   font-size: 4rem;
@@ -140,7 +202,9 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
+  transition:
+    opacity 0.5s ease,
+    visibility 0.5s ease;
   opacity: 0;
   visibility: hidden;
   display: none;
@@ -219,12 +283,17 @@ body {
   cursor: pointer;
   padding: 15px 25px;
   border-radius: 8px;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease; /* הוסף transform */
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease; /* הוסף transform */
 }
 
 .footer-btn:hover {
@@ -560,7 +629,9 @@ input:checked + .slider:before {
   margin: 0 auto;
   height: auto;
   max-height: min(750px, calc(100vh - 80px)) !important;
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  transition:
+    opacity 0.3s ease-out,
+    transform 0.3s ease-out;
 }
 
 .quiz-layout-grid.fade-out {
@@ -601,7 +672,9 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: height 0.4s ease, max-height 0.4s ease;
+  transition:
+    height 0.4s ease,
+    max-height 0.4s ease;
 }
 .quiz-card {
   width: 100%;
@@ -962,7 +1035,10 @@ input:checked + .slider:before {
   line-height: 1.6;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, transform 0.2s ease, visibility 0.3s;
+  transition:
+    opacity 0.3s ease,
+    transform 0.2s ease,
+    visibility 0.3s;
   pointer-events: none;
   box-shadow: 0px -5px 25px var(--shadow-color);
   overflow-wrap: break-word;
@@ -1173,7 +1249,9 @@ input:checked + .slider:before {
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 #timerOutMessage.visible {
   opacity: 1;
@@ -1340,7 +1418,8 @@ input:checked + .slider:before {
   opacity: 1;
   filter: drop-shadow(0 5px 15px var(--border-tertiary));
   transform: translate(-40%, -40%) scale(1);
-  transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28),
+  transition:
+    transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28),
     opacity 0.2s ease-out;
 }
 
@@ -1356,7 +1435,9 @@ input:checked + .slider:before {
   opacity: 0;
   transform: scale(0);
   transform-origin: center center;
-  transition: transform 0.4s cubic-bezier(0.5, 0, 0.5, 1), opacity 0.4s ease;
+  transition:
+    transform 0.4s cubic-bezier(0.5, 0, 0.5, 1),
+    opacity 0.4s ease;
 }
 
 #bg-icon-left {

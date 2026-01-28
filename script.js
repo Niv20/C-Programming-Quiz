@@ -116,10 +116,42 @@ function initializeApp() {
   }
   document.addEventListener("click", handleGlobalClick);
 
+  // Show welcome popup if not already acknowledged
+  initWelcomePopup();
+
   loadSettings();
   buildPanels(); // Renamed and refactored
   initializeWelcomeScreen();
   setupScrollListeners();
+}
+
+function initWelcomePopup() {
+  const popupAcknowledged = localStorage.getItem("welcomePopupAcknowledged");
+  const overlay = document.getElementById("welcomePopupOverlay");
+  const btn = document.getElementById("welcomePopupBtn");
+
+  if (!popupAcknowledged) {
+    overlay.classList.add("show");
+
+    // Only close on button click
+    btn.addEventListener("click", () => {
+      localStorage.setItem("welcomePopupAcknowledged", "true");
+      overlay.classList.remove("show");
+    });
+
+    // Prevent closing by clicking outside
+    overlay.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+
+    // Prevent Enter key from closing
+    document.addEventListener("keydown", (e) => {
+      if (overlay.classList.contains("show") && e.key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+  }
 }
 
 function saveSettings() {
@@ -220,7 +252,7 @@ function createPythonConfetti(e) {
           duration: duration,
           easing: "cubic-bezier(0.1, 0.9, 0.2, 1)",
           fill: "forwards",
-        }
+        },
       );
 
       // Remove the icon from the DOM after the animation completes
@@ -320,7 +352,7 @@ function buildSettingsPanel() {
     </div>`;
 
   panel.innerHTML = [paletteHTML, timerHTML, amountHTML, musicSettingHTML].join(
-    "<hr>"
+    "<hr>",
   );
 
   container.appendChild(panel);
@@ -332,7 +364,7 @@ function buildSettingsPanel() {
 
   document.querySelectorAll(".amount-option").forEach((btn) => {
     btn.addEventListener("click", () =>
-      setQuestionAmount(btn.dataset.amount, btn)
+      setQuestionAmount(btn.dataset.amount, btn),
     );
   });
 
@@ -541,14 +573,14 @@ function setupScrollListeners() {
   // Vertical scroll for quiz card
   if (quizContent) {
     quizContent.addEventListener("scroll", () =>
-      handleScroll(quizContent, document.getElementById("quizCard"))
+      handleScroll(quizContent, document.getElementById("quizCard")),
     );
   }
 
   // Vertical scroll for code card
   if (codeBlockEl) {
     codeBlockEl.addEventListener("scroll", () =>
-      handleScroll(codeBlockEl, document.getElementById("codeCard"))
+      handleScroll(codeBlockEl, document.getElementById("codeCard")),
     );
   }
 }
@@ -837,19 +869,19 @@ function setupHighlightListeners() {
 
     slot.addEventListener("mouseenter", () => {
       const answerSlots = document.querySelectorAll(
-        `.answer-slot[data-slot-id="${slotId}"]`
+        `.answer-slot[data-slot-id="${slotId}"]`,
       );
       answerSlots.forEach((answerSlot) =>
-        answerSlot.classList.add("highlight")
+        answerSlot.classList.add("highlight"),
       );
     });
 
     slot.addEventListener("mouseleave", () => {
       const answerSlots = document.querySelectorAll(
-        `.answer-slot[data-slot-id="${slotId}"]`
+        `.answer-slot[data-slot-id="${slotId}"]`,
       );
       answerSlots.forEach((answerSlot) =>
-        answerSlot.classList.remove("highlight")
+        answerSlot.classList.remove("highlight"),
       );
     });
   });
@@ -861,7 +893,7 @@ function setupHighlightListeners() {
 
     slot.addEventListener("mouseenter", () => {
       const codeSlot = document.querySelector(
-        `.code-slot[data-slot-id="${slotId}"]`
+        `.code-slot[data-slot-id="${slotId}"]`,
       );
       if (codeSlot) {
         codeSlot.classList.add("highlight");
@@ -870,7 +902,7 @@ function setupHighlightListeners() {
 
     slot.addEventListener("mouseleave", () => {
       const codeSlot = document.querySelector(
-        `.code-slot[data-slot-id="${slotId}"]`
+        `.code-slot[data-slot-id="${slotId}"]`,
       );
       if (codeSlot) {
         codeSlot.classList.remove("highlight");
@@ -905,7 +937,7 @@ function formatText(text) {
       const placeholder = `__SLOT_PLACEHOLDER_${placeholderIndex++}__`;
       slotPlaceholders.set(placeholder, slotHTML);
       return placeholder;
-    }
+    },
   );
 
   processedText = processedText
@@ -930,13 +962,13 @@ function loadQuestion() {
     quizCard.classList.remove(
       "is-scrollable",
       "has-scrolled",
-      "scrolled-to-end"
+      "scrolled-to-end",
     );
   if (codeCard)
     codeCard.classList.remove(
       "is-scrollable",
       "has-scrolled",
-      "scrolled-to-end"
+      "scrolled-to-end",
     );
 
   return new Promise((resolve) => {
@@ -971,12 +1003,12 @@ function loadQuestion() {
             const placeholder = `SLOT_PLACEHOLDER_${placeholderCounter++}_END`;
             placeholderMap.set(placeholder, slotId);
             return placeholder;
-          }
+          },
         );
         const highlighted = Prism.highlight(
           codeWithPlaceholders,
           Prism.languages.c,
-          "c"
+          "c",
         );
         let finalHTML = highlighted;
         placeholderMap.forEach((slotId, placeholder) => {
@@ -1002,7 +1034,7 @@ function loadQuestion() {
       }
 
       document.getElementById("questionTitle").innerHTML = formatText(
-        question.question
+        question.question,
       );
 
       const answersContainer = document.getElementById("answersContainer");
@@ -1013,7 +1045,7 @@ function loadQuestion() {
         if (isLtrText(answer)) option.classList.add("ltr-answer");
         option.setAttribute("data-answer", index);
         option.innerHTML = `<span class="answer-text">${formatText(
-          answer
+          answer,
         )}</span>`;
         option.addEventListener("click", () => selectAnswer(index));
         answersContainer.appendChild(option);
@@ -1122,7 +1154,7 @@ function checkAnswer() {
     () => {
       nextBtn.classList.remove("button-pop");
     },
-    { once: true }
+    { once: true },
   );
 }
 function selectAnswer(index) {
@@ -1180,11 +1212,11 @@ async function loadAndStartMixedQuiz(numQuestions) {
 
   try {
     const allFiles = quizTopics.flatMap((topic) =>
-      topic.difficulties ? topic.difficulties.map((d) => d.file) : topic.file
+      topic.difficulties ? topic.difficulties.map((d) => d.file) : topic.file,
     );
 
     const allQuestionArrays = await Promise.all(
-      allFiles.map((file) => fetchQuizData(file))
+      allFiles.map((file) => fetchQuizData(file)),
     );
 
     let allQuestions = allQuestionArrays.flat();
@@ -1193,7 +1225,7 @@ async function loadAndStartMixedQuiz(numQuestions) {
 
     if (selectedQuestions.length < numQuestions) {
       alert(
-        `שימו לב: נמצאו רק ${selectedQuestions.length} שאלות מתוך ה-${numQuestions} שביקשתם.`
+        `שימו לב: נמצאו רק ${selectedQuestions.length} שאלות מתוך ה-${numQuestions} שביקשתם.`,
       );
     }
     if (selectedQuestions.length === 0) {
