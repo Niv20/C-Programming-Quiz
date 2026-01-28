@@ -233,6 +233,7 @@ body {
   font-size: 1.3rem;
   color: var(--text-secondary);
   margin-bottom: 40px;
+  margin-top: 15px;
 }
 .topic-container {
   display: grid;
